@@ -234,7 +234,16 @@ input{-webkit-user-select:text;user-select:text}
 
 /* extra missions, customizer */
 .xrow{margin-top:6px;font-size:11px;font-weight:700;color:var(--muted)}
-.xrow b{color:#e0a526;letter-spacing:1px}
+.xrow{display:flex;align-items:center;gap:6px}
+.xrow b{color:var(--text)}
+.xbar{flex:1;height:6px;border-radius:3px;background:var(--soft);overflow:hidden}
+.xbar i{display:block;height:100%;background:linear-gradient(90deg,#f2b93b,#e0a526);transition:width 1s}
+.vrows{display:grid;gap:6px;margin:12px 0}
+.vrow{display:grid;grid-template-columns:120px 1fr;gap:10px;padding:10px 12px;border-radius:10px;background:var(--soft);font-size:13.5px}
+.vrow span{color:var(--muted);font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 2px;font-size:12px;font-weight:700}
+.legend i{display:inline-block;width:12px;height:4px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.ans .pick[aria-pressed="true"]{border-color:var(--accent);background:var(--soft);color:var(--accent)}
 .stamp-big.star{border-color:#e0a526;color:#e0a526;font-size:30px}
 .ans{display:grid;gap:8px;margin:10px 0}
 .ans .btn{text-align:left;font-weight:600;line-height:1.4}
@@ -256,7 +265,29 @@ input{-webkit-user-select:text;user-select:text}
 .btn.ghost{background:transparent;margin-top:8px}
 .cz{display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:start;margin-top:6px}
 .cz-prev{display:flex;flex-direction:column;align-items:center;gap:8px;position:sticky;top:0}
-#czCv{width:150px;height:200px;border-radius:14px;background:linear-gradient(180deg,#d9eefb,#eef6ea);touch-action:none;cursor:grab}
+.czCv{width:150px;height:210px;border-radius:16px;background:linear-gradient(180deg,#cfe7fb,#eef6ea);touch-action:none;cursor:grab;display:block}
+.cz-tabs{display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--soft);margin-bottom:10px}
+.cz-tab{flex:1;font-weight:800;font-size:13px;padding:8px 6px;min-height:36px;border:0;border-radius:9px;background:transparent;color:var(--muted);cursor:pointer}
+.cz-tab[aria-selected="true"]{background:var(--panel-solid);color:var(--accent);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.cz-tab:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
+.cz-panel{min-height:210px}
+.cz-panel .field{margin-bottom:10px}
+.cz-panel .chip{padding:7px 11px;min-height:34px;font-size:12.5px}
+.start-card{width:min(900px,100%)}
+.start-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:24px;align-items:start}
+.start-cz{padding:14px;border-radius:16px;background:var(--bg);border:1px solid var(--line)}
+.cz-title{margin:0 0 4px;font-size:15px;font-weight:800}
+.cz-title span{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-top:2px}
+.lead b{color:var(--accent)}
+@media (max-width:760px){
+  .start-grid{display:flex;flex-direction:column;gap:10px}
+  .start-info{display:contents}
+  .start-info>*{order:3;margin-top:0;margin-bottom:0}
+  .start-info>.emblem,.start-info>.eyebrow,.start-info>h1,.start-info>.lead{order:1}
+  .start-cz{order:2;padding:10px}
+  .dept-chips{display:none!important}
+  .btn.ghost{margin-top:0}
+}
 .cz-opts .field{margin-bottom:10px}
 .swatches.sm{flex-wrap:wrap;gap:7px}
 .swatches.sm .sw{width:30px;height:30px;border-width:2.5px}
@@ -282,7 +313,7 @@ input{-webkit-user-select:text;user-select:text}
 .sky-bot .btn.primary{background:#fff;color:#1f5f8b;border-color:#fff}
 .sky-left{font-size:13px;font-weight:800;min-width:40px;text-align:center;font-variant-numeric:tabular-nums}
 .skymode .hud,.skymode #labels,.skymode #chatBar,.skymode #toast,.skymode #roomCard{display:none!important}
-@media (max-width:560px){.cz{grid-template-columns:1fr}.cz-prev{position:static}#czCv{width:140px;height:170px}.nets{grid-template-columns:1fr}.sky-bot .btn{padding:10px 12px}}
+@media (max-width:560px){.cz{grid-template-columns:110px 1fr;gap:10px}.cz-prev{position:static}.czCv{width:110px;height:160px}.cz-tab{font-size:12px;padding:7px 2px}.cz-panel{min-height:0}.nets{grid-template-columns:1fr}.sky-bot .btn{padding:10px 12px}}
 
 /* multiplayer & chat */
 .net{display:flex;align-items:center;gap:6px;margin-top:7px;font-size:11px;font-weight:700;color:var(--muted)}
@@ -304,6 +335,7 @@ input{-webkit-user-select:text;user-select:text}
 .bubble{position:absolute;left:0;top:0;max-width:210px;padding:6px 11px;border-radius:12px;background:#fff;color:#1f2d2b;font-size:12.5px;font-weight:600;line-height:1.4;box-shadow:0 4px 14px rgba(0,0,0,.2);white-space:normal;overflow-wrap:anywhere;will-change:transform;text-align:center;animation:popin .2s ease-out}
 .bubble::after{content:'';position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-top-color:#fff;border-bottom:0}
 .tag.other i{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.tag.mascot{background:var(--mc);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.25);font-size:11.5px;padding:2px 9px}
 .chatting #actBtn,.chatting #chatBtn{visibility:hidden}
 .chatting #chatLog{bottom:calc(max(10px,env(safe-area-inset-bottom)) + 74px)}
 
@@ -423,22 +455,29 @@ input{-webkit-user-select:text;user-select:text}
 
 <div id="start">
   <div class="start-card card">
-    <svg class="emblem" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#217569"/><circle cx="30" cy="17" r="6" fill="#f2c94c"/><path d="M13 35h21a6 6 0 0 0 .5-12A8.5 8.5 0 0 0 18.4 21 7 7 0 0 0 13 35z" fill="#fff"/></svg>
-    <p class="eyebrow">수도권대기환경청</p>
-    <h1>푸른하늘 업무체험관</h1>
-    <p class="lead">캐릭터로 청사 주변을 걸어 다니며 네 개 과의 업무를 직접 해 보세요. 체험을 하나 마칠 때마다 뿌연 하늘이 맑아져요.</p>
-    <ul class="dept-chips">
-      <li><b>기획과</b>이동측정으로 배출원 찾기</li>
-      <li><b>대기총량과</b>비산배출 누출 점검</li>
-      <li><b>조사분석과</b>굴뚝 시료 채취·분석</li>
-      <li><b>자동차관리과</b>도로 재비산먼지 청소</li>
-    </ul>
-    <label class="field"><span>이름 또는 별명</span><input id="nameIn" maxlength="10" autocomplete="off" placeholder="예: 맑음이"></label>
-    <div class="field"><span id="swLbl">옷 색깔</span><div class="sw-line"><div class="swatches" role="radiogroup" aria-labelledby="swLbl" id="swatches"></div><button class="btn" id="czBtn" type="button">더 꾸미기</button></div></div>
-    <button id="enterBtn" class="btn primary big">입장하기</button>
-    <button id="skyOnlyBtn" class="btn big ghost" type="button">하늘멍만 하기</button>
-    <button id="resetBtn" class="linkish" hidden>기록을 지우고 처음부터 하기</button>
-    <p class="fine" id="roomInfo"></p>
+    <div class="start-grid">
+      <div class="start-info">
+        <svg class="emblem" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#217569"/><circle cx="30" cy="17" r="6" fill="#f2c94c"/><path d="M13 35h21a6 6 0 0 0 .5-12A8.5 8.5 0 0 0 18.4 21 7 7 0 0 0 13 35z" fill="#fff"/></svg>
+        <p class="eyebrow">수도권대기환경청</p>
+        <h1>푸른하늘 업무체험관</h1>
+        <p class="lead">내 캐릭터로 청사와 과별 미션룸을 돌아다니며 <b>4개 과 16가지 업무</b>를 직접 해 보세요. 체험을 마칠 때마다 뿌연 하늘이 맑아져요.</p>
+        <ul class="dept-chips">
+          <li><b>기획과</b>이동측정 · 교육 · 기후에너지 · 오존 대책</li>
+          <li><b>대기총량과</b>누출 점검 · 배출권 · 허가 이행 · 기술지원</li>
+          <li><b>조사분석과</b>시료 분석 · 측정망 · 이동측정 · 배출량 조사</li>
+          <li><b>자동차관리과</b>도로 청소 · 연료 · 저감사업 · 건설기계</li>
+        </ul>
+        <label class="field"><span>이름 또는 별명</span><input id="nameIn" maxlength="10" autocomplete="off" placeholder="예: 맑음이"></label>
+        <button id="enterBtn" class="btn primary big">입장하기</button>
+        <button id="skyOnlyBtn" class="btn big ghost" type="button">하늘멍만 하기</button>
+        <button id="resetBtn" class="linkish" hidden>기록을 지우고 처음부터 하기</button>
+        <p class="fine" id="roomInfo"></p>
+      </div>
+      <div class="start-cz">
+        <p class="cz-title">내 캐릭터 만들기 <span>성별 · 얼굴 · 머리 · 옷을 골라 보세요</span></p>
+        <div id="czStart"></div>
+      </div>
+    </div>
     <p class="controls-hint">PC: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>·방향키 이동, <kbd>Shift</kbd> 달리기, <kbd>E</kbd>·<kbd>Space</kbd> 대화·행동, <kbd>Enter</kbd> 채팅<br>모바일: 화면 왼쪽을 끌어서 이동(끝까지 밀면 달리기), 오른쪽 버튼으로 대화·행동<br>직원이나 물건을 누르면 알아서 걸어가 말을 걸어요.<br><span class="muted">체험용으로 단순화한 내용이라 실제 수치·절차와 다를 수 있어요.</span></p>
   </div>
 </div>
@@ -588,9 +627,11 @@ try {
   if (s && s.done) { Object.assign(state, s, { done: Object.assign({}, state.done, s.done), extra: Object.assign({}, state.extra, s.extra) }); hadSave = true; }
 } catch (e) { /* storage unavailable */ }
 if (!state.avatar || typeof state.avatar !== 'object') state.avatar = { skin: '#f1c8a4', hair: 'short', hairColor: '#2a211b', shirt: state.color, pants: '#34495e', acc: 'none' };
-state.avatar = Object.assign({ body: 'm', top: 'tee', bottom: 'pants' }, state.avatar);
+state.avatar = Object.assign({ body: 'm', top: 'tee', bottom: 'pants', eye: 'round', mouth: 'smile', cheek: 'pink' }, state.avatar);
+state.extra = Object.assign({ tf: false, ozone: false, integ: false, small: false, mobile: false, inven: false, retro: false, cons: false }, state.extra);
 function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ } }
 const doneCount = () => Object.values(state.done).filter(Boolean).length;
+const doneAll = () => doneCount() + Object.values(state.extra).filter(Boolean).length; // 16가지 업무 중 끝낸 수
 
 const DEPT = {
   plan: { name: '기획과', short: '기획', task: '이동측정 배출원 찾기' },
@@ -1001,10 +1042,10 @@ const LAUNCH = new THREE.Vector3(SKY_C.x + 9.5, 0, SKY_C.z + 0.5);
 // 룸 정보와 문(포털)
 const ROOMS = {
   lobby: { name: '로비 · 청사 광장', short: '로비', color: '#217569', desc: '안내 직원과 전광판이 있는 청사 앞 광장', spawn: [0, 8], face: Math.PI },
-  plan: { name: '기획과 미션룸', short: '기획과', color: '#3a8fd1', desc: '산업단지 이동측정 · 푸른하늘 교실', spawn: [-14.7, -14.7], face: -Math.PI * 0.75 },
-  total: { name: '대기총량과 미션룸', short: '대기총량과', color: '#d99a1e', desc: '비산배출 누출 점검 · 배출권 거래 관리', spawn: [14.7, -14.7], face: Math.PI * 0.75 },
-  lab: { name: '조사분석과 미션룸', short: '조사분석과', color: '#8e6bbf', desc: '굴뚝 시료 채취·분석 · 측정소 자료 점검', spawn: [14.7, 14.7], face: Math.PI * 0.25 },
-  car: { name: '자동차관리과 미션룸', short: '자동차관리과', color: '#e4572e', desc: '도로 재비산먼지 청소 · 연료 품질 검사', spawn: [-14.7, 14.7], face: -Math.PI * 0.25 },
+  plan: { name: '기획과 미션룸', short: '기획과', color: '#3a8fd1', desc: '이동측정 · 교육 · 기후에너지 TF · 오존 대책', spawn: [-14.7, -14.7], face: -Math.PI * 0.75 },
+  total: { name: '대기총량과 미션룸', short: '대기총량과', color: '#d99a1e', desc: '누출 점검 · 배출권 · 허가 이행 · 기술지원', spawn: [14.7, -14.7], face: Math.PI * 0.75 },
+  lab: { name: '조사분석과 미션룸', short: '조사분석과', color: '#8e6bbf', desc: '시료 분석 · 측정망 · 이동측정 · 배출량 조사', spawn: [14.7, 14.7], face: Math.PI * 0.25 },
+  car: { name: '자동차관리과 미션룸', short: '자동차관리과', color: '#e4572e', desc: '도로 청소 · 연료 · 저감사업 · 건설기계', spawn: [-14.7, 14.7], face: -Math.PI * 0.25 },
   sky: { name: '하늘멍 언덕', short: '하늘멍', color: '#5aa9e6', desc: '누워서 하늘 보며 쉬는 잔디 언덕', spawn: [SKY_C.x, SKY_C.z + 12], face: Math.PI },
 };
 const GATES = [];
@@ -1356,89 +1397,128 @@ for (let i = 0; i < 22; i++) {
    characters
    ========================================================= */
 const shade = (hex, k) => { const c = new THREE.Color(hex); c.multiplyScalar(k); return `#${c.getHexString()}`; };
-function makePerson({ shirt = '#3b82c4', pants = '#38485a', hair = '#2a221d', skin = '#f1c8a4', vest = false, helmet = false, style = 'short', acc = 'none', scale = 1, body: shape = 'm', top = 'long', bottom = 'pants' } = {}) {
+function makePerson({ shirt = '#3b82c4', pants = '#38485a', hair = '#2a221d', skin = '#f1c8a4', vest = false, helmet = false, style = 'short', acc = 'none', scale = 1, body: shape = 'm', top = 'long', bottom = 'pants', eye = 'round', mouth = 'smile', cheek = 'pink' } = {}) {
+  // 2.5등신 귀여운 비율: 큰 머리, 짧은 팔다리, 둥근 몸
   const root = new THREE.Group(); const body = new THREE.Group(); root.add(body);
+  root.rotation.order = 'YXZ'; // 방향을 먼저 돌리고 몸을 기울여야 눕기·날기 자세가 바르게 나옴
   const mk = (geo, c, x, y, z, parent = body) => { const m = new THREE.Mesh(geo, mat(c)); m.position.set(x, y, z); m.castShadow = true; parent.add(m); return m; };
-  const f = shape === 'f', TW = f ? 0.58 : 0.66, TD = f ? 0.34 : 0.38, AX = f ? 0.39 : 0.44, LX = f ? 0.12 : 0.14;
-  const jacket = top === 'suit' ? shirt : top === 'vest' ? '#f4f4f0' : shirt; // 정장은 고른 색이 재킷, 조끼는 흰 셔츠 위에
+  const cap = (r, len) => new THREE.CapsuleGeometry(r, len, 4, 10);
+  const f = shape === 'f', TR = f ? 0.26 : 0.29, SZ = 0.82, FZ = TR * SZ + 0.008;
+  const jacket = top === 'suit' ? shirt : top === 'vest' ? '#f4f4f0' : shirt;
   // 다리: 긴바지 / 반바지 / 치마
-  const shoeGeo = new THREE.BoxGeometry(0.26, 0.12, 0.34);
-  const legs = [-LX, LX].map((x) => {
-    const p = new THREE.Group(); p.position.set(x, 0.76, 0); body.add(p);
-    if (bottom === 'pants') mk(new THREE.BoxGeometry(0.24, 0.72, 0.26), pants, 0, -0.36, 0, p);
-    else { mk(new THREE.BoxGeometry(0.24, 0.3, 0.26), bottom === 'shorts' ? pants : skin, 0, -0.15, 0, p); mk(new THREE.BoxGeometry(0.2, 0.42, 0.22), skin, 0, -0.5, 0, p); }
-    mk(shoeGeo, f && bottom === 'skirt' ? '#7a3b3b' : '#2b2b2b', 0, -0.7, 0.04, p); return p;
+  const legs = [-0.12, 0.12].map((x) => {
+    const p = new THREE.Group(); p.position.set(x, 0.5, 0); body.add(p);
+    if (bottom === 'pants') mk(cap(0.1, 0.24), pants, 0, -0.2, 0, p);
+    else { mk(cap(0.1, 0.06), bottom === 'shorts' ? pants : skin, 0, -0.1, 0, p); mk(cap(0.085, 0.18), skin, 0, -0.27, 0, p); }
+    const shoe = mk(new THREE.SphereGeometry(0.12, 12, 8), f && bottom === 'skirt' ? '#c25a6a' : '#3a3f46', 0, -0.44, 0.045, p); shoe.scale.set(1, 0.62, 1.35);
+    return p;
   });
-  if (bottom === 'skirt') mk(new THREE.CylinderGeometry(TW * 0.5, TW * 0.72, 0.42, 10), pants, 0, 0.62, 0);
+  if (bottom === 'skirt') mk(new THREE.CylinderGeometry(TR * 0.95, TR * 1.5, 0.3, 14), pants, 0, 0.56, 0);
   // 몸통·윗옷
-  const torso = mk(new THREE.BoxGeometry(TW, 0.72, TD), jacket, 0, 1.12, 0);
-  if (vest) { mk(new THREE.BoxGeometry(TW + 0.04, 0.58, TD + 0.04), '#217569', 0, 1.15, 0); mk(new THREE.BoxGeometry(TW + 0.05, 0.07, TD + 0.05), '#e9f27a', 0, 1.02, 0); }
-  if (top === 'vest') { mk(new THREE.BoxGeometry(TW + 0.04, 0.58, TD + 0.04), shirt, 0, 1.15, 0); mk(new THREE.BoxGeometry(TW + 0.05, 0.07, TD + 0.05), '#e9f27a', 0, 1.02, 0); mk(new THREE.BoxGeometry(TW + 0.05, 0.07, TD + 0.05), '#e9f27a', 0, 1.24, 0); }
+  const torso = mk(cap(TR, 0.1), jacket, 0, 0.84, 0); torso.scale.set(1.1, 1, SZ);
+  const band = (c, y, h = 0.055) => { const b = mk(new THREE.CylinderGeometry(TR * 1.1 + 0.02, TR * 1.1 + 0.02, h, 18, 1, true), c, 0, y, 0); b.scale.set(1, 1, SZ / 1.0); return b; };
+  if (vest) { const v = mk(cap(TR + 0.025, 0.06), '#217569', 0, 0.86, 0); v.scale.set(1.1, 0.9, SZ); band('#e9f27a', 0.78); }
+  if (top === 'vest') { const v = mk(cap(TR + 0.025, 0.06), shirt, 0, 0.86, 0); v.scale.set(1.1, 0.9, SZ); band('#e9f27a', 0.76); band('#e9f27a', 0.94); }
   if (top === 'shirt' || top === 'suit') {
-    if (top === 'suit') mk(new THREE.BoxGeometry(0.2, 0.42, 0.02), '#f6f6f2', 0, 1.26, TD / 2 + 0.005);
-    for (const s of [-1, 1]) { const c = mk(new THREE.BoxGeometry(0.13, 0.07, 0.04), '#f6f6f2', s * 0.07, 1.45, TD / 2 - 0.005); c.rotation.z = s * -0.5; }
-    mk(new THREE.BoxGeometry(0.07, 0.36, 0.02), top === 'suit' ? '#8b2d34' : '#2f3e46', 0, 1.23, TD / 2 + 0.015);
+    if (top === 'suit') mk(new THREE.BoxGeometry(0.16, 0.3, 0.02), '#f6f6f2', 0, 0.97, FZ - 0.01);
+    for (const s of [-1, 1]) { const c = mk(new THREE.BoxGeometry(0.12, 0.06, 0.04), '#f6f6f2', s * 0.065, 1.1, FZ - 0.02); c.rotation.z = s * -0.5; }
+    mk(new THREE.BoxGeometry(0.06, 0.26, 0.02), top === 'suit' ? '#8b2d34' : '#2f3e46', 0, 0.94, FZ + 0.005);
   }
   if (top === 'hoodie') {
-    mk(new THREE.BoxGeometry(0.48, 0.26, 0.16), shade(shirt, 0.85), 0, 1.44, -TD / 2 - 0.06);
-    mk(new THREE.BoxGeometry(0.36, 0.16, 0.02), shade(shirt, 0.85), 0, 0.94, TD / 2 + 0.005);
-    for (const s of [-1, 1]) mk(new THREE.BoxGeometry(0.02, 0.18, 0.02), '#f6f6f2', s * 0.07, 1.36, TD / 2 + 0.01);
+    const h = mk(new THREE.SphereGeometry(1, 12, 8), shade(shirt, 0.85), 0, 1.1, -FZ + 0.02); h.scale.set(0.22, 0.12, 0.12);
+    mk(new THREE.BoxGeometry(0.3, 0.12, 0.02), shade(shirt, 0.85), 0, 0.72, FZ);
+    for (const s of [-1, 1]) mk(new THREE.BoxGeometry(0.016, 0.14, 0.016), '#f6f6f2', s * 0.06, 1.0, FZ + 0.01);
   }
-  // 팔: 반팔이면 팔뚝이 보임
-  const handGeo = new THREE.BoxGeometry(0.16, 0.14, 0.18), sleeve = top === 'vest' ? '#f4f4f0' : jacket;
+  // 팔: 반팔이면 팔뚝이 보임, 손은 동글
+  const sleeve = top === 'vest' ? '#f4f4f0' : jacket, AX = TR * 1.1 + 0.07;
   const arms = [-AX, AX].map((x) => {
-    const p = new THREE.Group(); p.position.set(x, 1.44, 0); body.add(p);
-    if (top === 'tee') { mk(new THREE.BoxGeometry(0.19, 0.26, 0.21), sleeve, 0, -0.13, 0, p); mk(new THREE.BoxGeometry(0.15, 0.36, 0.17), skin, 0, -0.44, 0, p); }
-    else mk(new THREE.BoxGeometry(0.18, 0.64, 0.2), sleeve, 0, -0.3, 0, p);
-    mk(handGeo, skin, 0, -0.66, 0, p); return p;
+    const p = new THREE.Group(); p.position.set(x, 1.04, 0); body.add(p);
+    if (top === 'tee') { mk(cap(0.082, 0.05), sleeve, 0, -0.07, 0, p); mk(cap(0.068, 0.16), skin, 0, -0.23, 0, p); }
+    else mk(cap(0.075, 0.24), sleeve, 0, -0.17, 0, p);
+    mk(new THREE.SphereGeometry(0.085, 10, 8), skin, 0, -0.38, 0, p); return p;
   });
-  // 머리
-  const head = new THREE.Group(); head.position.set(0, 1.62, 0); body.add(head);
-  mk(new THREE.SphereGeometry(0.3, 14, 10), skin, 0, 0.16, 0, head);
-  const cap = (c, y = 0.18, k = 0.55) => mk(new THREE.SphereGeometry(0.315, 14, 10, 0, Math.PI * 2, 0, Math.PI * k), c, 0, y, -0.02, head);
-  if (helmet) { mk(new THREE.SphereGeometry(0.335, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), '#f6f6f2', 0, 0.2, 0, head); mk(new THREE.BoxGeometry(0.5, 0.04, 0.2), '#f6f6f2', 0, 0.21, 0.3, head); }
-  else if (style === 'cap') { mk(new THREE.SphereGeometry(0.33, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), shirt, 0, 0.2, 0, head); mk(new THREE.BoxGeometry(0.44, 0.04, 0.26), shirt, 0, 0.2, 0.33, head); }
-  else if (style === 'beanie') { mk(new THREE.SphereGeometry(0.335, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.52), shade(shirt, 0.9), 0, 0.2, 0, head); mk(new THREE.CylinderGeometry(0.34, 0.34, 0.09, 16), shirt, 0, 0.21, 0, head); mk(new THREE.SphereGeometry(0.07, 8, 6), '#f6f6f2', 0, 0.55, 0, head); }
+  // 머리: 크고 동그랗게
+  const head = new THREE.Group(); head.position.set(0, 1.2, 0); body.add(head);
+  const HR = 0.42, HY = 0.36;
+  const face = mk(new THREE.SphereGeometry(HR, 20, 16), skin, 0, HY, 0, head); face.scale.set(1.04, 0.96, 1);
+  const sph2 = (r, c, x, y, z, ps = 0, pl = Math.PI * 2, ts = 0, tl = Math.PI) => mk(new THREE.SphereGeometry(r, 18, 12, ps, pl, ts, tl), c, x, y, z, head);
+  if (helmet) { sph2(0.46, '#f6f6f2', 0, HY + 0.02, 0, 0, Math.PI * 2, 0, Math.PI * 0.5); mk(new THREE.BoxGeometry(0.56, 0.04, 0.22), '#f6f6f2', 0, HY + 0.03, 0.4, head); }
+  else if (style === 'cap') { sph2(0.455, shirt, 0, HY + 0.02, 0, 0, Math.PI * 2, 0, Math.PI * 0.5); const b = mk(new THREE.BoxGeometry(0.5, 0.04, 0.3), shirt, 0, HY + 0.03, 0.44, head); b.rotation.x = 0.12; sph2(HR + 0.012, hair, 0, HY, 0, Math.PI, Math.PI, Math.PI * 0.42, Math.PI * 0.3); }
+  else if (style === 'beanie') { sph2(0.46, shade(shirt, 0.9), 0, HY + 0.02, 0, 0, Math.PI * 2, 0, Math.PI * 0.52); mk(new THREE.CylinderGeometry(0.465, 0.465, 0.1, 20), shirt, 0, HY + 0.03, 0, head); mk(new THREE.SphereGeometry(0.09, 10, 8), '#f6f6f2', 0, HY + 0.5, 0, head); }
   else {
-    cap(hair);
-    if (style === 'bob') mk(new THREE.BoxGeometry(0.66, 0.38, 0.42), hair, 0, 0.05, -0.08, head);
-    if (style === 'long') { mk(new THREE.BoxGeometry(0.62, 0.74, 0.26), hair, 0, -0.12, -0.19, head); mk(new THREE.BoxGeometry(0.64, 0.3, 0.3), hair, 0, 0.1, -0.06, head); }
-    if (style === 'bun') mk(new THREE.SphereGeometry(0.15, 10, 8), hair, 0, 0.44, -0.14, head);
-    if (style === 'pony') { const t = mk(new THREE.BoxGeometry(0.15, 0.46, 0.14), hair, 0, 0.02, -0.36, head); t.rotation.x = 0.35; mk(new THREE.BoxGeometry(0.17, 0.05, 0.16), '#e5484d', 0, 0.23, -0.32, head); }
-    if (style === 'curly') for (let k = 0; k < 9; k++) { const a = (k / 9) * Math.PI * 2; mk(new THREE.SphereGeometry(0.11, 8, 6), hair, Math.cos(a) * 0.24, 0.3 + Math.sin(k * 1.7) * 0.05, Math.sin(a) * 0.22 - 0.04, head); }
+    const front = sph2(HR + 0.02, hair, 0, HY + 0.01, 0, 0, Math.PI * 2, 0, Math.PI * 0.44); front.rotation.x = -0.16; // 앞머리
+    const backLen = style === 'bob' ? 0.86 : style === 'long' ? 0.9 : 0.7;
+    sph2(HR + 0.015, hair, 0, HY, 0, Math.PI, Math.PI, 0, Math.PI * backLen); // 뒷머리
+    if (style === 'bob') for (const s of [-1, 1]) { const sd = mk(cap(0.1, 0.18), hair, s * 0.39, HY - 0.12, 0.02, head); sd.scale.z = 0.8; }
+    if (style === 'long') { const l = mk(cap(0.24, 0.42), hair, 0, HY - 0.36, -0.2, head); l.scale.z = 0.55; for (const s of [-1, 1]) mk(cap(0.09, 0.3), hair, s * 0.38, HY - 0.2, 0.0, head); }
+    if (style === 'bun') { sph2(0.17, hair, 0, HY + 0.45, -0.12); }
+    if (style === 'pony') { const t = mk(cap(0.11, 0.34), hair, 0, HY - 0.05, -0.5, head); t.rotation.x = 0.55; mk(new THREE.TorusGeometry(0.1, 0.03, 6, 12), '#e5484d', 0, HY + 0.12, -0.42, head).rotation.x = 1.1; }
+    if (style === 'curly') for (let k = 0; k < 11; k++) { const a = (k / 11) * Math.PI * 2; sph2(0.13, hair, Math.cos(a) * 0.34, HY + 0.28 + Math.sin(k * 1.7) * 0.05, Math.sin(a) * 0.3 - 0.05); }
   }
-  const eyes = [-0.1, 0.1].map((x) => mk(new THREE.BoxGeometry(0.06, 0.09, 0.03), '#1d1d1d', x, 0.17, 0.285, head));
-  if (f) for (const x of [-0.1, 0.1]) mk(new THREE.BoxGeometry(0.09, 0.02, 0.03), '#1d1d1d', x + (x > 0 ? 0.01 : -0.01), 0.225, 0.283, head);
+  // 얼굴: 큰 눈 + 반짝 + 볼터치 + 웃는 입
+  const EZ = HR - 0.035, INK = '#1d1d22';
+  const eyeAt = (x, kind) => {
+    if (kind === 'smile' || (kind === 'wink' && x > 0)) { const e = mk(new THREE.TorusGeometry(0.05, 0.017, 6, 12, Math.PI), INK, x, HY - 0.005, EZ + 0.022, head); e.userData.sy = 1; return e; } // 웃는 눈 ^^
+    if (kind === 'sleepy') { const e = mk(new THREE.SphereGeometry(0.062, 12, 8, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5), INK, x, HY + 0.035, EZ, head); e.scale.set(0.95, 0.75, 0.55); e.userData.sy = 0.75; mk(new THREE.BoxGeometry(0.13, 0.016, 0.02), INK, x, HY + 0.036, EZ + 0.02, head); return e; }
+    const big = kind === 'sparkle';
+    const e = mk(new THREE.SphereGeometry(big ? 0.077 : 0.062, 12, 10), INK, x, HY + 0.02, EZ, head); e.scale.set(0.85, 1.18, 0.55); e.userData.sy = 1.18;
+    mk(new THREE.SphereGeometry(big ? 0.027 : 0.02, 6, 6), '#ffffff', x + 0.022, HY + 0.06, EZ + 0.032, head);
+    if (big) mk(new THREE.SphereGeometry(0.013, 6, 6), '#ffffff', x - 0.022, HY - 0.012, EZ + 0.034, head);
+    return e;
+  };
+  const eyes = [-0.15, 0.15].map((x) => eyeAt(x, eye));
+  if (cheek === 'pink') for (const s of [-1, 1]) { const b = mk(new THREE.CircleGeometry(0.065, 14), '#f5a3a3', s * 0.25, HY - 0.08, HR - 0.07, head); b.rotation.y = s * 0.6; b.castShadow = false; }
+  if (cheek === 'freckle') for (const s of [-1, 1]) for (let k = 0; k < 3; k++) { const d = mk(new THREE.CircleGeometry(0.012, 8), '#a66b4f', s * (0.21 + k * 0.035), HY - 0.07 + (k % 2) * 0.025, HR - 0.06, head); d.rotation.y = s * 0.55; d.castShadow = false; }
+  if (f) for (const x of [-0.15, 0.15]) { const l = mk(new THREE.BoxGeometry(0.1, 0.018, 0.02), '#1d1d22', x + (x > 0 ? 0.015 : -0.015), HY + 0.1, HR - 0.04, head); l.rotation.z = x > 0 ? -0.25 : 0.25; }
   if (acc === 'glasses' || acc === 'sunglasses') {
-    for (const x of [-0.1, 0.1]) { mk(new THREE.TorusGeometry(0.075, 0.016, 6, 14), '#1f2327', x, 0.17, 0.3, head); if (acc === 'sunglasses') mk(new THREE.CircleGeometry(0.07, 14), '#2b3138', x, 0.17, 0.301, head); }
-    mk(new THREE.BoxGeometry(0.06, 0.016, 0.016), '#1f2327', 0, 0.18, 0.3, head);
+    for (const x of [-0.15, 0.15]) { mk(new THREE.TorusGeometry(0.09, 0.016, 6, 16), '#1f2327', x, HY + 0.02, HR + 0.005, head); if (acc === 'sunglasses') mk(new THREE.CircleGeometry(0.085, 16), '#2b3138', x, HY + 0.02, HR + 0.006, head); }
+    mk(new THREE.BoxGeometry(0.11, 0.016, 0.016), '#1f2327', 0, HY + 0.04, HR + 0.005, head);
   }
-  if (acc === 'headphones') { const b = mk(new THREE.TorusGeometry(0.33, 0.03, 6, 20, Math.PI), '#2f3437', 0, 0.16, 0, head); b.rotation.z = 0; for (const s of [-1, 1]) mk(new THREE.CylinderGeometry(0.1, 0.1, 0.08, 12), '#e5484d', s * 0.31, 0.14, 0, head).rotation.z = Math.PI / 2; }
-  if (acc === 'mask') mk(new THREE.BoxGeometry(0.36, 0.17, 0.06), '#f4f6f8', 0, 0.04, 0.28, head);
-  else mk(new THREE.BoxGeometry(0.11, 0.025, 0.02), f ? '#cf6a78' : '#b8655b', 0, 0.05, 0.293, head);
+  if (acc === 'headphones') { mk(new THREE.TorusGeometry(0.45, 0.032, 6, 22, Math.PI), '#2f3437', 0, HY + 0.02, 0, head); for (const s of [-1, 1]) mk(new THREE.CylinderGeometry(0.11, 0.11, 0.08, 14), '#e5484d', s * 0.43, HY - 0.02, 0, head).rotation.z = Math.PI / 2; }
+  if (acc === 'mask') mk(new THREE.BoxGeometry(0.44, 0.17, 0.06), '#f4f6f8', 0, HY - 0.16, HR - 0.05, head);
+  else {
+    const MC = f ? '#c95b6b' : '#9b4a45', MY = HY - 0.12, MZ = HR - 0.025;
+    if (mouth === 'grin') { const m = mk(new THREE.CircleGeometry(0.062, 16, Math.PI, Math.PI), '#7a2f33', 0, MY + 0.02, MZ + 0.004, head); m.castShadow = false; }
+    else if (mouth === 'cat') for (const s of [-1, 1]) { const m = mk(new THREE.TorusGeometry(0.028, 0.01, 6, 10, Math.PI), MC, s * 0.028, MY + 0.005, MZ, head); m.rotation.z = Math.PI; m.castShadow = false; }
+    else if (mouth === 'o') { const m = mk(new THREE.CircleGeometry(0.03, 14), '#7a2f33', 0, MY, MZ + 0.004, head); m.castShadow = false; }
+    else { const m = mk(new THREE.TorusGeometry(0.045, 0.012, 6, 12, Math.PI), MC, 0, MY, MZ, head); m.rotation.z = Math.PI; m.castShadow = false; }
+  }
   if (scale !== 1) root.scale.setScalar(scale);
-  root.rotation.order = 'YXZ'; // 방향을 먼저 돌리고 몸을 기울여야 눕기·날기 자세가 바르게 나옴
-  return { root, body, head, torso, eyes, legL: legs[0], legR: legs[1], armL: arms[0], armR: arms[1], phase: Math.random() * 6, carry: false, blink: rand(1, 4), wave: 0, lastSt: 1, look: 0 };
+  return { root, body, head, torso, eyes, legL: legs[0], legR: legs[1], armL: arms[0], armR: arms[1], phase: Math.random() * 6, carry: false, blink: rand(1, 4), wave: 0, jump: 0, lastSt: 1, look: 0, seed: Math.random() * 10, lean: 0 };
 }
 function animPerson(rig, speed, dt) { // 걸음 이벤트가 생기면 true
   const run = speed > 7.2;
-  rig.phase += dt * (2.2 + speed * 1.5);
-  const a = Math.min(1, speed / 4) * (run ? 0.95 : 0.7);
-  const s = Math.sin(rig.phase) * a;
-  rig.legL.rotation.x = s; rig.legR.rotation.x = -s;
-  if (rig.carry) { rig.armL.rotation.x = lerp(rig.armL.rotation.x, -1.25, 0.25); rig.armR.rotation.x = lerp(rig.armR.rotation.x, -1.25, 0.25); rig.armR.rotation.z = 0; }
-  else if (rig.wave > 0) { rig.armL.rotation.x = -s; rig.armR.rotation.x = lerp(rig.armR.rotation.x, -2.7, 0.3); rig.armR.rotation.z = Math.sin(rig.wave * 13) * 0.4; }
-  else { rig.armL.rotation.x = -s * 1.1; rig.armR.rotation.x = lerp(rig.armR.rotation.x, s * 1.1, 0.5); rig.armR.rotation.z = lerp(rig.armR.rotation.z, 0, 0.2); }
+  rig.phase += dt * (2.6 + speed * 1.55);
+  const a = Math.min(1, speed / 4) * (run ? 1 : 0.78);
+  const sn = Math.sin(rig.phase), s = sn * a, bounce = Math.abs(sn);
+  // 다리·팔 흔들기
+  rig.legL.rotation.x = s * 0.95; rig.legR.rotation.x = -s * 0.95;
+  const jumping = rig.jump > 0;
+  if (rig.carry) { rig.armL.rotation.x = lerp(rig.armL.rotation.x, -1.3, 0.25); rig.armR.rotation.x = lerp(rig.armR.rotation.x, -1.3, 0.25); rig.armL.rotation.z = rig.armR.rotation.z = 0; }
+  else if (jumping) { rig.armL.rotation.x = lerp(rig.armL.rotation.x, -2.9, 0.3); rig.armR.rotation.x = lerp(rig.armR.rotation.x, -2.9, 0.3); rig.armL.rotation.z = lerp(rig.armL.rotation.z, -0.35, 0.3); rig.armR.rotation.z = lerp(rig.armR.rotation.z, 0.35, 0.3); }
+  else if (rig.wave > 0) { rig.armL.rotation.x = -s; rig.armR.rotation.x = lerp(rig.armR.rotation.x, -2.75, 0.3); rig.armR.rotation.z = Math.sin(rig.wave * 13) * 0.45; rig.armL.rotation.z = lerp(rig.armL.rotation.z, 0, 0.2); }
+  else { rig.armL.rotation.x = -s * 1.25; rig.armR.rotation.x = lerp(rig.armR.rotation.x, s * 1.25, 0.5); rig.armL.rotation.z = lerp(rig.armL.rotation.z, -0.12 - a * 0.1, 0.2); rig.armR.rotation.z = lerp(rig.armR.rotation.z, 0.12 + a * 0.1, 0.2); }
   rig.wave = Math.max(0, rig.wave - dt);
-  rig.body.position.y = Math.abs(Math.sin(rig.phase)) * (run ? 0.12 : 0.07) * (a / 0.7);
-  rig.body.rotation.x = lerp(rig.body.rotation.x, run ? 0.17 : speed > 0.6 ? 0.05 : 0, 0.15);
-  rig.torso.scale.y = 1 + Math.sin(T * 2.2 + rig.phase * 0.02) * 0.015 * (1 - a);
+  // 통통 튀는 걸음 + 발 디딜 때 살짝 눌리는 몸
+  let jy = 0;
+  if (jumping) { rig.jump -= dt; const k = 1 - rig.jump / 0.55; jy = Math.max(0, 4 * 0.5 * k * (1 - k)); if (rig.jump <= 0) rig.land = 0.18; }
+  rig.body.position.y = bounce * (run ? 0.12 : 0.075) * (a / 0.78) + jy;
+  const idle = 1 - a, breath = Math.sin(T * 2.3 + rig.seed) * 0.018 * idle;
+  rig.land = Math.max(0, (rig.land || 0) - dt);
+  const squash = (1 - bounce) * 0.07 * a + (rig.land > 0 ? rig.land * 0.6 : 0);
+  rig.body.scale.set(1 + squash * 0.6, 1 - squash + breath, 1 + squash * 0.6);
+  // 뒤뚱뒤뚱 좌우 흔들림, 달릴 땐 앞으로 기울기
+  rig.body.rotation.z = lerp(rig.body.rotation.z, sn * 0.07 * a + Math.sin(T * 1.2 + rig.seed) * 0.03 * idle - rig.lean, 0.25);
+  rig.body.rotation.x = lerp(rig.body.rotation.x, run ? 0.2 : speed > 0.6 ? 0.06 : 0, 0.15);
+  rig.head.rotation.z = lerp(rig.head.rotation.z, -sn * 0.06 * a + Math.sin(T * 0.9 + rig.seed) * 0.04 * idle, 0.2);
   rig.head.rotation.y = lerp(rig.head.rotation.y, rig.look, 0.08);
-  rig.blink -= dt; const shut = rig.blink < 0.12; rig.eyes[0].scale.y = rig.eyes[1].scale.y = shut ? 0.15 : 1; if (rig.blink < 0) rig.blink = rand(2, 5.5);
-  const st = Math.sin(rig.phase) >= 0 ? 1 : -1, step = a > 0.25 && st !== rig.lastSt; rig.lastSt = st;
+  rig.head.rotation.x = lerp(rig.head.rotation.x, jumping ? -0.25 : 0, 0.15);
+  rig.blink -= dt; const shut = rig.blink < 0.12; rig.eyes.forEach((e) => (e.scale.y = shut ? 0.12 : e.userData.sy || 1)); if (rig.blink < 0) rig.blink = rand(2, 5.5);
+  const st = sn >= 0 ? 1 : -1, step = a > 0.25 && st !== rig.lastSt; rig.lastSt = st;
   return step;
 }
-const avatarLook = (a) => ({ shirt: a.shirt, pants: a.pants, hair: a.hairColor, skin: a.skin, style: a.hair, acc: a.acc, body: a.body, top: a.top, bottom: a.bottom });
+const cheer = (rig) => { if (rig) { rig.jump = 0.55; } };
+const avatarLook = (a) => ({ shirt: a.shirt, pants: a.pants, hair: a.hairColor, skin: a.skin, style: a.hair, acc: a.acc, body: a.body, top: a.top, bottom: a.bottom, eye: a.eye, mouth: a.mouth, cheek: a.cheek });
 
 const npcs = [];
 function addNPC(key, name, x, z, face, look) {
@@ -1473,7 +1553,7 @@ const kids = [-36.3, -35.1, -33.9, -32.7].map((x, i) => {
 (function buildTrees() {
   const keep = [[0, 8, 4], [-20, -9, 6], [-35, 31, 4], [28, 35, 4], [14, 26, 4], [7, 38.5, 3], [27, 10.2, 3.4], [-24, 10.4, 3.5], [22, -5.4, 2.5]];
   npcs.forEach((n) => keep.push([n.pos.x, n.pos.z, 3.5]));
-  const noRect = [[-40, -40, -3, -3], [3, -40, 40, -3], [-35, 11, -8, 36], [8, 24, 39, 39], [WALK_ZONE.x0 - 2, WALK_ZONE.z0 - 2, WALK_ZONE.x1 + 2, WALK_ZONE.z1 + 2]];
+  const noRect = [[-40, -40, -3, -3], [3, -40, 40, -3], [-35, 11, -8, 36], [8, 24, 39, 39], [WALK_ZONE.x0 - 2, WALK_ZONE.z0 - 2, WALK_ZONE.x1 + 2, WALK_ZONE.z1 + 2], [19, 3, 40, 17], [3, 15, 10, 27], [-42, 3, -21, 12.5]];
   const ok = (x, z) => {
     if (Math.hypot(x, z) < 16) return false;
     const ax = Math.abs(x), az = Math.abs(z);
@@ -1729,7 +1809,7 @@ function toast(msg, ms = 2900) {
 const interacts = [];
 function addI(o) { const it = Object.assign({ r: 2.6, modes: ['walk'], dy: 2.9, ring: 1 }, o); interacts.push(it); return it; }
 let cur = null;
-npcs.forEach((n) => addI({ pos: n.pos, r: 2.9, label: () => '대화하기', act: () => talkTo(n) }));
+npcs.forEach((n) => addI({ pos: n.pos, r: 2.9, dy: 3.35, label: () => (n.key === 'guide' ? '대화하기' : '업무 고르기'), act: () => talkTo(n) }));
 addI({ pos: new THREE.Vector3(7, 0, 38.6), r: 2.6, dy: 2.2, label: () => (M.active === 'net' ? '측정자료 점검하기' : '측정소 안내 보기'), act: () => (M.active === 'net' ? openNetCheck() : talk('안내판', ['<b>국가대기오염측정망 측정소</b>예요. 흡입구로 주변 공기를 받아들여 미세먼지·오존 같은 항목별 대기오염도를 연속으로 측정해요.', '조사분석과가 측정망을 설치·운영하고, 장비 상태와 측정자료를 점검해 품질을 관리해요. 측정자료는 분석·평가를 거쳐 대기환경 현황을 파악하는 데 쓰여요.'])) });
 addI({ pos: new THREE.Vector3(-10.8, 0, 5.8), r: 2.6, dy: 4.8, label: () => '전광판 보기', act: () => talk('전광판', [`지금 수도권 하늘 맑음도는 <b>${Math.round(skyTarget * 100)}%</b>예요. 업무를 하나 체험할 때마다 25%씩 맑아져요.`]) });
 
@@ -2035,6 +2115,7 @@ function renderMission() {
   if (k === 'quota') h += '<p class="hint">동북쪽 <b>대기총량과 사무실</b> 문 앞에서 배출량 자료를 확인하세요.</p>';
   if (k === 'net') h += '<p class="hint">동남쪽 <b>대기오염측정소</b> 앞에서 측정자료를 점검하세요.</p>';
   if (k === 'fuel') h += `<div class="cp-list">${fuelCans.map((c, i) => `<span class="${c.got ? 'good' : ''}">${i + 1}</span>`).join('')}</div><p class="hint">마당의 연료 시료 3통을 모아 <b>연료 분석대</b>로 가져가세요.</p>`;
+  if (XD[k] && XD[k].hint) h += `${SPOTS[k] && SPOTS[k].length > 1 ? `<div class="cp-list">${SPOTS[k].map((s, i) => `<span class="${s.done ? 'good' : ''}">${i + 1}</span>`).join('')}</div>` : ''}<p class="hint">${k === 'mobile' && !mobile.placed ? '먼저 조사할 곳을 고르면 차량이 그쪽으로 가요.' : XD[k].hint}</p>`;
   if (k === 'plan') h += `<div class="g-row"><span class="g-num" id="vocNum">0</span><span class="g-unit">ppb · VOC</span><span class="lvl" id="vocLvl"></span></div>
     <canvas class="spark" id="spark" aria-hidden="true"></canvas>
     <div class="wind"><svg id="windArrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l6 8h-4v12h-4V10H6z" fill="currentColor"/></svg><span id="windText"></span></div>
@@ -2068,6 +2149,8 @@ function abortMission() {
     player.pos.set(-15.5, 0, 25.2); player.heading = 0;
   }
   if (k === 'fuel') resetFuel();
+  if (k === 'mobile') resetMobile();
+  if (SPOTS[k]) SPOTS[k].forEach((s) => (s.done = false));
   M.active = null; mode = 'walk'; setCtrl(player); renderMission();
   toast('체험을 그만뒀어요. 직원에게 다시 말을 걸면 언제든 시작할 수 있어요.');
 }
@@ -2081,7 +2164,7 @@ function showComplete(key, { title, body, steps }, after) {
   $('[data-ok]', mcard).onclick = () => {
     closeModal();
     if (first) {
-      SFX.stamp(); buzz([30, 50, 30]);
+      SFX.stamp(); buzz([30, 50, 30]); celebrate();
       state.done[key] = true; save();
       const n = doneCount(); skyTarget = n / 4; refreshAll();
       toast(n === 4 ? '하늘이 완전히 맑아졌어요! 청사 앞 안내 직원에게 가 보세요.' : `${DEPT[key].name} 스탬프 획득! 하늘이 한층 맑아졌어요 (${n}/4)`, 3800);
@@ -2128,11 +2211,33 @@ const TALK = {
 function talkTo(n) {
   if (n.key === 'guide') return talkGuide();
   if (M.active && M.active !== n.key) return talk(n.name, ['지금 하고 있는 체험을 먼저 마쳐 주세요. 왼쪽 미션 창의 <b>체험 그만두기</b>로 멈출 수도 있어요.']);
-  if (M.active === n.key || M.active === XBY[n.key]) return talk(n.name, [n.key === 'total' && M.active === 'total' ? '노란 원이 남은 설비를 마저 점검해 주세요.' : '왼쪽 위 안내를 따라 계속 진행해 주세요.']);
-  const TK = TALK[n.key], xk = XBY[n.key], X = XD[xk];
-  const xBtn = { label: `${state.extra[xk] ? '추가 체험 다시: ' : '추가 체험: '}${X.task}`, onClick: () => talk(n.name, X.pages, [{ label: '다음에 할게요' }, { label: X.cta, primary: true, onClick: () => startExtra(xk) }]) };
-  if (state.done[n.key]) return talk(n.name, [state.extra[xk] ? TK.again : `${TK.again}<span class="sub">새로운 추가 체험 <b>${X.task}</b>도 준비돼 있어요.</span>`], [{ label: '괜찮아요' }, { label: '다시 체험하기', primary: state.extra[xk], onClick: TK.start }, { ...xBtn, primary: !state.extra[xk] }]);
-  talk(n.name, TK.pages, [{ label: '다음에 할게요' }, xBtn, { label: TK.cta, primary: true, onClick: TK.start }]);
+  if (M.active) return talk(n.name, [M.active === 'total' ? '노란 원이 남은 설비를 마저 점검해 주세요.' : '왼쪽 위 안내를 따라 계속 진행해 주세요.']);
+  n.rig.wave = 1.2;
+  if (!n.met) { n.met = true; return talk(n.name, [TALK[n.key].pages[0], `우리 과에는 체험할 수 있는 업무가 <b>4가지</b> 있어요. 마음에 드는 것부터 골라 보세요!`], [{ label: '업무 고르기', primary: true, onClick: () => openBoard(n.key) }]); }
+  openBoard(n.key);
+}
+// 과별 미션 보드: 4가지 업무를 한눈에
+const DEPT_MS = { plan: ['plan', 'edu', 'tf', 'ozone'], total: ['total', 'quota', 'integ', 'small'], lab: ['lab', 'net', 'mobile', 'inven'], car: ['car', 'fuel', 'retro', 'cons'] };
+const msDone = (id) => (DEPT[id] ? !!state.done[id] : !!state.extra[id]);
+const msTask = (id) => (DEPT[id] ? DEPT[id].task : XD[id].task);
+const MS_DESC = {
+  plan: '이동측정차량으로 VOC 배출원 찾기', edu: '어린이들에게 미세먼지·오존 알려 주기', tf: '재생에너지·전력망 주민 의견 듣기', ozone: '여름철 오존 대책 세우기',
+  total: '배관·밸브 6곳 누출 점검', quota: '배출허용총량 남는 곳·모자란 곳 가리기', integ: '통합관리사업장 허가 조건 확인', small: '작은 사업장에 저녹스버너·방지시설 안내',
+  lab: '굴뚝에 올라 시료 채취 → 분석', net: '측정소 자료에서 이상한 값 찾기', mobile: '이동측정차량으로 학교 주변 대기질 조사', inven: '배출원을 점·선·면으로 나누기',
+  car: '도로청소차로 먼지 12곳 치우기', fuel: '연료 시료 모아 황 함량 검사', retro: '노후차에 맞는 저감사업 안내', cons: '공사장 건설기계 저공해 조치 확인',
+};
+function openBoard(dept) {
+  const list = DEPT_MS[dept], n = list.filter(msDone).length;
+  openModal(`<p class="m-k">${DEPT[dept].name} 미션 보드 · ${n}/4 완료</p><h2>어떤 업무를 해 볼까요?</h2>
+    <div class="rooms">${list.map((id, i) => `<button class="roomc ${msDone(id) ? 'here' : ''}" data-ms="${id}" style="--c:${ROOMS[dept].color}"><span class="rn">${msTask(id)}</span><span class="rd">${MS_DESC[id]}</span><span class="rm">${i === 0 ? '<span class="me">대표 업무 · 스탬프</span>' : '<span>★ 추가 업무</span>'}${msDone(id) ? '<span class="on">완료 ✓</span>' : ''}</span></button>`).join('')}</div>
+    <p class="fine">대표 업무를 마치면 스탬프를 받고 하늘이 맑아져요. 다 한 업무도 다시 할 수 있어요.</p>
+    <div class="m-btns"><button class="btn" data-x>닫기</button></div>`);
+  mcard.querySelectorAll('[data-ms]').forEach((b) => b.onclick = () => {
+    const id = b.dataset.ms, npc = npcByKey[dept]; closeModal();
+    if (DEPT[id]) { const TK = TALK[id]; talk(npc.name, TK.pages.slice(1), [{ label: '다음에 할게요' }, { label: TK.cta, primary: true, onClick: TK.start }]); }
+    else talk(npc.name, XD[id].pages, [{ label: '다음에 할게요' }, { label: XD[id].cta, primary: true, onClick: () => startExtra(id) }]);
+  });
+  $('[data-x]', mcard).onclick = closeModal;
 }
 function talkGuide() {
   const n = doneCount();
@@ -2143,15 +2248,15 @@ function talkGuide() {
       `광장 가장자리의 <b>색깔 문</b>으로 들어가면 과마다 따로 마련된 <b>미션룸</b>이 나와요. 미션룸 안에서 <span class="ib">!</span> 표시 직원에게 말을 걸면 체험이 시작돼요. 왼쪽 위 <b>룸 이동</b> 버튼으로 바로 갈 수도 있어요.<span class="sub">${isTouch ? '왼쪽 조이스틱으로 움직이고, 오른쪽 버튼으로 대화해요.' : 'WASD·방향키로 움직이고, E나 스페이스로 대화해요. 땅을 클릭해도 걸어가요.'} 오른쪽 위 지도는 위쪽이 북쪽이에요.</span>`,
     ], [{ label: '좋아요!', primary: true, onClick: () => { state.metGuide = true; save(); refreshAll(); } }]);
   }
-  if (n === 4) return talk('안내 직원', ['네 가지 업무를 모두 체험하셨네요! 하늘이 이렇게 맑아졌어요. 작은 기념장을 드릴게요.'], [{ label: '기념장 받기', primary: true, onClick: showCert }]);
+  if (n === 4) return talk('안내 직원', [`네 과의 대표 업무를 모두 체험하셨네요! 하늘이 이렇게 맑아졌어요. 지금까지 <b>${doneAll()}/16</b>가지 업무를 해 봤어요. 작은 기념장을 드릴게요.`], [{ label: '기념장 받기', primary: true, onClick: showCert }]);
   const left = Object.keys(DEPT).filter((k) => !state.done[k]).map((k) => DEPT[k].name).join(', ');
-  talk('안내 직원', [`지금까지 <b>${n}/4</b>개 업무를 체험했어요. 남은 곳은 ${left}예요. 지도에서 <span class="ib">!</span> 표시를 찾아보세요.`]);
+  talk('안내 직원', [`지금까지 <b>${doneAll()}/16</b>가지 업무를 체험했어요. 대표 업무가 남은 곳은 ${left}예요. 지도에서 <span class="ib">!</span> 표시를 찾아보세요.`]);
 }
 function showCert() {
   const d = new Date(), ds = `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
   openModal(`<div class="cert"><p class="cert-k">체험 기념장</p><h2>명예 대기환경 지킴이</h2><p class="cert-name">${esc(state.name)} 님</p>
-    <p>수도권대기환경청 업무체험관에서 네 가지 업무를 모두 체험하며 맑은 하늘을 되찾는 데 함께하였습니다.</p>
-    <ul class="cert-list"><li>기획과 · 이동측정으로 배출원 찾기</li><li>대기총량과 · 비산배출 누출 점검</li><li>조사분석과 · 굴뚝 시료 채취·분석</li><li>자동차관리과 · 도로 재비산먼지 청소</li>${Object.keys(XD).filter((k) => state.extra[k]).map((k) => `<li>추가 · ${XD[k].task}</li>`).join('')}</ul>
+    <p>수도권대기환경청 업무체험관에서 <b>${doneAll()}가지</b> 업무를 체험하며 맑은 하늘을 되찾는 데 함께하였습니다.</p>
+    <ul class="cert-list">${Object.entries(DEPT_MS).map(([d, ids]) => ids.filter(msDone).map((id) => `<li>${DEPT[d].name} · ${msTask(id)}</li>`).join('')).join('')}</ul>
     <p class="cert-date">${ds}</p><p class="cert-org">수도권대기환경청 업무체험관</p></div>
     <div class="m-btns"><button class="btn" data-reset>처음부터 다시</button><button class="btn primary" data-ok>계속 둘러보기</button></div>`);
   $('[data-ok]', mcard).onclick = closeModal;
@@ -2188,25 +2293,48 @@ const XD = {
     pages: ['측정소 장비는 하루 종일 자료를 보내와요. 그런데 장비에 문제가 생기면 <b>이상한 값</b>이 찍히기도 해요.', '<b>대기오염측정소</b>로 가서 자료를 살펴보고, 이상한 그래프를 찾아 주세요. 이렇게 자료 품질을 관리해요.'] },
   fuel: { dept: 'car', name: '자동차관리과', task: '연료 품질 검사', cta: '시료 모으러 가기',
     pages: ['자동차 연료의 품질도 관리해요. 연료가 <b>제조기준</b>에 맞는지 시료를 검사하고, 환경품질등급을 평가·공개하죠.', '마당 곳곳에 놓인 <b>연료 시료 3통</b>을 모아서 <b>연료 분석대</b>로 가져와 주세요.'] },
+  tf: { dept: 'plan', name: '기획과', task: '기후에너지 TF 주민 소통', cta: '주민 만나러 가기', hint: '차고 앞 <b>주민 세 분</b>의 이야기를 들어 보세요.',
+    pages: ['기획과는 <b>기후에너지 TF</b>도 꾸려요. 수도권의 재생에너지·전력망 현안을 현장에서 듣고 관계기관과 해결 방안을 찾아요.', '차고 앞에 모인 주민 세 분의 이야기를 듣고, 알맞은 해결 방향을 정리해 주세요.'] },
+  ozone: { dept: 'plan', name: '기획과', task: '여름철 오존 대책 세우기', cta: '회의하러 가기', hint: '차고 앞 <b>상황판</b>에서 오존 대책 회의를 여세요.',
+    pages: ['여름이 다가오면 <b>오존</b>이 걱정이에요. 오존은 햇빛이 강할 때 질소산화물과 휘발성유기화합물이 반응해 생겨요.', '차고 앞 <b>상황판</b>에서 올여름 오존 대책 회의를 열어 주세요. 효과 있는 대책 3가지를 골라야 해요.'] },
+  integ: { dept: 'total', name: '대기총량과', task: '통합관리사업장 허가 이행 점검', cta: '점검하러 가기', hint: '<b>집진시설 · 자동측정기기 · 운영기록부</b>를 확인하세요.',
+    pages: ['<b>통합관리사업장</b>은 배출시설과 방지시설을 하나의 허가로 관리해요. 허가에 적힌 조건을 지키는지 확인하는 게 중요하죠.', '공장 동쪽의 <b>집진시설</b>, <b>굴뚝 자동측정기기(TMS)</b>, 사무실의 <b>운영기록부</b> 세 곳을 확인해 주세요.'] },
+  small: { dept: 'total', name: '대기총량과', task: '소규모 사업장 기술지원', cta: '방문하러 가기', hint: '사무실 옆 <b>푸른 도장</b> 사장님을 찾아가세요.',
+    pages: ['작은 사업장은 환경 담당자가 따로 없는 경우가 많아요. 그래서 대기총량과가 <b>기술지원</b>을 하고 <b>저녹스버너</b> 보급도 도와요.', '사무실 옆 <b>도장 작업장</b> 사장님의 고민을 들어 주세요.'] },
+  mobile: { dept: 'lab', name: '조사분석과', task: '이동측정차량 지역 대기질 조사', cta: '조사 시작', hint: '차량을 배치한 뒤 <b>이동측정차량</b> 옆에서 측정을 시작하세요.',
+    pages: ['측정망이 없는 곳의 공기는 어떻게 알까요? <b>대기환경이동측정차량</b>을 보내 직접 재요.', '먼저 어디를 조사할지 정하고, 차량을 보내서 24시간 측정 자료를 살펴봐 주세요.'] },
+  inven: { dept: 'lab', name: '조사분석과', task: '배출원·배출량 조사', cta: '자료실로 가기', hint: '분석실 옆 <b>배출량 자료실</b>로 가세요.',
+    pages: ['대기오염물질이 어디서 얼마나 나오는지 알아야 대책을 세울 수 있어요. 그래서 <b>배출원과 배출량</b>을 조사하고 자료로 관리해요.', '분석실 옆 <b>자료실</b>에서 배출원을 종류별로 정리해 주세요.'] },
+  retro: { dept: 'car', name: '자동차관리과', task: '노후차 저감사업 상담', cta: '상담하러 가기', hint: '마당 남쪽 <b>저감 상담 창구</b>로 가세요.',
+    pages: ['오래된 경유차와 건설기계는 미세먼지를 많이 내보내요. 그래서 <b>조기폐차</b>, <b>배출가스 저감장치</b>, <b>엔진교체</b> 같은 저감사업을 해요.', '마당 남쪽 <b>저감 상담 창구</b>에서 차 주인들과 상담해 주세요.'] },
+  cons: { dept: 'car', name: '자동차관리과', task: '노후 건설기계 사용제한 점검', cta: '공사장으로 가기', hint: '<b>공사장</b>의 건설기계 세 대를 점검하세요.',
+    pages: ['공사장에서 쓰는 오래된 건설기계도 미세먼지를 많이 내요. 저공해 조치를 하지 않은 노후 건설기계는 <b>사용이 제한</b>될 수 있어요.', '마당 북쪽 <b>공사장</b>의 건설기계 세 대를 점검해 저공해 조치가 됐는지 확인해 주세요.'] },
 };
 const XBY = { plan: 'edu', total: 'quota', lab: 'net', car: 'fuel' };
 const INFO = (k) => DEPT[k] || XD[k] || (k === 'fly' ? { name: '하늘멍 언덕', task: '하늘 날기' } : { name: '', task: '' });
 function startExtra(k) {
   if (M.active) return;
   M.active = k; if (k === 'fuel') resetFuel();
+  if (SPOTS[k]) SPOTS[k].forEach((s) => (s.done = false));
   renderMission(); SFX.ok();
-  toast({ edu: '푸른하늘 교실로 가 보세요.', quota: '대기총량과 사무실 문 앞으로 가 보세요.', net: '측정소로 가 보세요.', fuel: '연료 시료 3통을 모아 주세요.' }[k]);
+  const msg = { edu: '푸른하늘 교실로 가 보세요.', quota: '대기총량과 사무실 문 앞으로 가 보세요.', net: '측정소로 가 보세요.', fuel: '연료 시료 3통을 모아 주세요.' }[k];
+  if (msg) toast(msg);
+  if (STARTERS[k]) STARTERS[k]();
 }
-function endExtra() { M.active = null; mode = 'walk'; renderMission(); }
+function endExtra() { if (M.active === 'mobile') resetMobile(); M.active = null; mode = 'walk'; renderMission(); }
+function celebrate() { // 미션을 마치면 내 캐릭터와 마스코트가 함께 폴짝
+  cheer(player.rig); mascots.forEach((m) => { m.jump = 0.5; m.greet = 1.2; });
+  ['#ff9fb5', '#ffd45c', '#7fc8f8', '#a3d977'].forEach((c) => burst(player.pos.x, player.pos.y + 1.8, player.pos.z, c, 4, 0.5));
+}
 function showExtraDone(key, title, body) {
   const first = !state.extra[key];
-  openModal(`<div class="done-head"><div class="stamp-big star">★<small>추가 체험</small></div></div>
+  openModal(`<div class="done-head"><div class="stamp-big star">★<small>업무 체험</small></div></div>
     <h2 class="center">${title}</h2><p>${body}</p>
     <div class="m-btns"><button class="btn primary" data-ok>${first ? '별 받기' : '확인'}</button></div>`);
-  SFX.chime();
+  SFX.chime(); celebrate();
   $('[data-ok]', mcard).onclick = () => {
     closeModal();
-    if (first) { state.extra[key] = true; save(); refreshAll(); SFX.stamp(); buzz([30, 50, 30]); toast(`추가 체험 별 획득! (${Object.values(state.extra).filter(Boolean).length}/4)`); }
+    if (first) { state.extra[key] = true; save(); refreshAll(); SFX.stamp(); buzz([30, 50, 30]); toast(`업무 체험 별 획득! 지금까지 ${doneAll()}/16가지`); }
     endExtra();
   };
 }
@@ -2326,24 +2454,27 @@ function openFuel() {
 /* =========================================================
    avatar customizer
    ========================================================= */
-const SKINS = ['#f6d7b8', '#f1c8a4', '#dfae84', '#b98159', '#8a5a3c'];
+const SKINS = ['#f9dfc4', '#f1c8a4', '#e3b088', '#c68e63', '#9a6644', '#6e4630'];
 const BODIES = [['m', '남자'], ['f', '여자']];
+const EYES = [['round', '동글눈'], ['sparkle', '반짝눈'], ['smile', '웃는 눈'], ['sleepy', '졸린 눈'], ['wink', '윙크']];
+const MOUTHS = [['smile', '미소'], ['grin', '활짝'], ['cat', '고양이 입'], ['o', '동그란 입']];
+const CHEEKS = [['pink', '볼터치'], ['freckle', '주근깨'], ['none', '없음']];
 const HAIRS = [['short', '짧은 머리'], ['curly', '곱슬머리'], ['bob', '단발'], ['long', '긴 머리'], ['pony', '포니테일'], ['bun', '똥머리'], ['cap', '야구모자'], ['beanie', '비니']];
-const HAIR_COLS = ['#2a211b', '#5a3d2b', '#8a6a4a', '#c9a15a', '#6b6f78', '#a8452f'];
+const HAIR_COLS = ['#2a211b', '#5a3d2b', '#8a6a4a', '#c9a15a', '#6b6f78', '#a8452f', '#e6d3a3'];
 const TOPS = [['tee', '반팔 티'], ['long', '긴팔 티'], ['shirt', '셔츠·넥타이'], ['hoodie', '후드티'], ['suit', '정장'], ['vest', '형광 조끼']];
-const SHIRTS = ['#3b82c4', '#2f9e6e', '#e0a526', '#d9667f', '#8e6bbf', '#e4572e', '#f3f3f3', '#3d405b', '#2b2f36', '#f2a7c3'];
+const SHIRTS = ['#3b82c4', '#2f9e6e', '#e0a526', '#d9667f', '#8e6bbf', '#e4572e', '#f3f3f3', '#3d405b', '#2b2f36', '#f2a7c3', '#7fc8f8', '#a3d977'];
 const BOTTOMS = [['pants', '긴바지'], ['shorts', '반바지'], ['skirt', '치마']];
 const PANTS = ['#34495e', '#2f3e46', '#5c5552', '#3b6ea5', '#c9b48a', '#2b2f36', '#d9667f', '#f3f3f3'];
 const ACCS = [['none', '없음'], ['glasses', '안경'], ['sunglasses', '선글라스'], ['mask', '마스크'], ['headphones', '헤드폰']];
 const PRESETS = [
-  ['남자 캐주얼', { body: 'm', hair: 'short', hairColor: '#2a211b', top: 'tee', shirt: '#3b82c4', bottom: 'pants', pants: '#34495e', acc: 'none' }],
-  ['남자 정장', { body: 'm', hair: 'short', hairColor: '#2a211b', top: 'suit', shirt: '#2b2f36', bottom: 'pants', pants: '#2b2f36', acc: 'none' }],
-  ['남자 현장', { body: 'm', hair: 'cap', hairColor: '#2a211b', top: 'vest', shirt: '#2f9e6e', bottom: 'pants', pants: '#3b6ea5', acc: 'none' }],
-  ['여자 캐주얼', { body: 'f', hair: 'long', hairColor: '#5a3d2b', top: 'tee', shirt: '#f2a7c3', bottom: 'pants', pants: '#3b6ea5', acc: 'none' }],
-  ['여자 원피스', { body: 'f', hair: 'bob', hairColor: '#2a211b', top: 'long', shirt: '#8e6bbf', bottom: 'skirt', pants: '#8e6bbf', acc: 'none' }],
-  ['여자 정장', { body: 'f', hair: 'pony', hairColor: '#2a211b', top: 'suit', shirt: '#3d405b', bottom: 'skirt', pants: '#3d405b', acc: 'glasses' }],
+  ['남자 캐주얼', { body: 'm', hair: 'short', hairColor: '#2a211b', top: 'tee', shirt: '#3b82c4', bottom: 'pants', pants: '#34495e', acc: 'none', eye: 'round', mouth: 'smile', cheek: 'pink' }],
+  ['남자 정장', { body: 'm', hair: 'short', hairColor: '#2a211b', top: 'suit', shirt: '#2b2f36', bottom: 'pants', pants: '#2b2f36', acc: 'glasses', eye: 'round', mouth: 'smile', cheek: 'none' }],
+  ['남자 현장', { body: 'm', hair: 'cap', hairColor: '#2a211b', top: 'vest', shirt: '#2f9e6e', bottom: 'pants', pants: '#3b6ea5', acc: 'none', eye: 'smile', mouth: 'grin', cheek: 'pink' }],
+  ['여자 캐주얼', { body: 'f', hair: 'long', hairColor: '#5a3d2b', top: 'tee', shirt: '#f2a7c3', bottom: 'pants', pants: '#3b6ea5', acc: 'none', eye: 'sparkle', mouth: 'smile', cheek: 'pink' }],
+  ['여자 원피스', { body: 'f', hair: 'bob', hairColor: '#2a211b', top: 'long', shirt: '#8e6bbf', bottom: 'skirt', pants: '#8e6bbf', acc: 'none', eye: 'sparkle', mouth: 'cat', cheek: 'pink' }],
+  ['여자 정장', { body: 'f', hair: 'pony', hairColor: '#2a211b', top: 'suit', shirt: '#3d405b', bottom: 'skirt', pants: '#3d405b', acc: 'glasses', eye: 'round', mouth: 'smile', cheek: 'none' }],
 ];
-const AV_OK = { body: BODIES.map((b) => b[0]), skin: SKINS, hair: HAIRS.map((h) => h[0]), hairColor: HAIR_COLS, top: TOPS.map((t) => t[0]), shirt: SHIRTS, bottom: BOTTOMS.map((b) => b[0]), pants: PANTS, acc: ACCS.map((a) => a[0]) };
+const AV_OK = { body: BODIES.map((b) => b[0]), skin: SKINS, hair: HAIRS.map((h) => h[0]), hairColor: HAIR_COLS, top: TOPS.map((t) => t[0]), shirt: SHIRTS, bottom: BOTTOMS.map((b) => b[0]), pants: PANTS, acc: ACCS.map((a) => a[0]), eye: EYES.map((e) => e[0]), mouth: MOUTHS.map((m) => m[0]), cheek: CHEEKS.map((c) => c[0]) };
 const AV_KEYS = Object.keys(AV_OK);
 const avatarCode = (a) => AV_KEYS.map((k) => a[k]).join('|');
 function parseAvatar(code) { // 네트워크로 받은 값은 허용 목록 안에서만
@@ -2351,52 +2482,85 @@ function parseAvatar(code) { // 네트워크로 받은 값은 허용 목록 안�
   AV_KEYS.forEach((k, i) => (a[k] = AV_OK[k].includes(p[i]) ? p[i] : AV_OK[k][0]));
   return a;
 }
-let czR = null;
+const CZ_TABS = [
+  ['base', '기본', [['p', '추천 조합'], ['c', 'body', '성별', BODIES], ['s', 'skin', '피부', SKINS]]],
+  ['face', '얼굴', [['c', 'eye', '눈', EYES], ['c', 'mouth', '입', MOUTHS], ['c', 'cheek', '볼', CHEEKS], ['c', 'acc', '얼굴 소품', ACCS]]],
+  ['hair', '머리', [['c', 'hair', '머리 모양', HAIRS], ['s', 'hairColor', '머리 색', HAIR_COLS]]],
+  ['wear', '옷', [['c', 'top', '윗옷', TOPS], ['s', 'shirt', '윗옷 색', SHIRTS], ['c', 'bottom', '아래옷', BOTTOMS], ['s', 'pants', '아래옷 색', PANTS]]],
+];
+// 캐릭터 만들기 (시작 화면·게임 안 공용): 미리보기 + 탭
+function mountCreator(box, draft, onChange) {
+  let tab = 'base';
+  box.innerHTML = `<div class="cz"><div class="cz-prev"><canvas class="czCv" aria-label="캐릭터 미리보기. 끌어서 돌려 볼 수 있어요"></canvas><button class="mini-btn" type="button" data-rand>무작위로</button></div>
+    <div class="cz-side"><div class="cz-tabs" role="tablist">${CZ_TABS.map(([id, nm]) => `<button type="button" class="cz-tab" role="tab" data-tab="${id}" aria-selected="${id === tab}">${nm}</button>`).join('')}</div><div class="cz-panel"></div></div></div>`;
+  const panel = $('.cz-panel', box);
+  const render = () => {
+    const [, , groups] = CZ_TABS.find((t) => t[0] === tab);
+    panel.innerHTML = groups.map((g) => {
+      if (g[0] === 'p') return `<div class="field"><span>${g[1]}</span><div class="mopts">${PRESETS.map(([nm], i) => `<button type="button" class="chip" data-p="${i}">${nm}</button>`).join('')}</div></div>`;
+      const [kind, key, label, list] = g;
+      if (kind === 's') return `<div class="field"><span>${label}</span><div class="swatches sm" data-key="${key}">${list.map((c) => `<button type="button" class="sw" data-v="${c}" style="background:${c}" aria-label="${label}" aria-pressed="${draft[key] === c}"></button>`).join('')}</div></div>`;
+      return `<div class="field"><span>${label}</span><div class="mopts" data-key="${key}">${list.map(([v, nm]) => `<button type="button" class="chip" data-v="${v}" aria-pressed="${draft[key] === v}">${nm}</button>`).join('')}</div></div>`;
+    }).join('');
+    box.querySelectorAll('.cz-tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+  };
+  const changed = () => { render(); SFX.tick(); prev && prev.rebuild(); onChange && onChange(draft); };
+  box.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-tab]'); if (t) { tab = t.dataset.tab; render(); SFX.tick(); return; }
+    const p = e.target.closest('[data-p]'); if (p) { Object.assign(draft, PRESETS[Number(p.dataset.p)][1]); changed(); if (prev) prev.cheer(); return; }
+    if (e.target.closest('[data-rand]')) { AV_KEYS.forEach((k) => (draft[k] = pick(AV_OK[k]))); changed(); if (prev) prev.cheer(); return; }
+    const v = e.target.closest('[data-v]'), g = v && v.closest('[data-key]');
+    if (g) { draft[g.dataset.key] = v.dataset.v; changed(); }
+  });
+  render();
+  let prev = null;
+  requestAnimationFrame(() => { prev = startPreview($('.czCv', box), draft); });
+  return { stop() { if (prev) prev.stop(); prev = null; } };
+}
 function openCustomizer(onDone) {
   const draft = { ...state.avatar };
-  const sw = (key, label, list) => `<div class="field"><span>${label}</span><div class="swatches sm" data-key="${key}">${list.map((c) => `<button class="sw" data-v="${c}" style="background:${c}" aria-label="${label}" aria-pressed="${draft[key] === c}"></button>`).join('')}</div></div>`;
-  const ch = (key, label, list) => `<div class="field"><span>${label}</span><div class="mopts" data-key="${key}">${list.map(([v, nm]) => `<button class="chip" data-v="${v}" aria-pressed="${draft[key] === v}">${nm}</button>`).join('')}</div></div>`;
   openModal(`<p class="m-k">내 캐릭터</p><h2>캐릭터 꾸미기</h2>
-    <div class="cz"><div class="cz-prev"><canvas id="czCv" aria-label="캐릭터 미리보기. 끌어서 돌려 볼 수 있어요"></canvas><button class="mini-btn" data-rand>무작위로 꾸미기</button></div>
-    <div class="cz-opts"><label class="field"><span>닉네임</span><input id="czName" maxlength="10" placeholder="예: 맑음이"></label>
-    <div class="field"><span>추천 조합</span><div class="mopts" data-preset>${PRESETS.map(([nm], i) => `<button class="chip" data-p="${i}">${nm}</button>`).join('')}</div></div>
-    ${ch('body', '성별', BODIES)}${sw('skin', '피부', SKINS)}${ch('hair', '머리 모양', HAIRS)}${sw('hairColor', '머리 색', HAIR_COLS)}
-    ${ch('top', '윗옷 종류', TOPS)}${sw('shirt', '윗옷 색', SHIRTS)}${ch('bottom', '아래옷 종류', BOTTOMS)}${sw('pants', '아래옷 색', PANTS)}${ch('acc', '소품', ACCS)}</div></div>
+    <label class="field"><span>닉네임</span><input id="czName" maxlength="10" placeholder="예: 맑음이"></label>
+    <div id="czBox"></div>
     <div class="m-btns"><button class="btn" data-cancel>취소</button><button class="btn primary" data-save>저장</button></div>`);
   $('#czName').value = state.name || $('#nameIn').value || '';
-  const sync = () => mcard.querySelectorAll('[data-key]').forEach((g) => g.querySelectorAll('[data-v]').forEach((b) => b.setAttribute('aria-pressed', String(draft[g.dataset.key] === b.dataset.v))));
-  mcard.querySelectorAll('[data-key]').forEach((g) => g.addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (!b) return; draft[g.dataset.key] = b.dataset.v; sync(); SFX.tick(); czR && czR.rebuild(); }));
-  $('[data-preset]', mcard).addEventListener('click', (e) => { const b = e.target.closest('[data-p]'); if (!b) return; Object.assign(draft, PRESETS[Number(b.dataset.p)][1]); sync(); SFX.pop(); czR && czR.rebuild(); });
-  $('[data-rand]', mcard).onclick = () => { AV_KEYS.forEach((k) => (draft[k] = pick(AV_OK[k]))); sync(); SFX.pop(); czR && czR.rebuild(); };
-  const close = () => { if (czR) { czR.stop(); czR = null; } closeModal(); };
+  const cz = mountCreator($('#czBox'), draft);
+  const close = () => { cz.stop(); closeModal(); };
   $('[data-cancel]', mcard).onclick = close;
   $('[data-save]', mcard).onclick = () => {
     const nm = cleanName($('#czName').value);
     state.avatar = { ...draft }; state.color = draft.shirt; state.name = nm; save();
-    $('#nameIn').value = nm; syncStartSwatches();
-    if (player.rig) { rebuildPlayer(); sendState(true); toast('캐릭터를 바꿨어요!'); }
+    $('#nameIn').value = nm;
+    if (player.rig) { rebuildPlayer(); sendState(true); cheer(player.rig); toast('캐릭터를 바꿨어요!'); }
     close(); SFX.ok(); onDone && onDone();
   };
-  requestAnimationFrame(() => startPreview(draft));
 }
-function startPreview(draft) {
-  const cv = $('#czCv'); if (!cv) return;
+function startPreview(cv, draft) {
+  if (!cv) return null;
   let r;
-  try { r = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); } catch (e) { return; }
+  try { r = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); } catch (e) { return null; }
   const w = cv.clientWidth || 150, h = cv.clientHeight || 200;
   r.setPixelRatio(Math.min(devicePixelRatio || 1, 2)); r.setSize(w, h, false);
-  const sc = new THREE.Scene(); sc.add(new THREE.HemisphereLight('#fff8ec', '#8aa07a', 1.4));
-  const dl = new THREE.DirectionalLight('#ffffff', 2.2); dl.position.set(2, 4, 3); sc.add(dl);
-  const cam = new THREE.PerspectiveCamera(28, w / h, 0.1, 50); cam.position.set(0, 1.3, 5.4); cam.lookAt(0, 1.05, 0);
-  let rig = null, ang = 0.4, raf = 0, prev = performance.now(), drag = null;
+  const sc = new THREE.Scene(); sc.add(new THREE.HemisphereLight('#fff8ec', '#8aa07a', 1.45));
+  const dl = new THREE.DirectionalLight('#ffffff', 2.1); dl.position.set(2, 4, 3); sc.add(dl);
+  const cam = new THREE.PerspectiveCamera(30, w / h, 0.1, 50); cam.position.set(0, 1.25, 5.0); cam.lookAt(0, 1.0, 0);
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(0.9, 32), new THREE.MeshLambertMaterial({ color: '#cfe8c4' })); ground.rotation.x = -Math.PI / 2; sc.add(ground);
+  let rig = null, ang = 0.45, raf = 0, prev = performance.now(), drag = null, walkT = 0;
   const rebuild = () => { if (rig) sc.remove(rig.root); rig = makePerson(avatarLook(draft)); rig.root.rotation.y = ang; sc.add(rig.root); };
   rebuild();
   cv.addEventListener('pointerdown', (e) => { drag = e.clientX; cv.setPointerCapture(e.pointerId); });
   cv.addEventListener('pointermove', (e) => { if (drag !== null) { ang += (e.clientX - drag) * 0.012; drag = e.clientX; } });
   cv.addEventListener('pointerup', () => (drag = null));
-  const loop = (now) => { const dt = Math.min(0.05, (now - prev) / 1000); prev = now; if (drag === null) ang += dt * 0.6; rig.root.rotation.y = ang; if (Math.random() < 0.004) rig.wave = 1.4; animPerson(rig, 0, dt); r.render(sc, cam); raf = requestAnimationFrame(loop); };
+  const loop = (now) => {
+    const dt = Math.min(0.05, (now - prev) / 1000); prev = now;
+    if (drag === null) ang += dt * 0.55; rig.root.rotation.y = ang;
+    walkT += dt; const walking = walkT % 9 > 6.5; // 가끔 제자리 걸음으로 움직임 보여 주기
+    if (Math.random() < 0.003 && !walking) rig.wave = 1.4;
+    animPerson(rig, walking ? 3.2 : 0, dt); r.render(sc, cam);
+    raf = requestAnimationFrame(loop);
+  };
   raf = requestAnimationFrame(loop);
-  czR = { rebuild, stop() { cancelAnimationFrame(raf); r.dispose(); if (r.forceContextLoss) r.forceContextLoss(); } };
+  return { rebuild, cheer: () => rig && cheer(rig), stop() { cancelAnimationFrame(raf); r.dispose(); if (r.forceContextLoss) r.forceContextLoss(); } };
 }
 
 /* =========================================================
@@ -2548,6 +2712,432 @@ function flyCtrl(dt) {
 }
 
 /* =========================================================
+   업무별 미션 — 과마다 4가지씩, 모두 16가지
+   ========================================================= */
+const zg = (zone) => { const g = new THREE.Group(); zoneGroups[zone].add(g); return g; };
+// ---- 소품 ----
+const RESIDENTS = [[-37.4, -3.0], [-35.0, -2.4], [-32.6, -3.0]].map(([x, z], i) => {
+  const rig = makePerson({ shirt: ['#c9a15a', '#6fa85a', '#d9667f'][i], pants: '#4b4e57', hair: ['#e6d3a3', '#2a211b', '#6b6f78'][i], style: ['short', 'bob', 'cap'][i], body: i === 1 ? 'f' : 'm', top: ['long', 'tee', 'vest'][i], eye: 'round' });
+  rig.root.position.set(x, 0, z); zoneGroups.plan.add(rig.root); addCircle(x, z, 0.5);
+  const el = document.createElement('div'); el.className = 'tag'; el.textContent = '주민'; addLabel(el, { obj: rig.root, dy: 2.5, show: () => M.active === 'tf' });
+  return { rig, pos: rig.root.position };
+});
+{
+  const g = zg('plan');
+  for (const dx of [0, 1.6]) { const p = box(1.4, 0.06, 0.9, '#2c4a6e', -39 + dx, 0.85, -6.0, g); p.rotation.x = -0.5; box(0.06, 0.8, 0.06, '#9aa3aa', -39 + dx, 0.4, -5.8, g); }
+  cyl(0.1, 0.12, 6, '#8d979e', -30.2, 3, -4.6, g, 8); box(1.6, 0.12, 0.12, '#8d979e', -30.2, 5.6, -4.6, g); addCircle(-30.2, -4.6, 0.3);
+  box(2.6, 1.5, 0.12, '#f6f3ea', -23.5, 1.6, -3.0, g); box(2.4, 1.3, 0.05, '#2e6b4f', -23.5, 1.6, -2.92, g, false);
+  for (const dx of [-1.1, 1.1]) box(0.08, 1.6, 0.08, '#59616a', -23.5 + dx, 0.8, -3.05, g);
+  const s = textPlane('오존 대책 회의', { w: 2.2, h: 0.42, bg: '#e0a526' }); s.position.set(-23.5, 2.6, -2.9); g.add(s); addRect(-23.5, -3.05, 2.6, 0.3);
+}
+{
+  const g = zg('total');
+  box(2.4, 3.2, 1.8, '#c9cfd4', 36.5, 1.6, -13, g); put(new THREE.Mesh(new THREE.ConeGeometry(0.9, 1.1, 4), mat('#aab2b8')), g, 36.5, 0.0, -13).rotation.y = Math.PI / 4;
+  box(0.5, 0.5, 5.5, '#aab2b8', 36.5, 3.4, -16.5, g);
+  const s1 = textPlane('집진시설', { w: 1.8, h: 0.42, bg: '#5c6f7d' }); s1.position.set(36.5, 2.4, -12.08); g.add(s1); addRect(36.5, -13, 2.4, 1.8);
+  box(1.6, 1.8, 1.4, '#eef1f3', 30.2, 0.9, -14.6, g); box(1.8, 0.15, 1.6, '#3a8fd1', 30.2, 1.88, -14.6, g); cyl(0.05, 0.05, 1.6, '#9aa3aa', 30.6, 2.6, -14.9, g, 6);
+  const s2 = textPlane('TMS 측정실', { w: 1.6, h: 0.38, bg: '#3a8fd1' }); s2.position.set(30.2, 1.35, -13.88); g.add(s2); addRect(30.2, -14.6, 1.6, 1.4);
+  box(0.9, 1.0, 0.6, '#8b6b47', 28.6, 0.5, -9.2, g); box(0.7, 0.08, 0.5, '#f6f3ea', 28.6, 1.04, -9.2, g); addRect(28.6, -9.2, 0.9, 0.6);
+  box(4.2, 2.8, 3, '#f0e6d6', 34.8, 1.4, -5.8, g); box(4.5, 0.3, 3.3, '#e4572e', 34.8, 2.95, -5.8, g); box(1.4, 2.0, 0.1, '#5d8fa6', 34.0, 1.0, -4.26, g, false);
+  const s3 = textPlane('푸른 도장', { w: 2.2, h: 0.5, bg: '#e4572e' }); s3.position.set(35.6, 2.35, -4.24); g.add(s3); addRect(34.8, -5.8, 4.2, 3);
+}
+const OWNER = (() => { const rig = makePerson({ shirt: '#3d405b', pants: '#5c5552', hair: '#2a211b', style: 'short', top: 'long', vest: false }); rig.root.position.set(32.0, 0, -3.0); zoneGroups.total.add(rig.root); addCircle(32.0, -3.0, 0.5); const el = document.createElement('div'); el.className = 'tag'; el.textContent = '도장 작업장 사장님'; addLabel(el, { obj: rig.root, dy: 2.5 }); return rig; })();
+const MVAN_HOME = new THREE.Vector3(22.5, 0, 7.5), MVAN_SITE = new THREE.Vector3(27.4, 0, 11.6);
+const mvan = makeVan(); zoneGroups.lab.add(mvan.g); mvan.g.position.copy(MVAN_HOME); mvan.g.rotation.y = Math.PI / 2;
+{ const t = textPlane('조사분석과 이동측정', { w: 2.6, h: 0.4, bg: '#8e6bbf' }); t.position.set(0, 3.25, 0); t.rotation.y = 0; mvan.body.add(t); }
+{
+  const g = zg('lab');
+  box(8, 4, 5, '#f6efe2', 34, 2, 11.5, g); box(8.4, 0.35, 5.4, '#e0a526', 34, 4.15, 11.5, g);
+  for (let x = 31; x <= 37; x += 2) box(1.2, 1.0, 0.1, '#5d8fa6', x, 2.3, 14.05, g, false);
+  box(1.4, 2.0, 0.1, '#8b6b47', 30.6, 1.0, 14.05, g, false);
+  const s = textPlane('푸른초등학교', { w: 3.4, h: 0.6, bg: '#2f9e6e' }); s.position.set(34, 3.5, 14.08); g.add(s); addRect(34, 11.5, 8, 5);
+  for (const x of [25.8, 29.0]) box(0.12, 0.02, 4.4, '#f4f2ea', x, 0.05, 11.6, g, false);
+  box(0.9, 1.7, 1.8, '#8b6b47', 8.4, 0.85, 21, g); box(0.95, 0.06, 1.85, '#a8845e', 8.4, 1.72, 21, g);
+  const s2 = textPlane('배출량 자료실', { w: 1.9, h: 0.42, bg: '#8e6bbf' }); s2.position.set(7.92, 2.1, 21); s2.rotation.y = -Math.PI / 2; g.add(s2); addRect(8.4, 21, 0.9, 1.8);
+}
+const MACHINES = [[-36.5, 7.2, 'exc'], [-31, 7.4, 'loader'], [-26.2, 7.2, 'roller']].map(([x, z, kind]) => {
+  const g = zg('car'); g.position.set(x, 0, z);
+  const Y = '#f2b33d';
+  if (kind === 'exc') { box(1.8, 0.5, 2.4, '#3a3a3a', 0, 0.25, 0, g); box(1.6, 1.0, 1.6, Y, 0, 1.0, 0, g); box(0.9, 0.8, 0.8, '#5d8fa6', 0.3, 1.8, 0.2, g); const a = box(0.3, 0.3, 2.2, Y, -0.4, 1.6, 1.5, g); a.rotation.x = -0.5; box(0.5, 0.5, 0.4, '#3a3a3a', -0.4, 0.8, 2.4, g); }
+  if (kind === 'loader') { box(1.6, 1.0, 2.4, Y, 0, 0.8, 0, g); box(1.2, 0.9, 1.0, '#5d8fa6', 0, 1.7, -0.3, g); box(1.9, 0.5, 0.4, '#3a3a3a', 0, 0.45, 1.5, g); for (const sx of [-0.85, 0.85]) for (const sz of [-0.8, 0.8]) { const w = cyl(0.42, 0.42, 0.3, '#26282b', sx, 0.42, sz, g, 12); w.rotation.z = Math.PI / 2; } }
+  if (kind === 'roller') { box(1.4, 1.0, 2.2, Y, 0, 1.0, -0.2, g); box(1.0, 0.8, 0.9, '#5d8fa6', 0, 1.9, -0.4, g); const r = cyl(0.55, 0.55, 1.6, '#4b5157', 0, 0.55, 1.2, g, 16); r.rotation.z = Math.PI / 2; }
+  addRect(x, z, 2.2, 2.8);
+  return { pos: new THREE.Vector3(x, 0, z + 2.4), kind, name: { exc: '굴착기', loader: '로더', roller: '롤러' }[kind] };
+});
+{
+  const g = zg('car');
+  for (let x = -40; x <= -23; x += 1.7) { box(1.5, 0.5, 0.15, '#f08a3c', x + 0.85, 0.6, 4.6, g); box(1.5, 0.12, 0.17, '#f6f3ea', x + 0.85, 0.75, 4.6, g); }
+  for (const x of [-40, -23]) for (let z = 4.6; z < 10.5; z += 1.7) box(0.15, 0.5, 1.5, '#f08a3c', x, 0.6, z + 0.85, g);
+  addRect(-31.5, 4.6, 17, 0.3); addRect(-40, 7.5, 0.3, 6); addRect(-23, 7.5, 0.3, 6);
+  const s = textPlane('공사장 · 건설기계 점검', { w: 3.4, h: 0.5, bg: '#f08a3c' }); s.position.set(-31.5, 1.5, 4.7); s.rotation.y = Math.PI; g.add(s);
+}
+// ---- 공용 창: 퀴즈 / 짝 맞추기 / 고르기 / 현장 판정 ----
+function quizModal({ kicker, items, done }) {
+  let score = 0;
+  const show = (i) => {
+    const Q = items[i], order = shuffle(Q.opts.map((_, k) => k));
+    openModal(`<p class="m-k">${kicker} · ${i + 1}/${items.length}</p><h2>${Q.q}</h2>${Q.sub ? `<p class="muted">${Q.sub}</p>` : ''}
+      <div class="ans">${order.map((k) => `<button class="btn ansb" data-k="${k}">${Q.opts[k]}</button>`).join('')}</div>
+      <p class="fb" hidden></p><div class="m-btns"><button class="btn primary" data-next hidden>${i < items.length - 1 ? '다음' : '마치기'}</button></div>`);
+    mcard.querySelectorAll('.ansb').forEach((b) => b.onclick = () => {
+      const ok = Number(b.dataset.k) === Q.a; if (ok) score++;
+      mcard.querySelectorAll('.ansb').forEach((x) => { x.disabled = true; if (Number(x.dataset.k) === Q.a) x.classList.add('right'); });
+      if (!ok) b.classList.add('wrong');
+      if (ok) SFX.ok(); else { SFX.no(); buzz(50); }
+      const fb = $('.fb', mcard); fb.hidden = false; fb.classList.toggle('bad', !ok); fb.innerHTML = `<b>${ok ? '맞아요!' : '이렇게 하면 좋아요.'}</b> ${Q.why}`;
+      const nx = $('[data-next]', mcard); nx.hidden = false; nx.focus({ preventScroll: true });
+    });
+    $('[data-next]', mcard).onclick = () => (i < items.length - 1 ? show(i + 1) : done(score));
+  };
+  show(0);
+}
+function matchModal({ kicker, title, intro, rows, tools, done }) {
+  const pickd = {};
+  openModal(`<p class="m-k">${kicker}</p><h2>${title}</h2>${intro ? `<p class="muted">${intro}</p>` : ''}
+    ${rows.map((r, i) => `<div class="mrow" data-i="${i}"><div class="mi">${r.name}</div>${r.sub ? `<div class="ms">${r.sub}</div>` : ''}<div class="mopts">${tools.map((t) => `<button class="chip" data-tool="${t.id}" aria-pressed="false">${t.name}</button>`).join('')}</div><div class="mfb"></div></div>`).join('')}
+    <div class="m-btns"><button class="btn primary" data-go disabled>확인하기</button></div>`);
+  const go = $('[data-go]', mcard);
+  mcard.querySelectorAll('.mrow').forEach((row) => row.querySelectorAll('.chip').forEach((ch) => ch.onclick = () => {
+    if (row.dataset.locked) return;
+    row.querySelectorAll('.chip').forEach((x) => { x.setAttribute('aria-pressed', 'false'); x.classList.remove('wrong'); });
+    ch.setAttribute('aria-pressed', 'true'); pickd[row.dataset.i] = ch.dataset.tool; $('.mfb', row).textContent = ''; SFX.tick();
+    go.disabled = Object.keys(pickd).length < rows.length;
+  }));
+  let tries = 0;
+  go.onclick = () => {
+    tries++; let all = true;
+    rows.forEach((r, i) => {
+      const row = $(`.mrow[data-i="${i}"]`, mcard), ch = $(`[data-tool="${pickd[i]}"]`, row);
+      if (pickd[i] === r.ans) { ch.classList.add('right'); row.dataset.locked = '1'; $('.mfb', row).textContent = r.why || ''; }
+      else { all = false; ch.classList.add('wrong'); ch.setAttribute('aria-pressed', 'false'); delete pickd[i]; $('.mfb', row).textContent = '다시 골라 보세요.'; }
+    });
+    go.disabled = Object.keys(pickd).length < rows.length;
+    if (!all) { SFX.no(); buzz(50); return; }
+    SFX.ok(); go.textContent = '정리하기'; go.disabled = false; go.focus({ preventScroll: true }); go.onclick = () => done(tries);
+  };
+}
+function pickModal({ kicker, title, intro, options, need, done }) {
+  const sel = new Set(), order = shuffle(options.map((_, i) => i));
+  openModal(`<p class="m-k">${kicker}</p><h2>${title}</h2>${intro ? `<p class="muted">${intro}</p>` : ''}
+    <div class="ans">${order.map((i) => `<button class="btn ansb pick" data-i="${i}" aria-pressed="false">${options[i].label}</button>`).join('')}</div>
+    <p class="fb" hidden></p><div class="m-btns"><button class="btn primary" data-go disabled>${need > 1 ? `${need}개 골랐어요` : '이걸로 할게요'}</button></div>`);
+  const go = $('[data-go]', mcard), fb = $('.fb', mcard);
+  mcard.querySelectorAll('.pick').forEach((b) => b.onclick = () => {
+    if (b.disabled) return; const i = Number(b.dataset.i);
+    if (sel.has(i)) sel.delete(i); else { if (need === 1) { sel.clear(); mcard.querySelectorAll('.pick').forEach((x) => x.setAttribute('aria-pressed', 'false')); } if (sel.size < need) sel.add(i); }
+    b.setAttribute('aria-pressed', String(sel.has(i))); go.disabled = sel.size !== need; SFX.tick();
+  });
+  let tries = 0;
+  go.onclick = () => {
+    tries++; const wrong = [...sel].filter((i) => !options[i].ok);
+    if (wrong.length) {
+      SFX.no(); buzz(50);
+      wrong.forEach((i) => { sel.delete(i); const b = $(`.pick[data-i="${i}"]`, mcard); b.classList.add('wrong'); b.disabled = true; b.setAttribute('aria-pressed', 'false'); });
+      fb.hidden = false; fb.classList.add('bad'); fb.innerHTML = wrong.map((i) => `${options[i].label.replace(/<[^>]+>/g, '')}: ${options[i].why}`).join('<br>');
+      go.disabled = true; return;
+    }
+    SFX.ok(); [...sel].forEach((i) => $(`.pick[data-i="${i}"]`, mcard).classList.add('right'));
+    fb.hidden = false; fb.classList.remove('bad'); fb.innerHTML = [...sel].map((i) => `<b>${options[i].label.replace(/<[^>]+>/g, '')}</b> · ${options[i].why}`).join('<br>');
+    go.textContent = '다음'; go.disabled = false; go.focus({ preventScroll: true }); go.onclick = () => done(tries);
+  };
+}
+function verdictModal({ kicker, title, rows, note, choices, answer, rightMsg, wrongMsg, done }) {
+  openModal(`<p class="m-k">${kicker}</p><h2>${title}</h2><div class="vrows">${rows.map(([k, v]) => `<div class="vrow"><span>${k}</span><b>${v}</b></div>`).join('')}</div>${note ? `<p class="fine">${note}</p>` : ''}
+    <div class="m-btns" data-ch>${choices.map(([v, label], i) => `<button class="btn ${i ? 'danger' : ''}" data-v="${v}">${label}</button>`).join('')}</div>
+    <p class="fb" hidden></p><div class="m-btns" data-after hidden><button class="btn primary" data-close>확인</button></div>`);
+  mcard.querySelectorAll('[data-ch] .btn').forEach((b) => b.onclick = () => {
+    const ok = b.dataset.v === answer;
+    if (ok) SFX.ok(); else { SFX.no(); buzz(50); }
+    const fb = $('.fb', mcard); fb.hidden = false; fb.classList.toggle('bad', !ok); fb.innerHTML = ok ? rightMsg : wrongMsg;
+    $('[data-ch]', mcard).hidden = true; const af = $('[data-after]', mcard); af.hidden = false; $('button', af).focus({ preventScroll: true });
+    $('[data-close]', mcard).onclick = () => { closeModal(); done(ok); };
+  });
+}
+// ---- 걸어가서 확인하는 지점들 ----
+const SPOTS = {};
+function addSpots(id, list, verb, onSpot) {
+  SPOTS[id] = list.map((s) => ({ ...s, done: false }));
+  SPOTS[id].forEach((s, i) => addI({ pos: s.pos, r: s.r || 2.3, dy: s.dy || 2.5, label: () => (M.active === id && !s.done && (!s.when || s.when()) ? `${verb} · ${s.name}` : null), act: () => onSpot(s, i) }));
+}
+const spotsLeft = (id) => SPOTS[id].filter((s) => !s.done).length;
+const XTARGET = {};
+// 기획과 · 기후에너지 TF
+const TF_TALK = [
+  { q: '송전탑이 우리 마을을 지나간다는데, 걱정이 커요.', ans: 'grid', why: '전력망을 만드는 과정의 갈등을 관계기관과 함께 조정하고 대안을 찾아요.' },
+  { q: '햇빛으로 마을 소득을 올릴 수 있다던데, 우리 마을도 할 수 있을까요?', ans: 'village', why: '햇빛·바람 소득마을이 될 만한 곳을 찾고 사업 준비를 도와요.' },
+  { q: '사업이 다 정해진 뒤에야 알게 되면 속상하죠.', ans: 'talk', why: '사업 초기부터 주민·지자체와 소통하며 우려와 대안을 들어요.' },
+];
+addSpots('tf', RESIDENTS.map((r, i) => ({ pos: r.pos, name: `주민 ${i + 1}`, r: 2.4 })), '의견 듣기', (s, i) => {
+  RESIDENTS[i].rig.wave = 1.2;
+  talk(`주민 ${i + 1}`, [`“${TF_TALK[i].q}”`], [{ label: '잘 들었어요', primary: true, onClick: () => {
+    s.done = true; SFX.pop(); renderMission();
+    if (!spotsLeft('tf')) setTimeout(() => matchModal({ kicker: '기획과 · 기후에너지 TF', title: '주민 의견, 어떻게 풀까요?', intro: '들은 이야기마다 알맞은 해결 방향을 골라 주세요.',
+      rows: TF_TALK.map((t, k) => ({ name: `주민 ${k + 1}`, sub: t.q, ans: t.ans, why: t.why })),
+      tools: [{ id: 'grid', name: '관계기관과 갈등 조정' }, { id: 'village', name: '소득마을 지원' }, { id: 'talk', name: '사업 초기부터 소통' }],
+      done: () => showExtraDone('tf', '주민 의견을 잘 정리했어요!', '기후에너지 TF는 현안을 파악하고, 주민과 소통하며, 전력망 갈등을 조정하고, 햇빛·바람 소득마을을 지원해요. 수도권 관계기관과 현안을 점검해 개선 과제로 이어 갑니다.') }), 300);
+  } }]);
+});
+// 기획과 · 여름철 오존 대책
+const OZONE_BOARD = new THREE.Vector3(-23.5, 0, -1.7);
+addSpots('ozone', [{ pos: OZONE_BOARD, name: '상황판', r: 2.4 }], '회의 열기', (s) => pickModal({
+  kicker: '기획과 · 여름철 오존 대책', title: '효과 있는 대책 3가지를 고르세요', intro: '오존은 햇빛이 강할 때 질소산화물과 휘발성유기화합물(VOC)이 반응해 생겨요.', need: 3,
+  options: [
+    { label: 'VOC를 많이 내보내는 사업장 집중 점검', ok: true, why: '오존을 만드는 원인물질을 줄여요.' },
+    { label: '오존 예보·주의보 때 시민 행동요령 알리기', ok: true, why: '바깥 활동을 줄여 건강 피해를 막아요.' },
+    { label: '자동차 공회전 줄이기 홍보', ok: true, why: '질소산화물 배출을 줄여요.' },
+    { label: '한여름 오후에 야외 운동 대회 늘리기', ok: false, why: '오존이 높은 시간이라 오히려 위험해요.' },
+    { label: '오존 주의보 때 창문 활짝 열기', ok: false, why: '오존이 높을 땐 실외 공기를 들이지 않는 게 좋아요.' },
+    { label: '겨울철 난방 시설만 점검하기', ok: false, why: '오존은 여름철 햇빛이 강할 때 주로 문제가 돼요.' },
+  ],
+  done: () => { s.done = true; showExtraDone('ozone', '여름철 오존 대책 완성!', '기획과는 수도권 대기환경관리 계획과 오존 대책을 세워요. 원인물질 배출 관리와 시민 행동요령 안내를 함께 챙겨요.'); },
+}));
+// 대기총량과 · 통합관리사업장 허가 이행 점검
+const INTEG = [
+  { name: '집진시설', pos: new THREE.Vector3(36.5, 0, -10.9), cond: '배출시설이 돌아갈 때 집진시설도 함께 가동', ok: '배출시설 가동 중 · 집진시설 정상 가동', bad: '배출시설 가동 중 · 집진시설이 꺼져 있음' },
+  { name: '굴뚝 자동측정기기', pos: new THREE.Vector3(30.2, 0, -12.6), cond: '자동측정기기(TMS) 정상 운영 · 자료 전송', ok: '측정기기 정상 · 자료 전송 중', bad: '측정기기 점검 중 표시 없이 자료 전송 끊김' },
+  { name: '운영기록부', pos: new THREE.Vector3(29.6, 0, -9.2), cond: '방지시설 운영기록을 날마다 작성·보관', ok: '최근 기록 빠짐없이 작성됨', bad: '최근 5일 기록이 비어 있음' },
+];
+let integBad = 0;
+addSpots('integ', INTEG.map((p) => ({ pos: p.pos, name: p.name, r: 2.3 })), '확인', (s, i) => {
+  const p = INTEG[i], bad = i === integBad;
+  verdictModal({ kicker: `대기총량과 · 허가 이행 점검 ${INTEG.length - spotsLeft('integ') + 1}/3`, title: p.name, rows: [['허가 조건', p.cond], ['현장 상태', bad ? p.bad : p.ok]], note: '체험용으로 단순화한 예시예요.',
+    choices: [['ok', '이행'], ['bad', '미이행']], answer: bad ? 'bad' : 'ok',
+    rightMsg: bad ? '맞아요. 허가 조건을 지키지 않았어요. 개선하도록 안내하고 후속 관리를 해요.' : '맞아요. 허가 조건대로 잘 운영하고 있어요.',
+    wrongMsg: bad ? '현장 상태가 허가 조건과 달라요. 미이행으로 보고 개선을 안내해요.' : '현장 상태가 허가 조건과 같아요. 이행으로 봐요.',
+    done: () => { s.done = true; renderMission(); if (!spotsLeft('integ')) setTimeout(() => showExtraDone('integ', '허가 이행 점검 완료!', `세 곳 중 <b>${INTEG[integBad].name}</b>에서 허가 조건을 지키지 않은 걸 찾았어요. 통합관리사업장은 공정·배출 경로를 살피고 허가 조건, 시설 운영, 운영기록을 확인한 뒤 후속 관리를 이어 가요.`), 250); } });
+});
+// 대기총량과 · 소규모 배출시설 기술지원
+addSpots('small', [{ pos: new THREE.Vector3(34.6, 0, -3.0), name: '푸른 도장', r: 2.5 }], '기술지원 방문', (s) => { OWNER.wave = 1.2; quizModal({ kicker: '대기총량과 · 기술지원', items: [
+  { q: '“보일러가 오래됐는데, 질소산화물을 줄일 방법이 있을까요?”', opts: ['저녹스버너로 바꾸면 줄어들고, 교체 지원 사업도 있어요', '불꽃을 더 세게 키우면 돼요', '배기구를 막아 두면 돼요'], a: 0, why: '저녹스버너는 질소산화물을 덜 만들어요. 소규모 사업장 교체 지원 사업도 있어요.' },
+  { q: '“도장할 때 냄새(VOC)가 많이 나요.”', opts: ['문을 열고 작업하면 끝이에요', '도장 부스와 방지시설을 관리하고 필터를 제때 바꿔요', '밤에만 작업하면 돼요'], a: 1, why: '방지시설을 제대로 관리해야 휘발성유기화합물을 줄일 수 있어요.' },
+  { q: '“방지시설은 언제 돌려야 하나요?”', opts: ['점검 나오는 날에만요', '여름에만요', '배출시설이 돌아가는 동안 늘 함께요'], a: 2, why: '배출시설을 가동하는 동안 방지시설도 항상 함께 가동해야 해요.' },
+], done: (score) => { s.done = true; showExtraDone('small', '기술지원 완료!', `사장님 질문 3개 중 <b>${score}개</b>를 잘 안내했어요. 대기총량과는 소규모 배출시설에 기술지원을 하고 저녹스버너 보급 같은 지원 사업으로 배출을 줄이도록 도와요.`); } }); });
+// 조사분석과 · 이동측정차량 지역 대기질 조사
+const mobile = { placed: false };
+addSpots('mobile', [{ pos: new THREE.Vector3(MVAN_SITE.x - 2.4, 0, MVAN_SITE.z), name: '이동측정차량', r: 2.6, when: () => mobile.placed }], '측정 시작', (s) => openMobileChart(s));
+function startMobile() {
+  mobile.placed = false;
+  pickModal({ kicker: '조사분석과 · 이동측정차량', title: '어디를 조사할까요?', intro: '대기질을 꼭 확인해야 하는 곳 한 군데를 골라 주세요.', need: 1, options: [
+    { label: '측정소 바로 옆 도심 공원', ok: false, why: '이미 측정망이 있어서 자료를 받을 수 있어요.' },
+    { label: '산업단지와 가까운 <b>푸른초등학교</b>', ok: true, why: '근처에 측정망이 없고, 학생들이 지내는 곳이라 확인이 필요해요.' },
+    { label: '사람이 거의 없는 먼 산꼭대기', ok: false, why: '대기질 관리가 시급한 곳은 아니에요.' },
+  ], done: () => {
+    closeModal(); toast('이동측정차량이 학교 앞으로 가요!');
+    const a = mvan.g.position.clone(), b = MVAN_SITE;
+    mvan.g.rotation.y = Math.atan2(b.x - a.x, b.z - a.z);
+    tween(2.6, (k) => { const e = ease(k); mvan.g.position.set(lerp(a.x, b.x, e), 0, lerp(a.z, b.z, e)); mvan.wheels.forEach((w) => (w.rotation.x += 0.25)); }, () => { mvan.g.rotation.y = Math.PI / 2; mobile.placed = true; SFX.ok(); renderMission(); toast('차량 배치 완료! 차량 옆에서 측정을 시작하세요.'); });
+    renderMission();
+  } });
+}
+function openMobileChart(s) {
+  const H = 24, gen = (f) => Array.from({ length: H }, (_, h) => Math.max(0.02, f(h) * (1 + rand(-0.06, 0.06))));
+  const series3 = [
+    { nm: '초미세먼지 PM2.5', col: '#8e6bbf', d: gen((h) => 0.45 + 0.25 * Math.cos(((h - 8) / 24) * Math.PI * 2)) },
+    { nm: '이산화질소 NO₂', col: '#e4572e', d: gen((h) => 0.3 + 0.35 * Math.exp(-((h - 8) ** 2) / 6) + 0.3 * Math.exp(-((h - 19) ** 2) / 6)) },
+    { nm: '오존 O₃', col: '#3a8fd1', d: gen((h) => 0.15 + 0.75 * Math.exp(-((h - 15) ** 2) / 10)) },
+  ];
+  openModal(`<p class="m-k">조사분석과 · 24시간 연속 측정</p><h2>측정 자료를 살펴봐요</h2>
+    <p class="muted">PM10·PM2.5·SO₂·CO·NO₂·O₃와 풍향·풍속을 24시간 재요. 그중 세 항목이에요. (체험용 예시)</p>
+    <canvas id="mChart" width="600" height="260" style="width:100%;height:auto;border-radius:12px;background:var(--bg)"></canvas>
+    <div class="legend">${series3.map((x) => `<span><i style="background:${x.col}"></i>${x.nm}</span>`).join('')}</div>
+    <p class="fine" id="mClock">측정 중… 0시</p>
+    <div class="m-btns"><button class="btn primary" data-q disabled>측정 끝! 자료 분석하기</button></div>`);
+  const cv = $('#mChart'), g = cv.getContext('2d'), t0 = performance.now(), dur = 3600, seq = modalSeq;
+  SFX.sweep(3.4);
+  const draw = (now) => {
+    if (!modalOpen || seq !== modalSeq) return;
+    const k = Math.min(1, (now - t0) / dur), upto = k * (H - 1);
+    g.clearRect(0, 0, 600, 260);
+    g.strokeStyle = 'rgba(120,140,135,.25)'; g.lineWidth = 1; for (let y = 1; y < 5; y++) { g.beginPath(); g.moveTo(30, y * 48); g.lineTo(590, y * 48); g.stroke(); }
+    g.fillStyle = '#8a9a95'; g.font = `600 14px ${FONT}`; [0, 6, 12, 18, 23].forEach((h) => g.fillText(`${h}시`, 30 + (h / 23) * 550 - 8, 252));
+    series3.forEach((x) => { g.beginPath(); x.d.forEach((v, h) => { if (h > upto + 1) return; const px = 30 + (Math.min(h, upto) / 23) * 550, py = 230 - v * 200; h ? g.lineTo(px, py) : g.moveTo(px, py); }); g.strokeStyle = x.col; g.lineWidth = 3.5; g.lineJoin = 'round'; g.stroke(); });
+    $('#mClock').textContent = k < 1 ? `측정 중… ${Math.floor(upto)}시` : '24시간 측정 완료';
+    if (k < 1) requestAnimationFrame(draw); else { const b = $('[data-q]', mcard); b.disabled = false; b.focus({ preventScroll: true }); }
+  };
+  requestAnimationFrame(draw);
+  $('[data-q]', mcard).onclick = () => quizModal({ kicker: '조사분석과 · 자료 분석', items: [
+    { q: '오존(O₃)이 가장 높았던 때는 언제일까요?', opts: ['새벽 4시쯤', '오후 3시쯤', '밤 11시쯤'], a: 1, why: '햇빛이 강한 오후에 오존이 가장 높아요.' },
+    { q: '이산화질소(NO₂)가 두 번 높아진 까닭은?', opts: ['출퇴근 시간 차량이 많아서', '비가 와서', '나무가 많아서'], a: 0, why: '아침·저녁 출퇴근 차량이 늘 때 NO₂가 올라가요.' },
+  ], done: (score) => { s.done = true; showExtraDone('mobile', '지역 대기질 조사 완료!', `분석 질문 2개 중 <b>${score}개</b>를 맞혔어요. 이동측정차량은 측정망이 없는 지역과 산업단지·학교 주변을 조사하고, 자료를 관계기관과 공유해 배출원 관리와 오존 저감 대책 등에 활용해요.`); } });
+}
+function resetMobile() { tweens.length = 0; mvan.g.position.copy(MVAN_HOME); mvan.g.rotation.y = Math.PI / 2; mobile.placed = false; }
+// 조사분석과 · 배출원·배출량 조사
+addSpots('inven', [{ pos: new THREE.Vector3(6.9, 0, 21), name: '배출량 자료실', r: 2.3 }], '자료 정리', (s) => matchModal({
+  kicker: '조사분석과 · 배출원 조사', title: '배출원을 종류별로 나눠 주세요', intro: '한 곳에서 나오면 점, 길을 따라 나오면 선, 넓게 흩어져 나오면 면오염원이에요.',
+  rows: [
+    { name: '공장 굴뚝', ans: 'point', why: '정해진 한 지점에서 나와요.' }, { name: '고속도로를 달리는 자동차', ans: 'line', why: '도로를 따라 길게 나와요.' },
+    { name: '주택가 난방', ans: 'area', why: '넓은 지역에서 조금씩 나와요.' }, { name: '발전소 굴뚝', ans: 'point', why: '큰 굴뚝 한 곳에서 나와요.' },
+    { name: '국도를 달리는 화물차', ans: 'line', why: '도로를 따라 나와요.' }, { name: '논밭의 비료 사용', ans: 'area', why: '넓은 농경지에 흩어져 나와요.' },
+  ],
+  tools: [{ id: 'point', name: '점오염원' }, { id: 'line', name: '선오염원' }, { id: 'area', name: '면오염원' }],
+  done: (tries) => { s.done = true; showExtraDone('inven', '배출원 정리 완료!', `${tries === 1 ? '한 번에' : `${tries}번 만에`} 모두 맞혔어요. 조사분석과는 대기오염 배출원과 배출량을 조사하고 자료로 관리해서 대기질 관리 대책의 바탕을 만들어요.`); },
+}));
+// 자동차관리과 · 노후차 저감사업 상담
+addSpots('retro', [{ pos: new THREE.Vector3(-26, 0, 35.0), name: '저감 상담 창구', r: 2.5 }], '상담 시작', (s) => matchModal({
+  kicker: '자동차관리과 · 저감사업 상담', title: '차마다 알맞은 저감사업은?', intro: '체험용으로 단순화했어요. 실제 지원 대상과 조건은 공고를 확인해요.',
+  rows: [
+    { name: '더 타기 어려울 만큼 낡은 5등급 경유 승용차', ans: 'scrap', why: '조기폐차를 지원해요.' },
+    { name: '아직 더 탈 수 있지만 매연이 많은 경유 화물차', ans: 'dpf', why: '배출가스 저감장치를 달아 미세먼지를 줄여요.' },
+    { name: '엔진이 낡은 굴착기(건설기계)', ans: 'engine', why: '엔진을 저공해 엔진으로 바꿔요.' },
+  ],
+  tools: [{ id: 'scrap', name: '조기폐차' }, { id: 'dpf', name: '저감장치 부착' }, { id: 'engine', name: '엔진교체' }],
+  done: () => { s.done = true; showExtraDone('retro', '저감사업 상담 완료!', '자동차관리과는 노후 경유차·건설기계의 조기폐차, 배출가스 저감장치 부착, 엔진교체 사업을 추진하고, 저감사업 이행과 관련 사항을 사후관리해요.'); },
+}));
+// 자동차관리과 · 노후 건설기계 사용제한 점검
+let consBad = 0;
+const CONS_INFO = [{ year: '2003년식' }, { year: '2006년식' }, { year: '2004년식' }];
+addSpots('cons', MACHINES.map((m) => ({ pos: m.pos, name: m.name, r: 2.4 })), '점검', (s, i) => {
+  const bad = i === consBad;
+  verdictModal({ kicker: `자동차관리과 · 건설기계 점검 ${MACHINES.length - spotsLeft('cons') + 1}/3`, title: MACHINES[i].name, rows: [['연식', CONS_INFO[i].year], ['저공해 조치 표지', bad ? '없음' : '부착됨'], ['배출가스 저감장치·엔진', bad ? '조치 기록 없음' : '저감장치 부착 확인']], note: '체험용으로 단순화한 예시예요.',
+    choices: [['ok', '사용 가능'], ['bad', '저공해 조치 필요']], answer: bad ? 'bad' : 'ok',
+    rightMsg: bad ? '맞아요. 저공해 조치를 하지 않은 노후 건설기계예요. 사용제한 대상인지 확인하고 저공해 조치를 안내해요.' : '맞아요. 저공해 조치가 확인됐어요.',
+    wrongMsg: bad ? '저공해 조치 기록이 없어요. 조치가 필요해요.' : '저공해 조치가 확인된 기계예요.',
+    done: () => { s.done = true; renderMission(); if (!spotsLeft('cons')) setTimeout(() => showExtraDone('cons', '건설기계 점검 완료!', `<b>${MACHINES[consBad].name}</b>가 저공해 조치가 필요했어요. 자동차관리과는 저공해 조치를 하지 않은 노후 건설기계의 사용제한을 지도·점검하고, 조기폐차·엔진교체·저감장치 부착을 안내해요.`), 250); } });
+});
+// ---- 시작 함수 ----
+const STARTERS = {
+  tf: () => toast('차고 앞에 모인 주민 세 분의 이야기를 들어 보세요.'),
+  ozone: () => toast('차고 앞 상황판으로 가서 회의를 열어 주세요.'),
+  integ: () => { integBad = Math.floor(Math.random() * 3); toast('집진시설, 굴뚝 자동측정기기, 운영기록부를 확인하세요.'); },
+  small: () => toast('사무실 옆 도장 작업장 사장님을 찾아가세요.'),
+  mobile: () => startMobile(),
+  inven: () => toast('분석실 옆 배출량 자료실로 가세요.'),
+  retro: () => toast('마당 남쪽 저감 상담 창구로 가세요.'),
+  cons: () => { consBad = Math.floor(Math.random() * 3); toast('공사장의 건설기계 세 대를 점검하세요.'); },
+};
+
+/* =========================================================
+   마스코트 친구들 — 파랑이·분홍이가 내 곁에서 통통 뛰어다녀요
+   ========================================================= */
+function makeMascot({ color, belly, nose, wingTip, name, side }) {
+  const root = new THREE.Group(); root.userData.global = true; root.rotation.order = 'YXZ'; scene.add(root);
+  const bod = new THREE.Group(); root.add(bod);
+  const plush = new Map(); // 인형처럼 은은하게 밝은 재질
+  const pm = (c) => { if (!plush.has(c)) { const white = c === '#ffffff' || c === '#f7f7f5'; plush.set(c, new THREE.MeshLambertMaterial({ color: c, emissive: c, emissiveIntensity: white ? 0.42 : 0.2 })); } return plush.get(c); };
+  const mk = (geo, c, x, y, z, p = bod) => { const m = new THREE.Mesh(geo, pm(c)); m.position.set(x, y, z); m.castShadow = true; p.add(m); return m; };
+  const capg = (r, l) => new THREE.CapsuleGeometry(r, l, 6, 14);
+  const soft = (r, sx, sy, sz, c, x, y, z, p = bod) => { const m = mk(new THREE.SphereGeometry(r, 14, 10), c, x, y, z, p); m.scale.set(sx, sy, sz); return m; };
+  mk(capg(0.44, 0.48), color, 0, 0.82, 0).scale.set(1, 1, 0.82); // 강낭콩 몸
+  const ears = [-1, 1].map((s) => { const p = new THREE.Group(); p.position.set(s * 0.21, 1.4, -0.03); p.rotation.z = s * -0.14; bod.add(p); mk(capg(0.13, 0.26), color, 0, 0.21, 0, p); return p; });
+  // 구름 배 + 구름 볼
+  soft(1, 0.3, 0.27, 0.09, belly, 0, 0.66, 0.29);
+  [[-0.09, 0.71], [0.01, 0.75], [0.1, 0.7], [0.12, 0.56]].forEach(([x, y], i) => soft(i === 3 ? 0.05 : 0.07, 1, 0.7, 0.4, '#ffffff', x, y, 0.37));
+  for (const s of [-1, 1]) [[0, 0, 0.05], [0.055, 0.025, 0.042], [-0.05, 0.02, 0.04]].forEach(([dx, dy, r]) => { const c = soft(r, 1, 0.78, 0.4, '#ffffff', s * (0.215 + dx), 1.06 + dy, 0.322 - Math.abs(dx) * 0.5); c.rotation.y = s * 0.45; });
+  // 얼굴
+  for (const s of [-1, 1]) { soft(0.045, 0.85, 1.2, 0.5, '#1d1d22', s * 0.13, 1.17, 0.326); soft(0.014, 1, 1, 1, '#ffffff', s * 0.13 + 0.015, 1.2, 0.346); }
+  soft(0.02, 1, 0.8, 0.6, nose, 0, 1.11, 0.368);
+  const mouth = mk(new THREE.CircleGeometry(0.06, 16, Math.PI, Math.PI), '#e2503f', 0, 1.075, 0.374); mouth.castShadow = false;
+  const lip = mk(new THREE.TorusGeometry(0.06, 0.008, 4, 16, Math.PI), '#7a2a24', 0, 1.075, 0.375); lip.rotation.z = Math.PI; lip.castShadow = false;
+  // 팔·다리·날개
+  const arms = [-1, 1].map((s) => { const p = new THREE.Group(); p.position.set(s * 0.41, 0.92, 0.05); p.rotation.z = s * 0.7; bod.add(p); mk(capg(0.105, 0.14), color, 0, -0.13, 0, p); return p; });
+  const legs = [-1, 1].map((s) => { const p = new THREE.Group(); p.position.set(s * 0.17, 0.3, 0.03); bod.add(p); mk(capg(0.125, 0.08), color, 0, -0.13, 0.03, p); return p; });
+  const wings = [-1, 1].map((s) => {
+    const p = new THREE.Group(); p.position.set(s * 0.2, 1.0, -0.3); bod.add(p);
+    [[0.12, 0.04, 0.15], [0.25, 0, 0.13], [0.35, -0.07, 0.1]].forEach(([x, y, r], i) => soft(r, 1, 0.6, 0.28, i === 2 ? wingTip : '#f7f7f5', s * x, y, -0.02 * i, p));
+    return p;
+  });
+  if (side < 0) { // 파랑이: 초록 거북 등 가방
+    soft(0.3, 1, 1.08, 0.48, '#5fb46a', 0, 0.84, -0.36); soft(0.24, 1, 1.0, 0.3, '#7cc98a', 0, 0.86, -0.46);
+    for (const s of [-1, 1]) { const st = mk(new THREE.BoxGeometry(0.07, 0.42, 0.03), '#3f8a4a', s * 0.21, 0.98, 0.29); st.rotation.x = -0.25; st.rotation.z = s * 0.1; }
+  } else { // 분홍이: 노란 크로스백
+    const a = new THREE.Vector3(-0.27, 1.16, 0.27), b = new THREE.Vector3(0.33, 0.56, 0.29), mid = a.clone().add(b).multiplyScalar(0.5), len = a.distanceTo(b);
+    const strap = mk(new THREE.CylinderGeometry(0.018, 0.018, len, 6), '#2b2b2b', mid.x, mid.y, mid.z); strap.rotation.z = Math.atan2(b.x - a.x, a.y - b.y);
+    const bag = mk(new THREE.BoxGeometry(0.28, 0.19, 0.11), '#f2c14e', 0.36, 0.5, 0.27); bag.rotation.z = -0.15;
+    mk(new THREE.BoxGeometry(0.29, 0.08, 0.115), '#e0a526', 0.36, 0.57, 0.272).rotation.z = -0.15; mk(new THREE.BoxGeometry(0.04, 0.04, 0.02), '#7a5a1e', 0.355, 0.54, 0.335);
+  }
+  root.scale.setScalar(0.95);
+  const el = document.createElement('div'); el.className = 'tag mascot'; el.style.setProperty('--mc', color); el.textContent = name;
+  const m = { name, side, root, bod, ears, arms, legs, wings, pos: root.position, heading: 0, target: new THREE.Vector3(), wait: rand(0.5, 2), phase: rand(0, 6), seed: rand(0, 9), greetCD: 0, greet: 0, jump: 0, dance: 0, moving: false, talks: 0, vy: 0 };
+  m.tag = addLabel(el, { obj: root, dy: 2.1 });
+  return m;
+}
+const mascots = [
+  makeMascot({ color: '#79b9ea', belly: '#dceffc', nose: '#6a5bb5', wingTip: '#eef4fb', name: '파랑이', side: -1 }),
+  makeMascot({ color: '#f39aa5', belly: '#fde0e4', nose: '#e86b80', wingTip: '#f9d3da', name: '분홍이', side: 1 }),
+];
+mascots[0].pos.set(-2.5, 0, 9.5); mascots[1].pos.set(2.5, 0, 9.8);
+mascots.forEach((m) => addI({ pos: m.pos, r: 2.1, dy: 2.4, ring: 0.9, label: () => `${m.name}랑 놀기`, act: () => talkMascot(m) }));
+const MASCOT_TIPS = [
+  () => '미션룸은 로비 광장 가장자리의 <b>색깔 문</b>으로 들어가면 돼!',
+  () => `지금까지 업무 체험 <b>${doneAll()}개</b>를 했어. 16개 다 해 보자!`,
+  () => '하늘멍 언덕에선 <b>하늘을 날 수도</b> 있어. 구름 사이를 같이 날자~',
+  () => '가까운 길은 걷고, 버스·지하철을 타면 하늘이 더 맑아져!',
+  () => '미세먼지가 나쁜 날엔 바깥 활동을 줄이고 마스크를 챙기자.',
+  () => '차 시동을 켜 둔 채 오래 서 있는 <b>공회전</b>을 줄이면 공기가 깨끗해져.',
+  () => `하늘 맑음도가 <b>${Math.round(skyTarget * 100)}%</b>야. 과마다 대표 업무를 끝내면 더 맑아져!`,
+];
+function talkMascot(m) {
+  m.jump = 0.5; m.greet = 1.2; SFX.pop(); buzz(15);
+  const first = m.talks++ === 0;
+  const line = first ? `안녕! 나는 <b>${m.name}</b>야. 맑은 하늘을 정말 좋아해. 어디든 따라다닐게!` : pick(MASCOT_TIPS)();
+  talk(m.name, [line], [{ label: '고마워' }, { label: '같이 놀자!', primary: true, onClick: () => { mascots.forEach((q) => (q.dance = 2.4)); cheer(player.rig); SFX.chime(); burst(player.pos.x, 1.6, player.pos.z, '#ff9fb5', 8, 0.5); } }]);
+}
+function placeMascots() { // 룸을 옮기면 내 곁으로 순간 이동
+  mascots.forEach((m, i) => {
+    const a = player.heading + Math.PI + (i ? 0.7 : -0.7);
+    m.pos.set(player.pos.x + Math.sin(a) * 2.2, 0, player.pos.z + Math.cos(a) * 2.2); clampRoom(m.pos, 0.5);
+    m.wait = rand(0.8, 2); m.moving = false; m.vy = 0;
+  });
+}
+function updateMascots(dt, t) {
+  const P = player.pos;
+  mascots.forEach((m, i) => {
+    let speed = 0;
+    m.greetCD -= dt;
+    if (fly.on) { // 하늘 날기: 양옆에서 같이 날기
+      const a = player.heading + (m.side < 0 ? 1.0 : -1.0);
+      m.target.set(P.x + Math.sin(a) * 2.6, Math.max(1, P.y - 0.4), P.z + Math.cos(a) * 2.6);
+      const k = 1 - Math.exp(-3 * dt);
+      m.pos.x += (m.target.x - m.pos.x) * k; m.pos.z += (m.target.z - m.pos.z) * k; m.pos.y += (m.target.y - m.pos.y) * k;
+      m.heading = angLerp(m.heading, player.heading, 1 - Math.exp(-4 * dt));
+    } else {
+      if (m.pos.y > 0.01) m.pos.y = Math.max(0, m.pos.y - dt * 6);
+      const dP = flatDist(m.pos, P), anchor = skyM.on ? REST : P;
+      if (dP > 30) placeMascots();
+      if (!m.moving) {
+        m.wait -= dt;
+        if (m.wait <= 0 || dP > 11) {
+          const a = rand(0, Math.PI * 2), r = dP > 9 ? rand(2, 3.5) : rand(2.5, 7);
+          m.target.set(anchor.x + Math.cos(a) * r, 0, anchor.z + Math.sin(a) * r); clampRoom(m.target, 0.5);
+          m.moving = true;
+        }
+      }
+      if (m.moving) {
+        const dx = m.target.x - m.pos.x, dz = m.target.z - m.pos.z, d = Math.hypot(dx, dz);
+        if (d < 0.35) { m.moving = false; m.wait = rand(1.2, 3.5); }
+        else {
+          speed = dP > 9 ? 6.5 : 3;
+          const px = m.pos.x, pz = m.pos.z;
+          m.pos.x += (dx / d) * speed * dt; m.pos.z += (dz / d) * speed * dt; resolve(m.pos, 0.45); clampRoom(m.pos, 0.45);
+          if (Math.hypot(m.pos.x - px, m.pos.z - pz) < speed * dt * 0.2) { m.moving = false; m.wait = 0.4; }
+          m.heading = angLerp(m.heading, Math.atan2(dx, dz), 1 - Math.exp(-8 * dt));
+        }
+      }
+      if (dP < 3.4 && m.greetCD <= 0 && started && !skyM.on && ctrl === player) { m.greetCD = 14; m.greet = 1.4; m.jump = 0.5; if (i === 0) SFX.chirp(); }
+      if (m.greet > 0 || (!m.moving && dP < 6)) m.heading = angLerp(m.heading, Math.atan2(P.x - m.pos.x, P.z - m.pos.z), 1 - Math.exp(-5 * dt));
+    }
+    // 애니메이션: 통통 뛰기·날개 파닥·귀 흔들
+    m.root.rotation.y = m.heading + (m.dance > 0 ? (2.4 - m.dance) * Math.PI * 2 : 0);
+    m.dance = Math.max(0, m.dance - dt);
+    const hop = speed > 0 ? 1 : 0;
+    m.phase += dt * (hop ? 9 + speed : 2.2);
+    const sn = Math.abs(Math.sin(m.phase));
+    let jy = 0; if (m.jump > 0) { m.jump -= dt; const k = 1 - m.jump / 0.5; jy = 4 * 0.45 * k * (1 - k); }
+    const floatY = fly.on ? Math.sin(t * 2 + m.seed) * 0.15 : 0.08 + Math.sin(t * 2.1 + m.seed) * 0.05;
+    m.bod.position.y = hop * sn * 0.3 + floatY + jy + (m.dance > 0 ? Math.abs(Math.sin(t * 9)) * 0.2 : 0);
+    const sq = hop * (1 - sn) * 0.1;
+    m.bod.scale.set(1 + sq * 0.6, 1 - sq, 1 + sq * 0.6);
+    m.root.rotation.x = lerp(m.root.rotation.x, fly.on ? 0.55 : hop * 0.14, 0.12);
+    m.bod.rotation.z = Math.sin(m.phase * 0.5) * (hop ? 0.08 : 0.04);
+    m.legs[0].rotation.x = hop * Math.sin(m.phase) * 0.7; m.legs[1].rotation.x = -hop * Math.sin(m.phase) * 0.7;
+    const flap = fly.on ? Math.sin(t * 9 + m.seed) * 0.65 : Math.sin(t * (hop ? 16 : 4) + m.seed) * (hop ? 0.5 : 0.22);
+    m.wings[0].rotation.y = -0.35 + flap; m.wings[1].rotation.y = 0.35 - flap;
+    m.ears.forEach((e, k) => (e.rotation.x = -hop * Math.cos(m.phase) * 0.18 + Math.sin(t * 3 + m.seed + k) * 0.05));
+    const wave = m.greet > 0 ? Math.sin(t * 14) * 0.45 : 0; m.greet = Math.max(0, m.greet - dt);
+    m.arms[0].rotation.z = lerp(m.arms[0].rotation.z, m.dance > 0 || m.jump > 0 ? -2.3 : -0.7 - hop * Math.sin(m.phase) * 0.2, 0.2);
+    m.arms[1].rotation.z = lerp(m.arms[1].rotation.z, m.dance > 0 || m.jump > 0 ? 2.3 : m.greet > 0 ? 2.4 + wave : 0.7 + hop * Math.sin(m.phase) * 0.2, 0.2);
+  });
+}
 
 /* =========================================================
    HUD refresh
@@ -2555,15 +3145,15 @@ function flyCtrl(dt) {
 let skyTarget = doneCount() / 4, skyLevel = skyTarget, lastObj = '';
 function npcMark(n) {
   if (n.key === 'guide') return !state.metGuide || doneCount() === 4 ? 'bang' : null;
-  if (state.done[n.key]) return 'chk';
+  if (DEPT_MS[n.key] && DEPT_MS[n.key].every(msDone)) return 'chk';
   return state.metGuide ? 'bang' : null;
 }
 function refreshAll() {
   $('#stamps').innerHTML = Object.keys(DEPT).map((k) => `<div class="stamp ${state.done[k] ? 'on' : ''}" title="${DEPT[k].name}${state.done[k] ? ' 완료' : ' 미완료'}">${DEPT[k].short}</div>`).join('');
   $('#skyFill').style.width = `${skyTarget * 100}%`; $('#skyPct').textContent = `${Math.round(skyTarget * 100)}%`;
   npcs.forEach((n) => { const m = npcMark(n); n.el.innerHTML = `${m ? `<span class="bang ${m === 'chk' ? 'chk' : ''}">${m === 'chk' ? '✓' : '!'}</span>` : ''}${esc(n.name)}`; });
-  const xn = Object.values(state.extra).filter(Boolean).length;
-  $('#xStars').innerHTML = `추가 체험 <b>${'★'.repeat(xn)}${'☆'.repeat(4 - xn)}</b>`;
+  const all = doneAll();
+  $('#xStars').innerHTML = `업무 체험 <b>${all}</b>/16 <span class="xbar"><i style="width:${(all / 16) * 100}%"></i></span>`;
   drawBoard(skyTarget);
 }
 function objective() {
@@ -2576,6 +3166,7 @@ function objective() {
   if (M.active === 'quota') return '<b>대기총량과 사무실</b> 문 앞으로 가세요.';
   if (M.active === 'net') return '<b>대기오염측정소</b>로 가서 자료를 점검하세요.';
   if (M.active === 'fuel') { const n = fuelCans.filter((c) => c.got).length; return n < 3 ? `연료 시료를 모으세요 (<b>${n}/3</b>).` : '<b>연료 분석대</b>로 시료를 가져가세요.'; }
+  if (XD[M.active] && XD[M.active].hint) return M.active === 'mobile' && !mobile.placed ? '조사할 곳을 골라 차량을 보내세요.' : XD[M.active].hint;
   if (skyM.on) return '하늘멍 중…';
   if (M.active === 'fly') return '하늘을 날고 있어요. 구름 사이를 천천히 둘러보세요.';
   const n = doneCount();
@@ -2638,6 +3229,7 @@ function drawMinimap(t) {
   if (M.active && M.active !== 'plan') { const tp = objTarget(); if (tp) dot(tp.x, tp.z, 3 + Math.sin(t * 5) * 1.2, '#f2b93b', '#ffffff'); }
   if (M.active === 'fuel') fuelCans.forEach((c) => !c.got && dot(c.pos.x, c.pos.z, 2.4, '#e2b53c', '#ffffff'));
   for (const p of net.peers.values()) if (p.sp === curRoom) dot(p.pos.x, p.pos.z, 2.8, p.color, '#ffffff');
+  if (started) mascots.forEach((m) => dot(m.pos.x, m.pos.z, 2.2, m.side < 0 ? '#79b9ea' : '#f39aa5', '#ffffff'));
   if (curRoom !== 'sky') npcs.forEach((n) => {
     const m = npcMark(n);
     if (m === 'bang') { dot(n.pos.x, n.pos.z, 5, '#f2b93b', '#ffffff'); mmx.fillStyle = '#3a2a00'; mmx.font = `900 7px ${FONT}`; mmx.textAlign = 'center'; mmx.fillText('!', W2X(n.pos.x), W2Z(n.pos.z) + 2.5); }
@@ -3028,7 +3620,7 @@ function moveRoom(id, after) {
     const back = id === 'lobby' ? gateTo('lobby', from) : null, R = ROOMS[id];
     if (back) { player.pos.set(back.pos.x * 0.8, 0, back.pos.z * 0.8); player.heading = back.face + Math.PI; }
     else { player.pos.set(R.spawn[0], 0, R.spawn[1]); player.heading = R.face; }
-    player.vel.set(0, 0, 0); player.obj.rotation.y = player.heading;
+    player.vel.set(0, 0, 0); player.obj.rotation.y = player.heading; placeMascots();
     if (id !== 'sky') { state.space = id; save(); }
     snapCamera(); net.lastKey = ''; sendState(true);
     showRoomCard(id); SFX.chime();
@@ -3042,7 +3634,7 @@ function openRooms() {
     const out = [];
     if (id === curRoom) out.push('<span class="me">지금 여기</span>');
     if (DEPT[id]) out.push(state.done[id] ? '<span class="on">스탬프 ✓</span>' : '<span>스탬프 전</span>');
-    if (XBY[id] && state.extra[XBY[id]]) out.push('<span class="on">추가 ★</span>');
+    if (DEPT_MS[id]) out.push(`<span>업무 ${DEPT_MS[id].filter(msDone).length}/4</span>`);
     const n = count(id); if (n) out.push(`<span>${n}명</span>`);
     return out.join('');
   };
@@ -3058,15 +3650,8 @@ $('#roomBtn').onclick = () => openRooms();
 /* =========================================================
    start screen
    ========================================================= */
-const swWrap = $('#swatches');
-SHIRTS.slice(0, 5).forEach((c) => {
-  const b = document.createElement('button'); b.className = 'sw'; b.type = 'button'; b.dataset.v = c; b.style.background = c; b.setAttribute('role', 'radio'); b.setAttribute('aria-label', `윗옷 색 ${c}`);
-  b.onclick = () => { state.color = c; state.avatar.shirt = c; syncStartSwatches(); SFX.tick(); };
-  swWrap.appendChild(b);
-});
-function syncStartSwatches() { swWrap.querySelectorAll('.sw').forEach((x) => x.setAttribute('aria-checked', String(x.dataset.v === state.avatar.shirt))); }
-syncStartSwatches();
-$('#czBtn').onclick = () => { SFX.init(); openCustomizer(); };
+let startCz = mountCreator($('#czStart'), state.avatar, () => { state.color = state.avatar.shirt; save(); });
+$('#czStart').addEventListener('pointerdown', () => SFX.init(), { once: true });
 if (hadSave && state.name) { $('#nameIn').value = state.name; $('#enterBtn').textContent = `이어서 입장하기 (${doneCount()}/4)`; $('#resetBtn').hidden = false; }
 $('#roomInfo').textContent = mpOn ? `같은 링크로 들어온 사람끼리 만나 채팅할 수 있어요 · 방 이름: ${ROOM}` : '혼자 체험 모드예요. 메뉴에서 여럿이 함께를 켤 수 있어요.';
 $('#resetBtn').onclick = () => { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ } location.reload(); };
@@ -3075,6 +3660,7 @@ $('#enterBtn').onclick = () => enterGame();
 $('#skyOnlyBtn').onclick = () => enterGame(true);
 function enterGame(skyOnly) {
   SFX.init();
+  if (startCz) { startCz.stop(); startCz = null; }
   state.name = cleanName($('#nameIn').value || state.name); save();
   if (!player.rig) { createPlayer(); selfBubble = makeBubble((v) => v.copy(ctrl.pos), () => (ctrl.kind === 'walk' ? (skyM.on ? 1.6 : 3.25) : 4.6)); }
   else { meTag.el.textContent = state.name; }
@@ -3082,7 +3668,7 @@ function enterGame(skyOnly) {
   const at = new URLSearchParams(location.search).get('at');
   let first = state.metGuide && ROOM_IDS.includes(at) ? at : state.metGuide && ROOM_IDS.includes(state.space) ? state.space : 'lobby';
   if (first === 'sky') first = 'lobby';
-  setRoom(first); const R = ROOMS[first]; player.pos.set(R.spawn[0], 0, R.spawn[1]); player.heading = R.face;
+  setRoom(first); const R = ROOMS[first]; player.pos.set(R.spawn[0], 0, R.spawn[1]); player.heading = R.face; placeMascots();
   $('#start').hidden = true; $('#hud').hidden = false; started = true;
   sizeMinimap(); refreshAll(); refreshMenu(); canvas.focus({ preventScroll: true }); SFX.ok();
   if (skyOnly) { if (!state.metGuide) { state.metGuide = true; save(); refreshAll(); } enterSky(); }
@@ -3113,7 +3699,9 @@ function applySky(l) {
   moteMat.opacity = lerp(H.mote, C.mote, l); motes.visible = moteMat.opacity > 0.01 && perf.lvl < 3 && !skyM.on;
   smokeFactor = lerp(H.smoke, C.smoke, l);
 }
+let camHold = false; // #debug 점검용
 function updateCamera(dt) {
+  if (camHold) return;
   if (!started) {
     orbitA += dt * 0.05; _want.set(Math.sin(orbitA) * 46, 34, Math.cos(orbitA) * 46);
     camera.position.lerp(_want, 1 - Math.exp(-dt * 2)); camLook.lerp(_look.set(0, 0, 0), 1 - Math.exp(-dt * 2)); camera.lookAt(camLook);
@@ -3169,6 +3757,7 @@ function objTargetRaw() { // 지금 가야 할 곳 (화면 밖이면 가장자�
   if (M.active === 'quota') return QUOTA_DOOR;
   if (M.active === 'net') return interacts.find((i) => i.pos.x === 7 && i.pos.z === 38.6).pos;
   if (M.active === 'fuel') { const left = fuelCans.filter((c) => !c.got); return left.length ? near(left.map((c) => c.pos)) : FUEL_TABLE; }
+  if (SPOTS[M.active]) { const left = SPOTS[M.active].filter((s) => !s.done && (!s.when || s.when())); return left.length ? near(left.map((s) => s.pos)) : null; }
   if (M.active) return null;
   if (doneCount() === 4) return guide.pos;
   return near(npcs.filter((n) => n.key !== 'guide' && !state.done[n.key]).map((n) => n.pos));
@@ -3273,6 +3862,7 @@ function update(dt, t) {
     animPerson(w.rig, 1.5, dt);
   });
   updatePeers(dt);
+  updateMascots(dt, t);
   net.sendT += dt; if (net.sendT > 0.12) { net.sendT = 0; sendState(false); }
   // 분위기
   flags.forEach((f) => (f.piv.rotation.y = Math.sin(t * 2.6 + f.ph) * 0.3 - Math.atan2(IDLE_WIND.z, IDLE_WIND.x)));
@@ -3333,7 +3923,8 @@ requestAnimationFrame(frame);
 window.__worldReady = true;
 if (location.hash === '#debug') window.__w = { state, player, van, sweeper, M, plan, lab, car, checkpoints, factories, fuelCans, cars, net, skyM, npcByKey, talkTo, checkFactory, startExtra, enterSky, exitSky, openCustomizer, sendChat, camera, interacts, renderer, scene, moveRoom, openRooms, GATES, zoneGroups, get curRoom() { return curRoom; }, get ctrl() { return ctrl; }, get mode() { return mode; }, get cur() { return cur; }, get perf() { return perf; }, keys, joy,
   step(n = 30, dt = 1 / 30) { for (let i = 0; i < n; i++) { last += dt * 1000; update(dt, last / 1000); } renderer.render(scene, camera); },
-  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); } };
+  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly,
+  look(px, py, pz, tx, ty, tz) { camHold = true; camera.position.set(px, py, pz); camera.lookAt(tx, ty, tz); renderer.render(scene, camera); }, unlook() { camHold = false; } };
 </script>
 </body>
 </html>
