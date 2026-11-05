@@ -6,6 +6,16 @@
 <title>푸른하늘 업무체험관</title>
 <meta name="description" content="수도권대기환경청 네 개 과의 업무를 캐릭터로 걸어 다니며 직접 체험하는 3D 공간">
 <meta name="theme-color" content="#217569">
+<!-- 카카오톡·SNS 공유 썸네일 -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="수도권대기환경청">
+<meta property="og:title" content="푸른하늘 업무체험관">
+<meta property="og:description" content="미션을 깨면, 하늘이 맑아져요 · 4개 과 16가지 업무 체험">
+<meta property="og:url" content="https://mamo-ex2.vercel.app/">
+<meta property="og:image" content="https://mamo-ex2.vercel.app/og.png">
+<meta property="og:image:alt" content="푸른하늘 업무체험관: 수도권대기환경청 청사 앞에 선 두 캐릭터">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://mamo-ex2.vercel.app/og.png">
 <style>
 :root{
   --bg:#f5f8f3;--panel:rgba(255,255,255,.93);--panel-solid:#fff;--line:#d3e0d8;--text:#243e3c;--muted:#536e68;
@@ -384,6 +394,14 @@ input{-webkit-user-select:text;user-select:text}
   .stamps-head{justify-content:flex-end}
   #toast{top:32%;bottom:auto}
 }
+/* 바로 가기(길찾기) 버튼 */
+#navBtn{position:absolute;right:max(20px,env(safe-area-inset-right));bottom:calc(max(26px,env(safe-area-inset-bottom)) + 100px);display:flex;align-items:center;gap:5px;height:40px;padding:0 14px 0 11px;border-radius:99px;border:0;background:#ffd45c;color:#3a2a00;font-weight:800;font-size:13px;box-shadow:0 6px 18px rgba(0,0,0,.22);cursor:pointer;white-space:nowrap}
+#navBtn svg{width:17px;height:17px;transform:rotate(35deg)}
+#navBtn.on{background:#183c36;color:#fff}
+#navBtn.on svg{animation:navp 1s ease-in-out infinite}
+@keyframes navp{50%{opacity:.4}}
+#navBtn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.talking #navBtn,.chatting #navBtn,.nonav #navBtn{visibility:hidden}
 /* 화면 가리지 않는 HUD: 걸을 때 흐려지고, 버튼 하나로 안내를 숨김 */
 .hud-left,.hud-right{transition:opacity .45s}
 .touch.moving .hud-left,.touch.moving .hud-right{opacity:.3}
@@ -412,6 +430,7 @@ input{-webkit-user-select:text;user-select:text}
   .tag{font-size:10.5px;padding:2px 7px;opacity:.88}
   .prompt{font-size:12px;padding:5px 10px}
   #actBtn{width:74px;height:74px;font-size:12px;padding:8px}
+  #navBtn{bottom:calc(max(26px,env(safe-area-inset-bottom)) + 86px);height:36px;font-size:12.5px;padding:0 12px 0 9px}
   #actBtn .ring{width:88px;height:88px}
   #chatBtn{width:46px;height:46px;right:calc(max(20px,env(safe-area-inset-right)) + 86px);bottom:calc(max(26px,env(safe-area-inset-bottom)) + 14px)}
   #chatLog{width:min(300px,64vw);bottom:calc(max(26px,env(safe-area-inset-bottom)) + 128px)}
@@ -467,6 +486,7 @@ input{-webkit-user-select:text;user-select:text}
   <div id="chatLog" aria-live="polite"></div>
   <div id="wp" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 9h-4.5v9h-5v-9H5z" fill="currentColor"/></svg><span></span></div>
   <button id="chatBtn" aria-label="채팅 열기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="badge" hidden>0</span></button>
+  <button id="navBtn" type="button" aria-label="목적지까지 알아서 걸어가기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l7 19-7-4-7 4z" fill="currentColor"/></svg><span>바로 가기</span></button>
   <button id="actBtn" disabled><svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" pathLength="100"/></svg><span id="actLabel">가까이 가세요</span></button>
 </div>
 
@@ -1093,7 +1113,7 @@ function drawBoard(level) {
 });
 
 /* ---- NW 산업단지 (기획과 미션) ---- */
-const FACT_POS = [[-34, -34], [-22, -34], [-10, -34], [-34, -20], [-22, -20], [-10, -20]];
+const FACT_POS = [[-36, -36.5], [-23, -36.5], [-10, -36.5], [-36, -23], [-23, -23], [-10, -23]]; // 공장 사이를 넓혀 이동측정차량이 다니기 쉽게
 const FACT_COL = ['#dccbaa', '#c9d5dc', '#d8c2b4', '#cbd8c5', '#dad2c1', '#cdc8d8'];
 const factories = FACT_POS.map(([x, z], i) => {
   const L = 'ABCDEF'[i];
@@ -1125,12 +1145,12 @@ function pallet(x, z, h = 2) {
 }
 factories.forEach((f, i) => { drums(f.x - 2.6, f.z - 3.6, 3, i % 2 ? '#3f7fbf' : '#2f9e6e'); pallet(f.x + 0.6, f.z - 3.7, 1 + (i % 2)); });
 {
-  const g = new THREE.Group(); g.position.set(-28.5, 0, -14.2); g.rotation.y = 0.6; scene.add(g);
+  const g = new THREE.Group(); g.position.set(-29, 0, -9.5); g.rotation.y = 0.6; scene.add(g);
   box(1.2, 0.8, 1.8, '#f2b33d', 0, 0.6, 0, g); box(1.0, 0.08, 1.0, '#3a3a3a', 0, 1.9, -0.1, g);
   for (const sx of [-0.45, 0.45]) box(0.06, 1.3, 0.06, '#3a3a3a', sx, 1.25, 0.45, g);
   box(0.9, 1.7, 0.12, '#4b5157', 0, 1.1, 0.95, g); for (const sx of [-0.25, 0.25]) box(0.12, 0.05, 1.0, '#4b5157', sx, 0.15, 1.4, g);
   for (const sx of [-0.6, 0.6]) for (const sz of [-0.55, 0.55]) { const w = cyl(0.25, 0.25, 0.2, '#26282b', sx, 0.25, sz, g, 10); w.rotation.z = Math.PI / 2; }
-  addCircle(-28.5, -14.2, 1.3);
+  addCircle(-29, -9.5, 1.3);
 }
 // 기획과 추가 체험: 푸른하늘 교실(텐트)
 const TENT = new THREE.Vector3(-34.5, 0, -6.7);
@@ -1521,17 +1541,20 @@ function makeSweeper() {
 const VAN_HOME = new THREE.Vector3(-20, 0, -9);
 const SWEEP_HOME = new THREE.Vector3(-35, 0, 31);
 const vanM = makeVan();
-const van = { obj: vanM.g, body: vanM.body, wheels: vanM.wheels, brake: vanM.brake, pos: vanM.g.position, heading: 0, vel: new THREE.Vector3(), radius: 1.7, speed: 14, kind: 'van', moved: 0, fwd: 0, lastF: 0, steer: 0 };
-van.pos.copy(VAN_HOME); van.obj.rotation.y = 0;
+const VAN_FACE = Math.PI; // 차고에서 산업단지(북쪽)를 보고 출발
+const van = { obj: vanM.g, body: vanM.body, wheels: vanM.wheels, brake: vanM.brake, pos: vanM.g.position, heading: VAN_FACE, vel: new THREE.Vector3(), radius: 1.25, speed: 13, kind: 'van', moved: 0, fwd: 0, lastF: 0, steer: 0 };
+van.pos.copy(VAN_HOME); van.obj.rotation.y = VAN_FACE;
 const swM = makeSweeper();
-const sweeper = { obj: swM.g, body: swM.body, wheels: swM.wheels, brushes: swM.brushes, beacon: swM.beacon, brake: swM.brake, pos: swM.g.position, heading: -Math.PI / 2, vel: new THREE.Vector3(), radius: 1.6, speed: 12.5, kind: 'sweeper', moved: 0, fwd: 0, lastF: 0, steer: 0 };
+const sweeper = { obj: swM.g, body: swM.body, wheels: swM.wheels, brushes: swM.brushes, beacon: swM.beacon, brake: swM.brake, pos: swM.g.position, heading: -Math.PI / 2, vel: new THREE.Vector3(), radius: 1.2, speed: 12.5, kind: 'sweeper', moved: 0, fwd: 0, lastF: 0, steer: 0 };
 sweeper.pos.copy(SWEEP_HOME); sweeper.obj.rotation.y = sweeper.heading;
 addRect(VAN_HOME.x, VAN_HOME.z, 2.4, 4.6);
 addRect(SWEEP_HOME.x, SWEEP_HOME.z, 4.6, 2.4);
 const parkedRects = [rects[rects.length - 2], rects[rects.length - 1]];
 function setParked(on) { // 주차 중인 차량은 장애물, 운전 중에는 해제
+  const before = parkedRects[0].x0 + parkedRects[1].x0;
   parkedRects[0].x0 = on.van ? VAN_HOME.x - 1.2 : 1e9; parkedRects[0].x1 = on.van ? VAN_HOME.x + 1.2 : 1e9;
   parkedRects[1].x0 = on.sw ? SWEEP_HOME.x - 2.3 : 1e9; parkedRects[1].x1 = on.sw ? SWEEP_HOME.x + 2.3 : 1e9;
+  if (before !== parkedRects[0].x0 + parkedRects[1].x0 && typeof navReset === 'function') navReset(); // 길찾기 격자 다시 만들기
 }
 
 /* dust patches (자동차관리과) */
@@ -1813,7 +1836,7 @@ function addNPC(key, name, x, z, face, look) {
   npcs.push(n); return n;
 }
 const guide = addNPC('guide', '안내 직원', -4.2, 2.8, 0.2, { shirt: '#217569', pants: '#2f3b4a', hair: '#3b2a20' });
-addNPC('plan', '기획과 주무관', -17, -15, 0.8, { shirt: '#f4f4f0', vest: true, hair: '#1f1a17' });
+addNPC('plan', '기획과 주무관', -14.9, -8.6, Math.PI - 0.35, { shirt: '#f4f4f0', vest: true, hair: '#1f1a17' }); // 차고 옆 (차가 다니는 길은 비워 둠)
 addNPC('total', '대기총량과 주무관', 16, -8.5, -0.3, { shirt: '#f4f4f0', vest: true, helmet: true });
 addNPC('lab', '조사분석과 주무관', 21, 31.5, 0.6, { shirt: '#f4f4f0', vest: true, helmet: true, skin: '#e8b991' });
 addNPC('car', '자동차관리과 주무관', -14, 27, -0.5, { shirt: '#f4f4f0', vest: true, hair: '#5a3d2b' });
@@ -1952,7 +1975,7 @@ function rebuildPlayer() { // 아바타를 바꾸면 위치·상태는 그대로
   meTag.obj = rig.root; meTag.el.textContent = state.name;
 }
 function setCtrl(e) {
-  ctrl = e; if (player.obj) player.obj.visible = e === player; e.vel.set(0, 0, 0); e.fwd = 0; e.lastF = 0; moveTarget = null; pendingAct = null;
+  ctrl = e; if (player.obj) player.obj.visible = e === player; e.vel.set(0, 0, 0); e.fwd = 0; e.lastF = 0; e.backT = 0; moveTarget = null; pendingAct = null; nav = null;
   [van, sweeper].forEach((v) => { if (v !== e) { v.fwd = 0; v.body.rotation.set(0, 0, 0); v.brake.color.set('#7a1d1d'); } });
   setParked({ van: e !== van, sw: e !== sweeper });
 }
@@ -1960,6 +1983,7 @@ function setCtrl(e) {
 const keys = {};
 const joy = { x: 0, y: 0, mag: 0 };
 let moveTarget = null, pendingAct = null;
+let nav = null, navGoal = null, navHop = false; // 길찾기: nav = 지금 따라가는 길, navGoal = 최종 목적지(다른 룸이면 문을 거쳐 감)
 let actionHeld = false, shake = 0;
 function readInput() {
   let ix = 0, iz = 0;
@@ -1968,7 +1992,8 @@ function readInput() {
   const kl = Math.hypot(ix, iz); if (kl > 1) { ix /= kl; iz /= kl; }
   ix += joy.x; iz += joy.y;
   let mag = Math.hypot(ix, iz), run = !!(keys.ShiftLeft || keys.ShiftRight) || joy.mag > 0.92;
-  if (mag > 0.08) { moveTarget = null; pendingAct = null; if (mag > 1) { ix /= mag; iz /= mag; mag = 1; } }
+  if (mag > 0.08) { moveTarget = null; pendingAct = null; if (nav || navGoal) navStop(); if (mag > 1) { ix /= mag; iz /= mag; mag = 1; } }
+  else if (nav) { const f = navFollow(ctrl.kind === 'walk'); if (f) { ix = f.ix; iz = f.iz; mag = f.mag; run = run || f.run; } else ix = iz = mag = 0; }
   else if (moveTarget) {
     const dx = moveTarget.x - ctrl.pos.x, dz = moveTarget.z - ctrl.pos.z, d = Math.hypot(dx, dz);
     const walk = ctrl.kind === 'walk', stopR = moveTarget.stopR ?? (walk ? 0.35 : 2.2);
@@ -1986,19 +2011,24 @@ function walkCtrl(dt, inp) {
   p.moved = Math.hypot(p.pos.x - px, p.pos.z - pz);
   const sp = Math.hypot(p.vel.x, p.vel.z);
   if (moveTarget && sp > 1 && p.moved < sp * dt * 0.15) { moveTarget.stuck = (moveTarget.stuck || 0) + dt; if (moveTarget.stuck > 0.5) { moveTarget = null; pendingAct = null; } }
+  if (nav) navStuck(dt, inp.mag > 0.2 && p.moved < Math.max(sp, 2) * dt * 0.2);
   if (sp > 0.3) p.heading = angLerp(p.heading, Math.atan2(p.vel.x, p.vel.z), 1 - Math.exp(-16 * dt));
   p.running = inp.run && sp > 6.5;
   return p.moved / dt;
 }
-function driveCtrl(dt, inp) { // 조이스틱 방향으로 핸들을 꺾으며 앞으로 달림
+function driveCtrl(dt, inp) { // 조이스틱 방향으로 핸들을 꺾으며 달림. 벽에 끼면 알아서 살짝 후진해서 빠져나옴
   const v = ctrl, top = v.speed * (inp.run ? 1.3 : 1);
   let steer = 0;
-  if (inp.mag > 0.06) {
+  v.backT = Math.max(0, (v.backT || 0) - dt);
+  if (v.backT > 0) { // 후진하면서 앞머리를 가려는 쪽으로 돌림
+    if (inp.mag > 0.06) { const diff = angDiff(Math.atan2(inp.ix, inp.iz), v.heading); v.heading += clamp(diff, -2.4 * dt, 2.4 * dt); steer = clamp(-diff, -1, 1); }
+    v.fwd += (-4.8 - v.fwd) * (1 - Math.exp(-7 * dt));
+  } else if (inp.mag > 0.06) {
     const diff = angDiff(Math.atan2(inp.ix, inp.iz), v.heading);
-    const rate = 3.0 * clamp(Math.abs(v.fwd) / 5, 0.5, 1);
+    const rate = 3.0 * clamp(Math.abs(v.fwd) / 5, 0.65, 1);
     v.heading += clamp(diff, -rate * dt, rate * dt);
     steer = clamp(diff * 1.4, -1, 1);
-    const target = top * inp.mag * clamp(Math.cos(diff), 0.22, 1);
+    const target = top * inp.mag * clamp(Math.cos(diff), 0.16, 1);
     v.fwd += (target - v.fwd) * (1 - Math.exp(-(target > v.fwd ? 1.9 : 3.2) * dt));
   } else v.fwd += -v.fwd * (1 - Math.exp(-3.2 * dt));
   const dF = v.fwd - v.lastF; v.lastF = v.fwd;
@@ -2007,12 +2037,15 @@ function driveCtrl(dt, inp) { // 조이스틱 방향으로 핸들을 꺾으며 �
   v.pos.x += Math.sin(v.heading) * want; v.pos.z += Math.cos(v.heading) * want;
   resolve(v.pos, v.radius); clampRoom(v.pos, v.radius);
   v.moved = Math.hypot(v.pos.x - px, v.pos.z - pz);
-  if (want > 0.04 && v.moved < want * 0.5) {
-    const k = clamp(v.fwd / v.speed, 0, 1);
-    if (k > 0.25 && T - (v.bumpT || 0) > 0.4) { v.bumpT = T; shake = Math.max(shake, 0.6 * k); SFX.bump(k); buzz(25); }
-    v.fwd *= 0.3;
-    if (moveTarget) { moveTarget = null; pendingAct = null; }
-  }
+  const aw = Math.abs(want), blocked = aw > 0.03 && v.moved < aw * 0.45;
+  if (blocked) {
+    const k = clamp(Math.abs(v.fwd) / v.speed, 0, 1);
+    if (k > 0.35 && T - (v.bumpT || 0) > 0.5) { v.bumpT = T; shake = Math.max(shake, 0.5 * k); SFX.bump(k); buzz(25); }
+    v.fwd *= v.moved < aw * 0.15 ? 0.45 : 0.85; // 정면으로 박으면 크게, 스치면 조금만 느려지고 벽을 따라 미끄러짐
+    if (v.backT <= 0 && inp.mag > 0.06) { v.blockT = (v.blockT || 0) + dt; if (v.blockT > 0.35) { v.backT = 0.7; v.blockT = 0; } }
+    if (moveTarget && !nav) { moveTarget = null; pendingAct = null; }
+  } else v.blockT = Math.max(0, (v.blockT || 0) - dt * 0.5);
+  if (nav) navStuck(dt, blocked && v.backT <= 0);
   v.vel.set(Math.sin(v.heading) * v.fwd, 0, Math.cos(v.heading) * v.fwd);
   v.steer += (steer * clamp(v.fwd / 6, 0, 1) - v.steer) * (1 - Math.exp(-6 * dt));
   v.body.rotation.z = v.steer * 0.07;
@@ -2119,7 +2152,7 @@ function startPlan() {
   const h = (rand(120, 220) * Math.PI) / 180; plan.wind.set(Math.sin(h), 0, -Math.cos(h));
   smokeWind.copy(plan.wind);
   plan.hist = []; plan.dots = []; dotMesh.count = 0; plan.tries = 0; plan.acc = 0;
-  van.pos.copy(VAN_HOME); van.heading = 0; plan.c = vocAt(van.pos.x, van.pos.z);
+  van.pos.copy(VAN_HOME); van.heading = VAN_FACE; plan.c = vocAt(van.pos.x, van.pos.z);
   setCtrl(van); mode = 'van'; SFX.board(); buzz(20);
   renderMission();
   toast('이동측정차량 출발! 산업단지를 돌며 농도 변화를 살펴보세요.');
@@ -2176,7 +2209,7 @@ function checkFactory(f) {
   }, endPlan), 700);
 }
 function endPlan() {
-  van.pos.copy(VAN_HOME); van.heading = 0; van.obj.rotation.y = 0;
+  van.pos.copy(VAN_HOME); van.heading = VAN_FACE; van.obj.rotation.y = VAN_FACE;
   player.pos.set(-15.5, 0, -4.6); player.heading = 0;
   setCtrl(player); mode = 'walk'; M.active = null;
   plan.dots = []; dotMesh.count = 0; smokeWind.copy(IDLE_WIND);
@@ -2529,12 +2562,13 @@ function talkGuide() {
     return talk('안내 직원', [
       `어서 오세요, <b>${esc(state.name)}</b> 님! 수도권대기환경청 업무체험관이에요.`,
       '지금 하늘이 좀 뿌옇죠? 네 개 과의 업무를 하나씩 체험할 때마다 하늘이 조금씩 맑아져요.',
-      `광장 가장자리의 <b>색깔 문</b>으로 들어가면 과마다 따로 마련된 <b>미션룸</b>이 나와요. 미션룸 안에서 <span class="ib">!</span> 표시 직원에게 말을 걸면 체험이 시작돼요. 왼쪽 위 <b>룸 이동</b> 버튼으로 바로 갈 수도 있어요.<span class="sub">${isTouch ? '왼쪽 조이스틱으로 움직이고, 오른쪽 버튼으로 대화해요.' : 'WASD·방향키로 움직이고, E나 스페이스로 대화해요. 땅을 클릭해도 걸어가요.'} 오른쪽 위 지도는 위쪽이 북쪽이에요.</span>`,
-    ], [{ label: '좋아요!', primary: true, onClick: () => { state.metGuide = true; save(); refreshAll(); } }]);
+      `광장 가장자리의 <b>색깔 문</b>으로 들어가면 과마다 따로 마련된 <b>미션룸</b>이 나와요. 미션룸 안에서 <span class="ib">!</span> 표시 직원에게 말을 걸면 체험이 시작돼요.<span class="sub">${isTouch ? '왼쪽 조이스틱으로 움직이고, 오른쪽 버튼으로 대화해요.' : 'WASD·방향키로 움직이고, E나 스페이스로 대화해요. 땅을 클릭해도 걸어가요.'} 오른쪽 위 지도는 위쪽이 북쪽이에요.</span>`,
+      `길이 헷갈리면 오른쪽 아래 노란 <b>바로 가기</b> 버튼을 누르세요${isTouch ? '' : ' (<kbd>G</kbd>)'}. 가고 싶은 과를 고르면 내 캐릭터가 <b>알아서 걸어가요</b>. 미션 중에 누르면 다음 목적지로 데려다줘요.`,
+    ], [{ label: '혼자 둘러볼게요', onClick: () => { state.metGuide = true; save(); refreshAll(); } }, { label: '과 골라서 바로 가기', primary: true, onClick: () => { state.metGuide = true; save(); refreshAll(); setTimeout(openNavPicker, 120); } }]);
   }
   if (n === 4) return talk('안내 직원', [`네 과의 대표 업무를 모두 체험하셨네요! 하늘이 이렇게 맑아졌어요. 지금까지 <b>${doneAll()}/16</b>가지 업무를 해 봤어요. 작은 기념장을 드릴게요.`], [{ label: '기념장 받기', primary: true, onClick: showCert }]);
   const left = Object.keys(DEPT).filter((k) => !state.done[k]).map((k) => DEPT[k].name).join(', ');
-  talk('안내 직원', [`지금까지 <b>${doneAll()}/16</b>가지 업무를 체험했어요. 대표 업무가 남은 곳은 ${left}예요. 지도에서 <span class="ib">!</span> 표시를 찾아보세요.`]);
+  talk('안내 직원', [`지금까지 <b>${doneAll()}/16</b>가지 업무를 체험했어요. 대표 업무가 남은 곳은 ${left}예요. <b>바로 가기</b>로 고르면 알아서 걸어가요.`], [{ label: '닫기' }, { label: '바로 가기', primary: true, onClick: () => setTimeout(openNavPicker, 120) }]);
 }
 function showCert() {
   const d = new Date(), ds = `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
@@ -3832,6 +3866,7 @@ addEventListener('keydown', (e) => {
   if (started && (e.code === 'Enter' || e.code === 'KeyT') && !e.repeat) { e.preventDefault(); openChat(); return; }
   if (started && e.code === 'KeyQ' && !e.repeat) doWave();
   if (started && e.code === 'KeyR' && !e.repeat) { openRooms(); return; }
+  if (started && e.code === 'KeyG' && !e.repeat) { onNavBtn(); return; }
   keys[e.code] = true;
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
   if ((e.code === 'KeyE' || e.code === 'Space') && !e.repeat) { actionHeld = true; onAction(); }
@@ -3895,13 +3930,18 @@ function handleTap(cx, cy) {
   const it = pickInteract(cx, cy);
   if (it) {
     if (it === cur) { if (!it.hold) it.act(); return; }
-    pendingAct = it; moveTarget = new THREE.Vector3(it.pos.x, 0, it.pos.z); moveTarget.stopR = ctrl.kind === 'walk' ? 1.3 : Math.max(2.2, it.r - 3);
+    // 누른 물건·직원까지 장애물을 돌아서 감 (길을 못 찾으면 곧장)
+    if (!navTo({ pos: it.pos, it, name: '' })) { pendingAct = it; moveTarget = new THREE.Vector3(it.pos.x, 0, it.pos.z); moveTarget.stopR = ctrl.kind === 'walk' ? 1.3 : Math.max(2.2, it.r - 3); }
     markTap(it.pos.x, it.pos.z); SFX.tick(); return;
   }
   ndc.set((cx / innerWidth) * 2 - 1, -(cy / innerHeight) * 2 + 1);
   raycaster.setFromCamera(ndc, camera);
   const hit = new THREE.Vector3();
-  if (raycaster.ray.intersectPlane(groundPlane, hit)) { moveTarget = hit; pendingAct = null; markTap(hit.x, hit.z); }
+  if (raycaster.ray.intersectPlane(groundPlane, hit)) {
+    markTap(hit.x, hit.z);
+    if (zoneOf(hit.x, hit.z) === curRoom && flatDist(hit, ctrl.pos) > 2.5) { const ok = navTo({ pos: hit, name: '' }); if (ok) return; }
+    navStop(); moveTarget = hit; pendingAct = null;
+  }
 }
 canvas.addEventListener('pointerdown', (e) => {
   pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -4189,7 +4229,7 @@ function moveRoom(id, after) {
   }
   if (skyM.on) exitSky(true);
   if (dialogOpen) closeDialog(); if (modalOpen) closeModal(); if (chatOpen) closeChat();
-  const from = curRoom;
+  const from = curRoom, hop = navHop; navHop = false; // 길찾기 중에 문을 지난 거면 새 룸에서 이어서 걸어감
   moving = true; SFX.whoosh(); buzz(20); fadeEl.classList.add('on');
   setTimeout(() => {
     setRoom(id); setCtrl(player); mode = 'walk';
@@ -4201,7 +4241,7 @@ function moveRoom(id, after) {
     if (id !== 'sky') { state.space = id; save(); }
     snapCamera(); net.lastKey = ''; sendState(true);
     showRoomCard(id); SFX.chime();
-    setTimeout(() => { fadeEl.classList.remove('on'); moving = false; after && after(); }, 140);
+    setTimeout(() => { fadeEl.classList.remove('on'); moving = false; after && after(); if (hop && navGoal) navTo(navGoal); else if (!hop && navGoal) navStop(); }, 140);
   }, 320);
 }
 function openRooms() {
@@ -4223,6 +4263,171 @@ function openRooms() {
   $('[data-x]', mcard).onclick = closeModal;
 }
 $('#roomBtn').onclick = () => openRooms();
+
+/* =========================================================
+   길찾기 — 룸을 격자로 나눠 A*로 장애물을 돌아가는 길을 찾고, 알아서 걸어가기
+   ========================================================= */
+const NAVC = new Map();
+function navReset() { try { NAVC.clear(); } catch (e) { /* 아직 준비 전 */ } }
+function roomBox(room) {
+  if (room === 'lobby') return [-14.6, -14.6, 14.6, 14.6];
+  if (room === 'sky') return [SKY_C.x - 31, SKY_C.z - 31, SKY_C.x + 31, SKY_C.z + 31];
+  if (room === 'inside') return [IN_C.x - 12.2, -8.2, IN_C.x + 12.2, 8.2];
+  const w = room === 'plan' || room === 'car', n = room === 'plan' || room === 'total';
+  return [w ? -58 : 0, n ? -58 : 0, w ? 0 : 58, n ? 0 : 58];
+}
+function navGrid(room, rad) { // 칸마다 지나갈 수 있는지 (몸 반지름만큼 장애물을 부풀려서)
+  const key = `${room}:${rad}`; if (NAVC.has(key)) return NAVC.get(key);
+  const [x0, z0, x1, z1] = roomBox(room), cs = rad > 1 ? 0.7 : 0.45, W = Math.ceil((x1 - x0) / cs), H = Math.ceil((z1 - z0) / cs), m = rad + 0.08;
+  const R = rects.filter((c) => c.x1 > x0 - m && c.x0 < x1 + m && c.z1 > z0 - m && c.z0 < z1 + m);
+  const C = circles.filter((c) => c.x + c.r > x0 - m && c.x - c.r < x1 + m && c.z + c.r > z0 - m && c.z - c.r < z1 + m);
+  const blk = new Uint8Array(W * H), p = new THREE.Vector3(), was = curRoom; curRoom = room;
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    const x = x0 + (i + 0.5) * cs, z = z0 + (j + 0.5) * cs; p.set(x, 0, z); clampRoom(p, m);
+    let b = Math.abs(p.x - x) + Math.abs(p.z - z) > 1e-3;
+    for (let k = 0; !b && k < R.length; k++) { const c = R[k]; b = x > c.x0 - m && x < c.x1 + m && z > c.z0 - m && z < c.z1 + m; }
+    for (let k = 0; !b && k < C.length; k++) { const c = C[k], dx = x - c.x, dz = z - c.z, rr = c.r + m; b = dx * dx + dz * dz < rr * rr; }
+    blk[j * W + i] = b ? 1 : 0;
+  }
+  curRoom = was;
+  const g = { x0, z0, cs, W, H, blk }; NAVC.set(key, g); return g;
+}
+function findPath(from, to, rad) {
+  const g = navGrid(curRoom, rad), { x0, z0, cs, W, H, blk } = g, N = W * H;
+  const cell = (x, z) => clamp(Math.floor((z - z0) / cs), 0, H - 1) * W + clamp(Math.floor((x - x0) / cs), 0, W - 1);
+  const ctr = (c) => new THREE.Vector3(x0 + ((c % W) + 0.5) * cs, 0, z0 + (((c / W) | 0) + 0.5) * cs);
+  const nearFree = (c0) => { // 막힌 칸이면 가장 가까운 빈 칸
+    if (!blk[c0]) return c0;
+    const seen = new Uint8Array(N), q = [c0]; seen[c0] = 1;
+    for (let h = 0; h < q.length && h < 9000; h++) {
+      const c = q[h], ci = c % W, cj = (c / W) | 0;
+      for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const ni = ci + di, nj = cj + dj; if (ni < 0 || nj < 0 || ni >= W || nj >= H) continue; const n = nj * W + ni; if (seen[n]) continue; if (!blk[n]) return n; seen[n] = 1; q.push(n); }
+    }
+    return -1;
+  };
+  const tc = cell(to.x, to.z), s = nearFree(cell(from.x, from.z)), t = nearFree(tc); if (s < 0 || t < 0) return null;
+  const gs = new Float32Array(N).fill(Infinity), par = new Int32Array(N).fill(-1), closed = new Uint8Array(N);
+  const hc = [], hf = [], ti = t % W, tj = (t / W) | 0;
+  const push = (c, f) => { let i = hc.length; hc.push(c); hf.push(f); while (i > 0) { const pi = (i - 1) >> 1; if (hf[pi] <= f) break; hc[i] = hc[pi]; hf[i] = hf[pi]; i = pi; } hc[i] = c; hf[i] = f; };
+  const pop = () => { const top = hc[0], lc = hc.pop(), lf = hf.pop(); if (hc.length) { let i = 0; for (;;) { let l = 2 * i + 1, r = l + 1, m = i, mf = lf; if (l < hc.length && hf[l] < mf) { m = l; mf = hf[l]; } if (r < hc.length && hf[r] < mf) { m = r; mf = hf[r]; } if (m === i) break; hc[i] = hc[m]; hf[i] = hf[m]; i = m; } hc[i] = lc; hf[i] = lf; } return top; };
+  const hfn = (c) => { const dx = Math.abs((c % W) - ti), dz = Math.abs(((c / W) | 0) - tj); return dx + dz - 0.586 * Math.min(dx, dz); };
+  gs[s] = 0; push(s, hfn(s));
+  while (hc.length) {
+    const c = pop(); if (closed[c]) continue; if (c === t) break; closed[c] = 1;
+    const ci = c % W, cj = (c / W) | 0;
+    for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
+      if (!di && !dj) continue; const ni = ci + di, nj = cj + dj; if (ni < 0 || nj < 0 || ni >= W || nj >= H) continue;
+      const n = nj * W + ni; if (blk[n] || closed[n]) continue;
+      if (di && dj && (blk[cj * W + ni] || blk[nj * W + ci])) continue; // 모서리 가로지르기 금지
+      const ng = gs[c] + (di && dj ? 1.4142 : 1); if (ng < gs[n]) { gs[n] = ng; par[n] = c; push(n, ng + hfn(n)); }
+    }
+  }
+  if (s !== t && par[t] < 0) return null;
+  const cells = []; for (let c = t; c !== -1 && cells.length < N; c = c === s ? -1 : par[c]) cells.push(c); cells.reverse();
+  const pts = cells.map(ctr); pts[0] = from.clone(); pts[0].y = 0;
+  if (t === tc) pts[pts.length - 1] = new THREE.Vector3(to.x, 0, to.z);
+  const los = (a, b) => { const d = flatDist(a, b), n = Math.ceil(d / (cs * 0.5)); for (let k = 1; k < n; k++) { const f = k / n; if (blk[cell(lerp(a.x, b.x, f), lerp(a.z, b.z, f))]) return false; } return true; };
+  const out = []; let a = 0; // 줄 당기기: 보이는 데까지는 곧게
+  while (a < pts.length - 1) { let b = pts.length - 1; while (b > a + 1 && !los(pts[a], pts[b])) b--; out.push(pts[b]); a = b; }
+  return out.length ? out : [pts[pts.length - 1]];
+}
+function navTo(goal) { // 목적지까지 길을 찾아 출발 (다른 룸이면 먼저 그 룸으로 가는 문까지)
+  navGoal = goal; nav = null; pendingAct = null; moveTarget = null;
+  if (!goal) { syncNav(); return false; }
+  const zt = zoneOf(goal.pos.x, goal.pos.z);
+  let target = goal.pos, act = goal.it || null;
+  if (zt !== curRoom) {
+    const g = curRoom === 'lobby' ? gateTo('lobby', zt) : gateTo(curRoom, 'lobby');
+    if (!g) { navGoal = null; syncNav(); return false; }
+    target = g.pos; act = interacts.find((i) => i.pos === g.pos) || null;
+  }
+  const pts = findPath(ctrl.pos, target, ctrl.radius);
+  if (!pts || !pts.length) { toast('가는 길을 찾지 못했어요. 조금 움직인 뒤 다시 눌러 보세요.'); navGoal = null; syncNav(); return false; }
+  nav = { pts, i: 0, stuck: 0, replan: 0 }; pendingAct = act;
+  syncNav(); return true;
+}
+function navStop() { nav = null; navGoal = null; navHop = false; pendingAct = null; moveTarget = null; syncNav(); }
+function firePending() { // 목적지(직원·문)에 닿으면 바로 행동
+  const a = pendingAct; pendingAct = null; moveTarget = null; nav = null;
+  if (navGoal) { if (zoneOf(navGoal.pos.x, navGoal.pos.z) === curRoom) navGoal = null; else navHop = true; }
+  syncNav(); a.act();
+}
+function navArrive() {
+  nav = null;
+  if (pendingAct && pendingAct.label() && flatDist(pendingAct.pos, ctrl.pos) < pendingAct.r) { firePending(); return; }
+  if (navGoal && zoneOf(navGoal.pos.x, navGoal.pos.z) === curRoom) { const nm = navGoal.name; navGoal = null; pendingAct = null; if (nm) toast(`${nm}에 도착했어요!`); SFX.ok(); }
+  syncNav();
+}
+function navFollow(walk) { // readInput에서: 다음 지점 쪽으로 조이스틱을 민 것처럼
+  const P = ctrl.pos, last = () => nav.i >= nav.pts.length - 1;
+  let wp = nav.pts[nav.i], d = flatDist(wp, P);
+  while (!last() && d < (walk ? 0.6 : 2.4)) { nav.i++; wp = nav.pts[nav.i]; d = flatDist(wp, P); }
+  if (last() && d < (walk ? 0.35 : 1.6)) { navArrive(); return null; }
+  let rem = d; for (let k = nav.i; k < nav.pts.length - 1; k++) rem += flatDist(nav.pts[k], nav.pts[k + 1]);
+  const mag = Math.min(1, rem / (walk ? 1.2 : 6));
+  return { ix: ((wp.x - P.x) / d) * mag, iz: ((wp.z - P.z) / d) * mag, mag, run: walk && rem > 5 };
+}
+function navStuck(dt, blocked) { // 끼면 길을 다시 찾음
+  if (!nav) return;
+  nav.stuck = blocked ? nav.stuck + dt : Math.max(0, nav.stuck - dt * 2);
+  if (nav.stuck < 0.7) return;
+  if (++nav.replan > 3) { navStop(); toast('길이 막혀서 멈췄어요.'); return; }
+  const r = nav.replan, goal = navGoal; nav.stuck = 0;
+  if (goal) { navTo(goal); if (nav) nav.replan = r; }
+}
+// 가는 길을 바닥에 노란 점으로 보여 줌
+const PATH_N = 90, pathDots = new THREE.InstancedMesh(new THREE.CircleGeometry(0.14, 10), new THREE.MeshBasicMaterial({ color: '#ffd45c', transparent: true, opacity: 0.92, depthWrite: false }), PATH_N);
+pathDots.count = 0; pathDots.frustumCulled = false; pathDots.userData.global = true; pathDots.renderOrder = 3; scene.add(pathDots);
+const _pd = new THREE.Object3D();
+function drawPath(t) {
+  if (!nav) { pathDots.count = 0; return; }
+  const pts = [ctrl.pos, ...nav.pts.slice(nav.i)], gap = 0.9, off = (t * 1.6) % gap; let n = 0, carry = gap - off;
+  for (let k = 0; k < pts.length - 1 && n < PATH_N; k++) {
+    const a = pts[k], b = pts[k + 1], L = flatDist(a, b); let s = carry;
+    while (s < L && n < PATH_N) { const f = s / L; _pd.position.set(lerp(a.x, b.x, f), 0.09, lerp(a.z, b.z, f)); _pd.rotation.set(-Math.PI / 2, 0, 0); const sc = n < 3 ? 0.4 + n * 0.2 : 1; _pd.scale.set(sc, sc, sc); _pd.updateMatrix(); pathDots.setMatrixAt(n++, _pd.matrix); s += gap; }
+    carry = s - L;
+  }
+  pathDots.count = n; pathDots.instanceMatrix.needsUpdate = true;
+}
+const navBtn = $('#navBtn');
+function syncNav() {
+  const on = !!(nav || navGoal);
+  navBtn.classList.toggle('on', on); $('span', navBtn).textContent = on ? '멈추기' : '바로 가기';
+  navBtn.setAttribute('aria-label', on ? '길찾기 멈추기' : '목적지까지 알아서 걸어가기');
+  if (!on) pathDots.count = 0;
+}
+function navDests() {
+  const it = (pos) => interacts.find((i) => i.pos === pos) || null;
+  const D = Object.keys(DEPT).map((k) => { const n = npcByKey[k], c = DEPT_MS[k].filter(msDone).length; return { name: DEPT[k].name, sub: `${DEPT[k].name} 주무관에게 가서 업무 고르기`, badge: `<span class="${c === 4 ? 'on' : ''}">업무 ${c}/4</span>`, color: ROOMS[k].color, pos: n.pos, it: it(n.pos) }; });
+  D.push({ name: '안내 직원', sub: '로비 청사 앞 · 진행 상황과 기념장', color: ROOMS.lobby.color, pos: guide.pos, it: it(guide.pos) });
+  D.push({ name: '맑은숨 라운지', sub: '청사 안 창가 벤치 · 창가멍·물멍', color: ROOMS.inside.color, pos: new THREE.Vector3(WIN_SEATS[1].x, 0, WIN_SEATS[1].z + 1.3) });
+  D.push({ name: '하늘멍 언덕', sub: '잔디에 누워 하늘 보기 · 하늘 날기', color: ROOMS.sky.color, pos: REST });
+  return D;
+}
+function openNavPicker() {
+  if (!started || modalOpen) return;
+  const D = navDests(), rec = !M.active ? objTargetRaw() : null;
+  openModal(`<p class="m-k">길찾기</p><h2>어디로 갈까요?</h2><p class="muted">고르면 내 캐릭터가 길을 찾아 <b>알아서 걸어가요</b>. 조이스틱이나 방향키를 움직이면 멈춰요.</p>
+    <div class="rooms">${D.map((d, i) => `<button class="roomc" data-i="${i}" style="--c:${d.color}"><span class="rn">${d.name}</span><span class="rd">${d.sub}</span><span class="rm">${d.pos === rec ? '<span class="me">추천</span>' : ''}${d.badge || ''}${zoneOf(d.pos.x, d.pos.z) === curRoom ? '<span>이 룸</span>' : ''}</span></button>`).join('')}</div>
+    <div class="m-btns"><button class="btn" data-x>닫기</button></div>`);
+  const ro = (s) => { const c = s.charCodeAt(s.length - 1) - 0xac00; if (c < 0 || c > 11171) return '로'; const j = c % 28; return j && j !== 8 ? '으로' : '로'; }; // 받침에 맞춘 조사
+  mcard.querySelectorAll('[data-i]').forEach((b) => (b.onclick = () => { const d = D[Number(b.dataset.i)]; closeModal(); if (navTo(d)) { SFX.ok(); toast(`<b>${d.name}</b>${ro(d.name)} 걸어가요. 노란 점을 따라가요!`); } }));
+  $('[data-x]', mcard).onclick = closeModal;
+}
+function onNavBtn() {
+  if (!started) return;
+  SFX.init();
+  if (nav || navGoal) { navStop(); SFX.tick(); return; }
+  if (M.active) {
+    const tp = objTargetRaw();
+    if (!tp) { toast(M.active === 'plan' ? '이동측정은 직접 운전하며 농도가 높은 쪽을 찾아야 해요!' : '지금 단계는 미션 창 안내를 따라 해 보세요.'); return; }
+    const it = interacts.find((i) => (i.pos === tp || flatDist(i.pos, tp) < 0.3) && i.modes.includes(mode)) || null;
+    if (navTo({ pos: tp, it, name: '' })) { SFX.ok(); toast('목적지까지 알아서 가요. 노란 점을 따라가요!'); }
+    return;
+  }
+  openNavPicker();
+}
+navBtn.addEventListener('click', (e) => { e.stopPropagation(); onNavBtn(); });
 
 /* =========================================================
    start screen
@@ -4264,7 +4469,7 @@ const hiRing = new THREE.Mesh(new THREE.RingGeometry(0.82, 1.0, 48), new THREE.M
 hiRing.rotation.x = -Math.PI / 2; hiRing.visible = false; scene.add(hiRing);
 const wpEl = $('#wp'), wpTxt = $('#wp span'), wpSvg = $('#wp svg');
 const perf = { acc: 0, n: 0, lvl: 0 };
-let orbitA = 0.6, lastActLbl, lastCur = null, hudMoveT = 0, hudMoving = false;
+let orbitA = 0.6, lastActLbl, lastCur = null, hudMoveT = 0, hudMoving = false, hudNoNav = false;
 const HEMI_WARM = new THREE.Color('#fff8ec'), HEMI_COOL = new THREE.Color('#e4efff');
 function applySky(l) {
   const H = SKY.hazy, C = SKY.clear, add = !started ? 38 : skyM.on ? 120 : Math.max(0, camera.position.distanceTo(camLook) - CAM_D) + 4;
@@ -4382,6 +4587,8 @@ function update(dt, t) {
   if (ctrl.obj) ctrl.obj.rotation.y = ctrl.heading;
   hudMoveT = started && !uiBlocked() && ctrl.vel.x * ctrl.vel.x + ctrl.vel.z * ctrl.vel.z > 1.5 ? 0.7 : hudMoveT - dt; // 걷는 동안 HUD를 흐리게
   if (hudMoveT > 0 !== hudMoving) { hudMoving = hudMoveT > 0; document.documentElement.classList.toggle('moving', hudMoving); }
+  const noNav = !(mode === 'walk' || mode === 'van' || mode === 'sweeper');
+  if (noNav !== hudNoNav) { hudNoNav = noNav; document.documentElement.classList.toggle('nonav', noNav); if (noNav && (nav || navGoal) && mode !== 'cutscene') navStop(); }
   if (player.rig) {
     const sp = player.animSpeed ?? (ctrl === player ? speed : 0);
     if (ctrl === player && mode === 'walk' && sp < 0.3) player.idle += dt; else player.idle = 0;
@@ -4412,7 +4619,11 @@ function update(dt, t) {
       if (d < it.r && d < best) { best = d; cur = it; cur._lbl = lbl; }
     }
   }
-  if (pendingAct) { if (!pendingAct.modes.includes(mode) || !pendingAct.label()) pendingAct = null; else if (cur === pendingAct && !cur.hold) { const a = pendingAct; pendingAct = null; moveTarget = null; a.act(); } }
+  if (pendingAct && started && !uiBlocked()) {
+    if (!pendingAct.modes.includes(mode) || !pendingAct.label()) { pendingAct = null; if (navGoal && !nav) navStop(); }
+    else if (!pendingAct.hold && (cur === pendingAct || flatDist(pendingAct.pos, ctrl.pos) < pendingAct.r * 0.75)) firePending();
+  }
+  drawPath(t);
   if (cur !== lastCur) { if (cur && started) { SFX.tick(); promptEl.classList.remove('pop'); void promptEl.offsetWidth; promptEl.classList.add('pop'); } lastCur = cur; }
   const lbl = cur ? cur._lbl : null;
   if (`${lbl}|${mode}` !== lastActLbl) {
@@ -4511,7 +4722,7 @@ requestAnimationFrame(frame);
 window.__worldReady = true;
 if (location.hash === '#debug') window.__w = { state, player, van, sweeper, M, plan, lab, car, checkpoints, factories, fuelCans, cars, net, skyM, npcByKey, talkTo, checkFactory, startExtra, enterSky, exitSky, openCustomizer, sendChat, camera, interacts, renderer, scene, moveRoom, openRooms, GATES, zoneGroups, get curRoom() { return curRoom; }, get ctrl() { return ctrl; }, get mode() { return mode; }, get cur() { return cur; }, get perf() { return perf; }, keys, joy,
   step(n = 30, dt = 1 / 30) { for (let i = 0; i < n; i++) { last += dt * 1000; update(dt, last / 1000); } renderer.render(scene, camera); },
-  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader,
+  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
   look(px, py, pz, tx, ty, tz) { camHold = true; camera.position.set(px, py, pz); camera.lookAt(tx, ty, tz); renderer.render(scene, camera); }, unlook() { camHold = false; } };
 </script>
 </body>
