@@ -467,7 +467,7 @@ input{-webkit-user-select:text;user-select:text}
           <li><b>조사분석과</b>시료 분석 · 측정망 · 이동측정 · 배출량 조사</li>
           <li><b>자동차관리과</b>도로 청소 · 연료 · 저감사업 · 건설기계</li>
         </ul>
-        <label class="field"><span>이름 또는 별명</span><input id="nameIn" maxlength="10" autocomplete="off" placeholder="예: 맑음이"></label>
+        <label class="field"><span>이름 또는 별명</span><input id="nameIn" maxlength="10" autocomplete="off" placeholder="예: 하늘이"></label>
         <button id="enterBtn" class="btn primary big">입장하기</button>
         <button id="skyOnlyBtn" class="btn big ghost" type="button">하늘멍만 하기</button>
         <button id="resetBtn" class="linkish" hidden>기록을 지우고 처음부터 하기</button>
@@ -2520,7 +2520,7 @@ function mountCreator(box, draft, onChange) {
 function openCustomizer(onDone) {
   const draft = { ...state.avatar };
   openModal(`<p class="m-k">내 캐릭터</p><h2>캐릭터 꾸미기</h2>
-    <label class="field"><span>닉네임</span><input id="czName" maxlength="10" placeholder="예: 맑음이"></label>
+    <label class="field"><span>닉네임</span><input id="czName" maxlength="10" placeholder="예: 하늘이"></label>
     <div id="czBox"></div>
     <div class="m-btns"><button class="btn" data-cancel>취소</button><button class="btn primary" data-save>저장</button></div>`);
   $('#czName').value = state.name || $('#nameIn').value || '';
@@ -3007,9 +3007,9 @@ const STARTERS = {
 };
 
 /* =========================================================
-   마스코트 친구들 — 파랑이·분홍이가 내 곁에서 통통 뛰어다녀요
+   마스코트 친구들 — 푸르미·맑음이가 내 곁에서 통통 뛰어다녀요
    ========================================================= */
-function makeMascot({ color, belly, nose, wingTip, name, side }) {
+function makeMascot({ color, belly, nose, wingTip, name, side, hi }) {
   const root = new THREE.Group(); root.userData.global = true; root.rotation.order = 'YXZ'; scene.add(root);
   const bod = new THREE.Group(); root.add(bod);
   const plush = new Map(); // 인형처럼 은은하게 밝은 재질
@@ -3036,10 +3036,10 @@ function makeMascot({ color, belly, nose, wingTip, name, side }) {
     [[0.12, 0.04, 0.15], [0.25, 0, 0.13], [0.35, -0.07, 0.1]].forEach(([x, y, r], i) => soft(r, 1, 0.6, 0.28, i === 2 ? wingTip : '#f7f7f5', s * x, y, -0.02 * i, p));
     return p;
   });
-  if (side < 0) { // 파랑이: 초록 거북 등 가방
+  if (side < 0) { // 푸르미: 초록 거북 등 가방
     soft(0.3, 1, 1.08, 0.48, '#5fb46a', 0, 0.84, -0.36); soft(0.24, 1, 1.0, 0.3, '#7cc98a', 0, 0.86, -0.46);
     for (const s of [-1, 1]) { const st = mk(new THREE.BoxGeometry(0.07, 0.42, 0.03), '#3f8a4a', s * 0.21, 0.98, 0.29); st.rotation.x = -0.25; st.rotation.z = s * 0.1; }
-  } else { // 분홍이: 노란 크로스백
+  } else { // 맑음이: 노란 크로스백
     const a = new THREE.Vector3(-0.27, 1.16, 0.27), b = new THREE.Vector3(0.33, 0.56, 0.29), mid = a.clone().add(b).multiplyScalar(0.5), len = a.distanceTo(b);
     const strap = mk(new THREE.CylinderGeometry(0.018, 0.018, len, 6), '#2b2b2b', mid.x, mid.y, mid.z); strap.rotation.z = Math.atan2(b.x - a.x, a.y - b.y);
     const bag = mk(new THREE.BoxGeometry(0.28, 0.19, 0.11), '#f2c14e', 0.36, 0.5, 0.27); bag.rotation.z = -0.15;
@@ -3047,13 +3047,13 @@ function makeMascot({ color, belly, nose, wingTip, name, side }) {
   }
   root.scale.setScalar(0.95);
   const el = document.createElement('div'); el.className = 'tag mascot'; el.style.setProperty('--mc', color); el.textContent = name;
-  const m = { name, side, root, bod, ears, arms, legs, wings, pos: root.position, heading: 0, target: new THREE.Vector3(), wait: rand(0.5, 2), phase: rand(0, 6), seed: rand(0, 9), greetCD: 0, greet: 0, jump: 0, dance: 0, moving: false, talks: 0, vy: 0 };
+  const m = { name, hi, side, root, bod, ears, arms, legs, wings, pos: root.position, heading: 0, target: new THREE.Vector3(), wait: rand(0.5, 2), phase: rand(0, 6), seed: rand(0, 9), greetCD: 0, greet: 0, jump: 0, dance: 0, moving: false, talks: 0, vy: 0 };
   m.tag = addLabel(el, { obj: root, dy: 2.1 });
   return m;
 }
 const mascots = [
-  makeMascot({ color: '#79b9ea', belly: '#dceffc', nose: '#6a5bb5', wingTip: '#eef4fb', name: '파랑이', side: -1 }),
-  makeMascot({ color: '#f39aa5', belly: '#fde0e4', nose: '#e86b80', wingTip: '#f9d3da', name: '분홍이', side: 1 }),
+  makeMascot({ color: '#79b9ea', belly: '#dceffc', nose: '#6a5bb5', wingTip: '#eef4fb', name: '푸르미', side: -1, hi: '하늘을 푸르게 지키는 게 내 꿈이야' }),
+  makeMascot({ color: '#f39aa5', belly: '#fde0e4', nose: '#e86b80', wingTip: '#f9d3da', name: '맑음이', side: 1, hi: '맑은 하늘을 보면 기분이 최고야' }),
 ];
 mascots[0].pos.set(-2.5, 0, 9.5); mascots[1].pos.set(2.5, 0, 9.8);
 mascots.forEach((m) => addI({ pos: m.pos, r: 2.1, dy: 2.4, ring: 0.9, label: () => `${m.name}랑 놀기`, act: () => talkMascot(m) }));
@@ -3069,7 +3069,7 @@ const MASCOT_TIPS = [
 function talkMascot(m) {
   m.jump = 0.5; m.greet = 1.2; SFX.pop(); buzz(15);
   const first = m.talks++ === 0;
-  const line = first ? `안녕! 나는 <b>${m.name}</b>야. 맑은 하늘을 정말 좋아해. 어디든 따라다닐게!` : pick(MASCOT_TIPS)();
+  const line = first ? `안녕! 나는 <b>${m.name}</b>야. ${m.hi}. 어디든 따라다닐게!` : pick(MASCOT_TIPS)();
   talk(m.name, [line], [{ label: '고마워' }, { label: '같이 놀자!', primary: true, onClick: () => { mascots.forEach((q) => (q.dance = 2.4)); cheer(player.rig); SFX.chime(); burst(player.pos.x, 1.6, player.pos.z, '#ff9fb5', 8, 0.5); } }]);
 }
 function placeMascots() { // 룸을 옮기면 내 곁으로 순간 이동
