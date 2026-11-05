@@ -207,6 +207,31 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 5px;border-radius:5px;borde
 body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input{-webkit-user-select:text;user-select:text}
 
+/* rooms */
+.room-row{display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.room-row i{width:10px;height:10px;border-radius:50%;background:#217569;flex:none}
+.room-row b{font-size:13px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.room-row .mini-btn{margin:0;padding:5px 10px;min-height:30px}
+#fade{position:fixed;inset:0;z-index:35;background:#eaf4f7;opacity:0;pointer-events:none;transition:opacity .3s}
+#fade.on{opacity:1}
+#roomCard{position:fixed;left:50%;top:22%;transform:translateX(-50%);z-index:24;text-align:center;padding:16px 26px;border-radius:18px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);animation:card 2.6s ease forwards;pointer-events:none;max-width:calc(100vw - 32px)}
+#roomCard .rc-k{margin:0;font-size:11px;font-weight:800;letter-spacing:.2em;color:var(--muted)}
+#roomCard h2{margin:4px 0 4px;font-size:22px}
+#roomCard .rc-d{margin:0;font-size:13px;color:var(--muted)}
+@keyframes card{0%{opacity:0;transform:translate(-50%,8px)}12%,78%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-6px)}}
+.rooms{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 4px}
+.roomc{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:12px;border-radius:14px;border:1.5px solid var(--line);background:var(--panel-solid);cursor:pointer;text-align:left;position:relative;overflow:hidden;min-height:96px}
+.roomc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--c)}
+.roomc:hover,.roomc:focus-visible{border-color:var(--c)}
+.roomc.here{background:var(--soft);cursor:default}
+.roomc .rn{font-size:14.5px;font-weight:800}
+.roomc .rd{font-size:12px;color:var(--muted);line-height:1.45}
+.roomc .rm{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.roomc .rm span{font-size:11px;font-weight:800;padding:2px 7px;border-radius:99px;background:var(--soft);color:var(--text)}
+.roomc .rm span.on{background:#2f9e6e;color:#fff}
+.roomc .rm span.me{background:var(--c);color:#fff}
+@media (max-width:560px){.rooms{grid-template-columns:1fr}.roomc{min-height:0}}
+
 /* extra missions, customizer */
 .xrow{margin-top:6px;font-size:11px;font-weight:700;color:var(--muted)}
 .xrow b{color:#e0a526;letter-spacing:1px}
@@ -256,7 +281,7 @@ input{-webkit-user-select:text;user-select:text}
 .sky-bot .btn{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.55);color:#fff}
 .sky-bot .btn.primary{background:#fff;color:#1f5f8b;border-color:#fff}
 .sky-left{font-size:13px;font-weight:800;min-width:40px;text-align:center;font-variant-numeric:tabular-nums}
-.skymode .hud,.skymode #labels,.skymode #chatBar,.skymode #toast{display:none!important}
+.skymode .hud,.skymode #labels,.skymode #chatBar,.skymode #toast,.skymode #roomCard{display:none!important}
 @media (max-width:560px){.cz{grid-template-columns:1fr}.cz-prev{position:static}#czCv{width:140px;height:170px}.nets{grid-template-columns:1fr}.sky-bot .btn{padding:10px 12px}}
 
 /* multiplayer & chat */
@@ -322,6 +347,8 @@ input{-webkit-user-select:text;user-select:text}
   #chatBar .btn{padding:10px}
   #chatWave{display:none}
   .stamps-head>span:first-child{display:none}
+  .obj .brand{display:none}
+  .room-row{margin-top:0;padding-top:0;border-top:0;margin-bottom:6px}
   .stamps-head{justify-content:flex-end}
   #toast{top:32%;bottom:auto}
 }
@@ -336,6 +363,7 @@ input{-webkit-user-select:text;user-select:text}
   <div class="hud-left">
     <section class="card obj" aria-live="polite">
       <div class="brand"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#217569"/><circle cx="30" cy="17" r="6" fill="#f2c94c"/><path d="M13 35h21a6 6 0 0 0 .5-12A8.5 8.5 0 0 0 18.4 21 7 7 0 0 0 13 35z" fill="#fff"/></svg>수도권대기환경청 업무체험관</div>
+      <div class="room-row"><i id="roomDot"></i><b id="roomName">로비</b><button id="roomBtn" class="mini-btn" aria-label="룸 이동 목록 열기">룸 이동</button></div>
       <div class="obj-k">다음 할 일</div>
       <div id="objText"></div>
     </section>
@@ -372,6 +400,8 @@ input{-webkit-user-select:text;user-select:text}
 <div id="dialog" class="card" role="dialog" aria-label="대화" hidden><div class="who"><span class="nm"></span><span class="pg"></span></div><div class="txt"></div><div class="btns"></div></div>
 <div id="modal" hidden><div class="modal-card" role="dialog" aria-modal="true"></div></div>
 <div id="toast" role="status" aria-live="polite"></div>
+<div id="fade" aria-hidden="true"></div>
+<div id="roomCard" aria-live="polite" hidden><p class="rc-k"></p><h2></h2><p class="rc-d"></p></div>
 <form id="chatBar" hidden autocomplete="off">
   <span class="note">같은 방 사람에게 공개 서버를 거쳐 전달돼요. 개인정보는 쓰지 마세요.</span>
   <input id="chatIn" maxlength="60" enterkeyhint="send" placeholder="메시지 (최대 60자)" aria-label="채팅 메시지">
@@ -386,6 +416,7 @@ input{-webkit-user-select:text;user-select:text}
     <div class="sky-timer" role="group" aria-label="쉬는 시간"><button class="chip" data-min="1">1분</button><button class="chip" data-min="3" aria-pressed="true">3분</button><button class="chip" data-min="5">5분</button><button class="chip" data-min="0">계속</button></div>
     <span id="skyLeft" class="sky-left"></span>
     <button class="btn" id="skyHide">하늘만 보기</button>
+    <button class="btn" id="skyFly">날아 보기</button>
     <button class="btn primary" id="skyExit">일어나기</button>
   </div>
 </div>
@@ -557,6 +588,7 @@ try {
   if (s && s.done) { Object.assign(state, s, { done: Object.assign({}, state.done, s.done), extra: Object.assign({}, state.extra, s.extra) }); hadSave = true; }
 } catch (e) { /* storage unavailable */ }
 if (!state.avatar || typeof state.avatar !== 'object') state.avatar = { skin: '#f1c8a4', hair: 'short', hairColor: '#2a211b', shirt: state.color, pants: '#34495e', acc: 'none' };
+state.avatar = Object.assign({ body: 'm', top: 'tee', bottom: 'pants' }, state.avatar);
 function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ } }
 const doneCount = () => Object.values(state.done).filter(Boolean).length;
 
@@ -582,7 +614,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
 const SKY = {
   hazy: { fog: new THREE.Color('#c9c0a6'), near: 24, far: 84, sun: 1.6, hemi: 0.95, mote: 0.55, smoke: 1 },
-  clear: { fog: new THREE.Color('#bfe3f7'), near: 75, far: 260, sun: 2.7, hemi: 1.3, mote: 0, smoke: 0.3 },
+  clear: { fog: new THREE.Color('#9cc8e6'), near: 75, far: 260, sun: 2.3, hemi: 1.12, mote: 0, smoke: 0.3 },
 };
 scene.background = SKY.hazy.fog.clone();
 scene.fog = new THREE.Fog(SKY.hazy.fog.clone(), SKY.hazy.near, SKY.hazy.far);
@@ -642,7 +674,32 @@ function resolve(p, r) {
     const dx = p.x - c.pos.x, dz = p.z - c.pos.z, d = Math.hypot(dx, dz), m = c.r + r;
     if (d < m && d > 1e-4) { p.x = c.pos.x + (dx / d) * m; p.z = c.pos.z + (dz / d) * m; }
   }
+}
+
+/* rooms — 로비 + 부서별 미션룸 4개 + 하늘멍 언덕 */
+const SKY_C = new THREE.Vector3(170, 0, 0);
+const ROOM_IDS = ['lobby', 'plan', 'total', 'lab', 'car', 'sky'];
+let curRoom = 'lobby';
+function zoneOf(x, z) {
+  if (Math.hypot(x - SKY_C.x, z - SKY_C.z) < 75) return 'sky';
+  if (Math.hypot(x, z) < 15.5) return 'lobby';
+  return x < 0 ? (z < 0 ? 'plan' : 'car') : (z < 0 ? 'total' : 'lab');
+}
+function clampRoom(p, rad) { // 지금 있는 룸 밖으로 못 나가게
+  if (curRoom === 'lobby') { const d = Math.hypot(p.x, p.z), m = 13.9 - rad; if (d > m) { p.x *= m / d; p.z *= m / d; } return; }
+  if (curRoom === 'sky') { const dx = p.x - SKY_C.x, dz = p.z - SKY_C.z, d = Math.hypot(dx, dz), m = 30 - rad; if (d > m) { p.x = SKY_C.x + (dx / d) * m; p.z = SKY_C.z + (dz / d) * m; } return; }
+  const sx = curRoom === 'plan' || curRoom === 'car' ? -1 : 1, sz = curRoom === 'plan' || curRoom === 'total' ? -1 : 1, e = 0.6 + rad;
+  if (sx * p.x < e) p.x = sx * e; if (sz * p.z < e) p.z = sz * e;
   p.x = clamp(p.x, -57, 57); p.z = clamp(p.z, -57, 57);
+  const d = Math.hypot(p.x, p.z), m = 15.3 + rad; if (d < m) { const k = m / Math.max(d, 1e-3); p.x *= k; p.z *= k; }
+}
+function zoneInstanced(geo, material, items, { cast = false, recv = true } = {}) { // 인스턴스를 룸별로 나눠 만듦
+  const by = {}; items.forEach((it) => (by[it.zone || zoneOf(it.x, it.z)] ||= []).push(it));
+  return Object.entries(by).map(([zone, list]) => {
+    const im = new THREE.InstancedMesh(geo, material, list.length);
+    list.forEach((it, i) => { im.setMatrixAt(i, it.m); if (it.c) im.setColorAt(i, it.c); });
+    im.castShadow = cast; im.receiveShadow = recv; im.userData.zone = zone; scene.add(im); return im;
+  });
 }
 
 /* =========================================================
@@ -660,16 +717,17 @@ const smokeWind = IDLE_WIND.clone();
 let smokeFactor = 1;
 const emitters = [];
 function addEmitter(x, y, z, n, color, size) {
-  const e = { x, y, z, size, parts: [] };
+  const e = { x, y, z, size, parts: [], zone: zoneOf(x, z) };
   for (let i = 0; i < n; i++) {
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: SOFT, color, transparent: true, depthWrite: false, opacity: 0 }));
-    scene.add(s);
+    s.userData.zone = e.zone; scene.add(s);
     e.parts.push({ s, age: Math.random() * 4, life: rand(3.2, 4.6), vx: rand(-0.25, 0.25), vz: rand(-0.25, 0.25) });
   }
   emitters.push(e);
 }
 function updateEmitters(dt) {
   for (const e of emitters) for (const p of e.parts) {
+    if (started && e.zone !== curRoom) break;
     p.age += dt;
     if (p.age > p.life) { p.age = 0; p.life = rand(3.2, 4.6); }
     const k = p.age / p.life;
@@ -681,7 +739,7 @@ function updateEmitters(dt) {
 const bursts = [];
 for (let i = 0; i < 64; i++) {
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: SOFT, color: '#ffffff', transparent: true, depthWrite: false, opacity: 0 }));
-  s.visible = false; scene.add(s);
+  s.visible = false; s.userData.global = true; scene.add(s);
   bursts.push({ s, life: 0, age: 0, size: 1, v: new THREE.Vector3() });
 }
 function burst(x, y, z, color, n = 10, size = 1) {
@@ -710,7 +768,7 @@ for (let i = 0; i < MOTE_N; i++) { motePos[i * 3] = rand(-35, 35); motePos[i * 3
 const moteGeo = new THREE.BufferGeometry();
 moteGeo.setAttribute('position', new THREE.BufferAttribute(motePos, 3));
 const moteMat = new THREE.PointsMaterial({ map: SOFT, color: '#ece0c2', size: 0.7, transparent: true, depthWrite: false, opacity: 0.5 });
-const motes = new THREE.Points(moteGeo, moteMat); motes.frustumCulled = false; scene.add(motes);
+const motes = new THREE.Points(moteGeo, moteMat); motes.frustumCulled = false; motes.userData.global = true; scene.add(motes);
 function updateMotes(dt, t, cx, cz) {
   for (let i = 0; i < MOTE_N; i++) {
     let x = motePos[i * 3] + (IDLE_WIND.x * 0.9 + Math.sin(t * 0.7 + i) * 0.15) * dt;
@@ -737,26 +795,41 @@ function updateMotes(dt, t, cx, cz) {
   }
   geo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
   const ground = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ vertexColors: true }));
-  ground.receiveShadow = true; scene.add(ground);
+  ground.receiveShadow = true; ground.userData.global = true; scene.add(ground);
 }
 flat(36, 36, '#cfccc3', -21, -21, 0.02);      // NW 산업단지
 flat(36, 36, '#d4d1c8', 21, -21, 0.02);       // NE 화학공장
 flat(26, 24, '#bcc1c5', -21, 23, 0.025);      // SW 자동차관리과 마당
 flat(30, 9, '#d9d4c4', 23, 31, 0.025);        // SE 굴뚝 앞 마당
 const ROAD = '#575d64';
-const roadSegs = [
-  [0, -42, 90, 6], [0, 42, 90, 6], [-42, 0, 6, 90], [42, 0, 6, 90],
-  [0, -27.5, 6, 29], [0, 27.5, 6, 29], [-27.5, 0, 29, 6], [27.5, 0, 29, 6],
-];
+const roadSegs = []; // 룸 경계(x=0, z=0)에서 반으로 나눠 룸마다 따로 보이게
+for (const s of [-1, 1]) {
+  roadSegs.push([-22.5, s * 42, 45, 6], [22.5, s * 42, 45, 6], [s * 42, -22.5, 6, 45], [s * 42, 22.5, 6, 45]);
+  roadSegs.push([s * 1.5, -27.5, 3, 29], [s * 1.5, 27.5, 3, 29], [-27.5, s * 1.5, 29, 3], [27.5, s * 1.5, 29, 3]);
+}
 roadSegs.forEach(([x, z, w, d]) => flat(w, d, ROAD, x, z, 0.04));
 {
-  const dash = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.22, 1.8), new THREE.MeshLambertMaterial({ color: '#f1efe6' }), 200);
-  const dm = new THREE.Object3D(); let n = 0;
-  const addDash = (x, z, horiz) => { dm.position.set(x, 0.05, z); dm.rotation.set(-Math.PI / 2, 0, horiz ? Math.PI / 2 : 0); dm.updateMatrix(); dash.setMatrixAt(n++, dm.matrix); };
-  for (let v = -40; v <= 40; v += 4) { addDash(v, -42, true); addDash(v, 42, true); addDash(-42, v, false); addDash(42, v, false); }
-  for (let v = 19; v <= 31; v += 4) { addDash(0, v, false); addDash(0, -v, false); addDash(v, 0, true); addDash(-v, 0, true); }
-  dash.count = n; dash.receiveShadow = true; scene.add(dash);
+  const dm = new THREE.Object3D(), items = [];
+  const addDash = (x, z, horiz) => { dm.position.set(x, 0.05, z); dm.rotation.set(-Math.PI / 2, 0, horiz ? Math.PI / 2 : 0); dm.updateMatrix(); items.push({ x, z, m: dm.matrix.clone() }); };
+  for (let v = -40; v <= 40; v += 4) if (v !== 0) { addDash(v, -42, true); addDash(v, 42, true); addDash(-42, v, false); addDash(42, v, false); }
+  zoneInstanced(new THREE.PlaneGeometry(0.22, 1.8), new THREE.MeshLambertMaterial({ color: '#f1efe6' }), items);
 }
+// 룸 경계 산울타리
+const HEDGE = '#4f8a4a';
+function hedgeLine(x0, z0, x1, z1) {
+  const len = Math.hypot(x1 - x0, z1 - z0), n = Math.max(1, Math.round(len / 2.4)), ang = -Math.atan2(z1 - z0, x1 - x0);
+  for (let i = 0; i < n; i++) { const t = (i + 0.5) / n; box((len / n) * 0.97, 0.85, 0.7, HEDGE, lerp(x0, x1, t), 0.42, lerp(z0, z1, t)).rotation.y = ang; }
+}
+function hedgeArc(cx, cz, r, a0, a1) {
+  const n = Math.ceil((Math.abs(a1 - a0) * r) / 2.2);
+  for (let i = 0; i < n; i++) { const a = a0 + ((a1 - a0) * (i + 0.5)) / n; box(((Math.abs(a1 - a0) * r) / n) * 0.97, 0.85, 0.7, HEDGE, cx + Math.cos(a) * r, 0.42, cz + Math.sin(a) * r).rotation.y = -Math.atan2(Math.cos(a), -Math.sin(a)); }
+}
+for (const s of [-1, 1]) {
+  hedgeLine(s * 0.35, -57, s * 0.35, -15.8); hedgeLine(s * 0.35, 15.8, s * 0.35, 57);
+  hedgeLine(-57, s * 0.35, -15.8, s * 0.35); hedgeLine(15.8, s * 0.35, 57, s * 0.35);
+}
+[[Math.PI, Math.PI * 1.5], [Math.PI * 1.5, Math.PI * 2], [0, Math.PI * 0.5], [Math.PI * 0.5, Math.PI]].forEach(([a0, a1]) => hedgeArc(0, 0, 15.9, a0 + 0.04, a1 - 0.04));
+hedgeArc(0, 0, 14.75, 0, Math.PI * 2);
 {
   const p = new THREE.Mesh(new THREE.CircleGeometry(13.5, 56), mat('#e9e3d3')); p.rotation.x = -Math.PI / 2; p.position.y = 0.07; p.receiveShadow = true; scene.add(p);
   const ring = new THREE.Mesh(new THREE.RingGeometry(13.5, 14.3, 56), mat('#cdbf9f')); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.075; ring.receiveShadow = true; scene.add(ring);
@@ -767,11 +840,10 @@ roadSegs.forEach(([x, z, w, d]) => flat(w, d, ROAD, x, z, 0.04));
     flat(1.6, 25, SWK, s * 3.8, 26.5, 0.035); flat(1.6, 25, SWK, s * 3.8, -26.5, 0.035);
     flat(25, 1.6, SWK, 26.5, s * 3.8, 0.035); flat(25, 1.6, SWK, -26.5, s * 3.8, 0.035);
   }
-  const zebra = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.55, 2.4), new THREE.MeshLambertMaterial({ color: '#f4f2ea' }), 48);
-  const dm = new THREE.Object3D(); let n = 0;
-  const cross = (cx, cz, horiz) => { for (let k = -2; k <= 2; k++) { dm.position.set(horiz ? cx : cx + k * 1.1, 0.055, horiz ? cz + k * 1.1 : cz); dm.rotation.set(-Math.PI / 2, 0, horiz ? Math.PI / 2 : 0); dm.updateMatrix(); zebra.setMatrixAt(n++, dm.matrix); } };
-  [15.6, 36.4].forEach((v) => { cross(0, v, false); cross(0, -v, false); cross(v, 0, true); cross(-v, 0, true); });
-  zebra.count = n; zebra.receiveShadow = true; scene.add(zebra);
+  const dm = new THREE.Object3D(), items = [];
+  const cross = (cx, cz, horiz) => { for (const k of [-2, -1, 1, 2]) { const x = horiz ? cx : cx + k * 1.1, z = horiz ? cz + k * 1.1 : cz; dm.position.set(x, 0.055, z); dm.rotation.set(-Math.PI / 2, 0, horiz ? Math.PI / 2 : 0); dm.updateMatrix(); items.push({ x, z, m: dm.matrix.clone() }); } };
+  [18.5, 36.4].forEach((v) => { cross(0, v, false); cross(0, -v, false); cross(v, 0, true); cross(-v, 0, true); });
+  zoneInstanced(new THREE.PlaneGeometry(0.55, 2.4), new THREE.MeshLambertMaterial({ color: '#f4f2ea' }), items);
 }
 
 /* =========================================================
@@ -815,16 +887,16 @@ function bench(x, z, rot) {
   box(2.2, 0.12, 0.6, '#b07a4a', 0, 0.55, 0, g); box(2.2, 0.5, 0.1, '#b07a4a', 0, 0.85, -0.28, g);
   for (const dx of [-0.9, 0.9]) box(0.1, 0.55, 0.5, '#4b5157', dx, 0.27, 0, g);
 }
-bench(-11, 4.5, Math.PI / 2.4); bench(11.5, 3.5, -Math.PI / 2.4);
+bench(11.5, 3.5, -Math.PI / 2.4);
 const boardCv = document.createElement('canvas'); boardCv.width = 512; boardCv.height = 288;
 const boardTex = new THREE.CanvasTexture(boardCv); boardTex.colorSpace = THREE.SRGBColorSpace;
 {
-  const g = new THREE.Group(); g.position.set(-12, 0, 0.8); g.rotation.y = 0.35; scene.add(g);
+  const g = new THREE.Group(); g.position.set(-12.2, 0, 4.4); g.rotation.y = 0.8; scene.add(g);
   for (const dx of [-1.7, 1.7]) box(0.18, 2.4, 0.18, '#59616a', dx, 1.2, 0, g);
   box(4.4, 2.6, 0.3, '#2b3238', 0, 3.4, 0, g);
   const scr = new THREE.Mesh(new THREE.PlaneGeometry(4.1, 2.3), new THREE.MeshBasicMaterial({ map: boardTex }));
   scr.position.set(0, 3.4, 0.16); g.add(scr);
-  addCircle(-12, 0.8, 2.1);
+  addCircle(-12.2, 4.4, 2.1);
 }
 function drawBoard(level) {
   const g = boardCv.getContext('2d');
@@ -884,18 +956,18 @@ factories.forEach((f, i) => { drums(f.x - 2.6, f.z - 3.6, 3, i % 2 ? '#3f7fbf' :
   addCircle(-28.5, -14.2, 1.3);
 }
 // 기획과 추가 체험: 푸른하늘 교실(텐트)
-const TENT = new THREE.Vector3(-24, 0, 10.4);
+const TENT = new THREE.Vector3(-34.5, 0, -6.7);
 {
-  const g = new THREE.Group(); g.position.set(-24, 0, 6.6); scene.add(g);
+  const g = new THREE.Group(); g.position.set(-34.5, 0, -10.5); scene.add(g);
   for (const [dx, dz] of [[-3, -1.6], [3, -1.6], [-3, 1.6], [3, 1.6]]) cyl(0.08, 0.08, 2.6, '#e8e6df', dx, 1.3, dz, g, 6);
   const roof = put(new THREE.Mesh(new THREE.ConeGeometry(4.3, 1.4, 4), mat('#3a8fd1')), g, 0, 3.3, 0); roof.rotation.y = Math.PI / 4; roof.scale.z = 0.62;
   box(6.2, 0.1, 3.4, '#f6f3ea', 0, 2.6, 0, g);
   box(2.6, 1.5, 0.12, '#ffffff', 0, 1.6, -1.55, g); box(2.3, 1.2, 0.05, '#2e6b4f', 0, 1.6, -1.47, g, false);
   const s = textPlane('푸른하늘 교실', { w: 3.2, h: 0.6, bg: '#3a8fd1' }); s.position.set(0, 2.95, 1.75); g.add(s);
-  addRect(-24, 6.6, 6.2, 3.4);
+  addRect(-34.5, -10.5, 6.2, 3.4);
 }
 // 하늘멍 쉼터(잔디 돗자리)
-const REST = new THREE.Vector3(27, 0, 11);
+const REST = new THREE.Vector3(SKY_C.x, 0, SKY_C.z - 2);
 {
   const m = flat(2.4, 3.2, '#f2d7a6', REST.x, REST.z - 1, 0.04);
   for (let k = -1; k <= 1; k++) flat(2.4, 0.25, '#e98b6d', REST.x, REST.z - 1 + k * 1.05, 0.045);
@@ -903,6 +975,61 @@ const REST = new THREE.Vector3(27, 0, 11);
   const s = textPlane('하늘멍 쉼터', { w: 2.6, h: 0.55, bg: '#5aa9e6' }); s.position.set(REST.x + 1.9, 1.3, REST.z + 0.8); scene.add(s);
   cyl(0.05, 0.05, 1.1, '#8d979e', REST.x + 1.9, 0.55, REST.z + 0.8, scene, 6);
 }
+const POND = new THREE.Vector3(SKY_C.x - 11, 0, SKY_C.z + 6);
+const LAUNCH = new THREE.Vector3(SKY_C.x + 9.5, 0, SKY_C.z + 0.5);
+{ // 하늘멍 언덕: 따로 떨어진 잔디 언덕 룸
+  const c = SKY_C;
+  const geo = new THREE.CircleGeometry(70, 64); geo.rotateX(-Math.PI / 2);
+  const pos = geo.attributes.position, cols = new Float32Array(pos.count * 3), col = new THREE.Color(), a = new THREE.Color('#8cc477'), b = new THREE.Color('#b0d993');
+  for (let i = 0; i < pos.count; i++) { const x = pos.getX(i), z = pos.getZ(i), n = Math.sin(x * 0.09) * Math.cos(z * 0.11) * 0.5 + 0.5 + (Math.random() - 0.5) * 0.15; col.copy(a).lerp(b, clamp(n, 0, 1) * 0.85); cols[i * 3] = col.r; cols[i * 3 + 1] = col.g; cols[i * 3 + 2] = col.b; }
+  geo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+  const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ vertexColors: true })); m.position.set(c.x, 0.012, c.z); m.receiveShadow = true; scene.add(m);
+  const pond = new THREE.Mesh(new THREE.CircleGeometry(3.4, 36), mat('#7db7dc')); pond.rotation.x = -Math.PI / 2; pond.scale.set(1.5, 1, 1); pond.position.set(POND.x, 0.03, POND.z); pond.receiveShadow = true; scene.add(pond);
+  for (let k = 0; k < 18; k++) { const t = (k / 18) * Math.PI * 2; sph(rand(0.22, 0.38), pick(['#b9b4a8', '#cfc9bc', '#a9a499']), POND.x + Math.cos(t) * 5.3, 0.08, POND.z + Math.sin(t) * 3.6).scale.y = 0.55; }
+  addCircle(POND.x, POND.z, 4.6);
+  bench(c.x + 7.5, c.z + 5, -0.7); bench(c.x - 5, c.z - 10, 2.7); addCircle(c.x + 7.5, c.z + 5, 1.2); addCircle(c.x - 5, c.z - 10, 1.2);
+  // 떠 있는 섬처럼 보이도록 가장자리 흙벽과 밑동
+  const rim = put(new THREE.Mesh(new THREE.CylinderGeometry(70, 70, 6, 64, 1, true), mat('#8a6a4a')), scene, c.x, -3, c.z, false); rim.receiveShadow = false;
+  put(new THREE.Mesh(new THREE.CylinderGeometry(70, 22, 26, 48), mat('#6f5440')), scene, c.x, -19, c.z, false);
+  // 하늘 날기 발판
+  cyl(1.35, 1.45, 0.25, '#5aa9e6', LAUNCH.x, 0.12, LAUNCH.z, scene, 24); cyl(0.9, 0.9, 0.06, '#f2efe6', LAUNCH.x, 0.27, LAUNCH.z, scene, 24);
+  const ls = textPlane('하늘 날기', { w: 2.0, h: 0.5, bg: '#3a7fc6' }); ls.position.set(LAUNCH.x, 1.5, LAUNCH.z + 1.6); scene.add(ls);
+  cyl(0.05, 0.05, 1.3, '#8d6b47', LAUNCH.x, 0.65, LAUNCH.z + 1.6, scene, 6);
+  const s = textPlane('하늘멍 언덕', { w: 2.8, h: 0.6, bg: '#5aa9e6' }); s.position.set(c.x + 3.2, 1.35, c.z + 12.2); scene.add(s);
+  for (const dx of [-1.2, 1.2]) cyl(0.06, 0.06, 1.2, '#8d6b47', c.x + 3.2 + dx, 0.6, c.z + 12.15, scene, 6);
+}
+// 룸 정보와 문(포털)
+const ROOMS = {
+  lobby: { name: '로비 · 청사 광장', short: '로비', color: '#217569', desc: '안내 직원과 전광판이 있는 청사 앞 광장', spawn: [0, 8], face: Math.PI },
+  plan: { name: '기획과 미션룸', short: '기획과', color: '#3a8fd1', desc: '산업단지 이동측정 · 푸른하늘 교실', spawn: [-14.7, -14.7], face: -Math.PI * 0.75 },
+  total: { name: '대기총량과 미션룸', short: '대기총량과', color: '#d99a1e', desc: '비산배출 누출 점검 · 배출권 거래 관리', spawn: [14.7, -14.7], face: Math.PI * 0.75 },
+  lab: { name: '조사분석과 미션룸', short: '조사분석과', color: '#8e6bbf', desc: '굴뚝 시료 채취·분석 · 측정소 자료 점검', spawn: [14.7, 14.7], face: Math.PI * 0.25 },
+  car: { name: '자동차관리과 미션룸', short: '자동차관리과', color: '#e4572e', desc: '도로 재비산먼지 청소 · 연료 품질 검사', spawn: [-14.7, 14.7], face: -Math.PI * 0.25 },
+  sky: { name: '하늘멍 언덕', short: '하늘멍', color: '#5aa9e6', desc: '누워서 하늘 보며 쉬는 잔디 언덕', spawn: [SKY_C.x, SKY_C.z + 12], face: Math.PI },
+};
+const GATES = [];
+function makeGate(x, z, face, to, from) {
+  const R = ROOMS[to], g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = face; scene.add(g);
+  for (const sx of [-1.35, 1.35]) { cyl(0.17, 0.2, 3.2, '#f2efe6', sx, 1.6, 0, g, 10); cyl(0.28, 0.28, 0.25, R.color, sx, 0.12, 0, g, 10); }
+  box(3.2, 0.36, 0.42, R.color, 0, 3.3, 0, g); box(0.5, 0.5, 0.46, '#f2efe6', 0, 3.3, 0, g);
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 2.95), new THREE.MeshBasicMaterial({ color: R.color, transparent: true, opacity: 0.3, side: THREE.DoubleSide, depthWrite: false }));
+  glow.position.set(0, 1.55, 0); g.add(glow);
+  const lbl = textPlane(to === 'lobby' ? '로비로' : to === 'sky' ? '하늘멍 언덕' : `${R.short} 미션룸`, { w: 3.0, h: 0.56, bg: R.color }); lbl.position.set(0, 3.95, 0.05); g.add(lbl);
+  const back = lbl.clone(); back.rotation.y = Math.PI; back.position.z = -0.05; g.add(back);
+  const px = Math.cos(face) * 1.35, pz = -Math.sin(face) * 1.35; addCircle(x + px, z + pz, 0.32); addCircle(x - px, z - pz, 0.32);
+  GATES.push({ pos: new THREE.Vector3(x, 0, z), to, from, glow, face });
+}
+makeGate(-13.0, -4.5, Math.atan2(13.0, 4.5), 'plan', 'lobby');
+makeGate(13.0, -4.5, Math.atan2(-13.0, 4.5), 'total', 'lobby');
+makeGate(9.6, 10.0, Math.atan2(-9.6, -10.0), 'lab', 'lobby');
+makeGate(-9.6, 10.0, Math.atan2(9.6, -10.0), 'car', 'lobby');
+makeGate(0, 13.4, Math.PI, 'sky', 'lobby');
+makeGate(-12.9, -12.9, Math.atan2(-1, -1), 'lobby', 'plan');
+makeGate(12.9, -12.9, Math.atan2(1, -1), 'lobby', 'total');
+makeGate(12.9, 12.9, Math.atan2(1, 1), 'lobby', 'lab');
+makeGate(-12.9, 12.9, Math.atan2(-1, 1), 'lobby', 'car');
+makeGate(SKY_C.x, SKY_C.z + 15, Math.PI, 'lobby', 'sky');
+const gateTo = (from, to) => GATES.find((g) => g.from === from && g.to === to);
 // 기획과 차고
 {
   for (const [dx, dz] of [[-3.6, -2.6], [3.6, -2.6], [-3.6, 2.6], [3.6, 2.6]]) { cyl(0.14, 0.14, 3.4, '#cfd5d2', -20 + dx, 1.7, -9 + dz, scene, 8); addCircle(-20 + dx, -9 + dz, 0.25); }
@@ -984,7 +1111,7 @@ let probe;
   addRect(35, 28, 7, 9);
   addEmitter(x, 22.4, z, 10, '#f1eee8', 1.6);
   const dev = box(0.7, 0.6, 0.5, '#3a7bd5', x + 0.9, 9.45, z + 2.3);
-  probe = new THREE.Group(); probe.userData.dynamic = true; scene.add(probe);
+  probe = new THREE.Group(); probe.userData.dynamic = true; probe.userData.zone = 'lab'; scene.add(probe);
   const hose = box(0.07, 0.07, 1.0, '#222222', x + 0.5, 9.95, z + 1.95, probe, false); hose.rotation.y = 0.5;
   probe.visible = false; dev.visible = true;
 }
@@ -1022,7 +1149,7 @@ function makeTruck(color, x, z, rot) {
 }
 // 자동차관리과 추가 체험: 연료 시료 3통 + 분석대
 const FUEL_TABLE = new THREE.Vector3(-17.5, 0, 25.6);
-const fuelCans = [[-31.5, 13.8, '#e2b53c', '휘발유'], [-11.5, 13.2, '#3f7fbf', '경유 A'], [-19, 33.6, '#5a9e6f', '경유 B']].map(([x, z, c, nm]) => {
+const fuelCans = [[-31.5, 13.8, '#e2b53c', '휘발유'], [-12, 19, '#3f7fbf', '경유 A'], [-19, 33.6, '#5a9e6f', '경유 B']].map(([x, z, c, nm]) => {
   const g = new THREE.Group(); g.position.set(x, 0, z); g.userData.dynamic = true; scene.add(g);
   box(0.5, 0.62, 0.32, c, 0, 0.31, 0, g); box(0.16, 0.12, 0.12, '#2b2b2b', 0.12, 0.68, 0, g);
   return { g, pos: new THREE.Vector3(x, 0, z), name: nm, got: false };
@@ -1085,7 +1212,7 @@ function setParked(on) { // 주차 중인 차량은 장애물, 운전 중에는 
 }
 
 /* dust patches (자동차관리과) */
-const PATCH_POS = [[-42, 30], [-41, 20], [-43, 10], [-42, 0], [-41, -10], [-43, -20], [-30, 42], [-20, 41], [-10, 43], [0, 42], [10, 41], [20, 43]];
+const PATCH_POS = [[-42, 36], [-41, 28], [-43, 20], [-42, 12], [-41, 5], [-34, 42], [-26, 41], [-18, 43], [-9, 42], [-34, 1.8], [-26, 1.6], [-18, 1.8]];
 const patches = PATCH_POS.map(([x, z]) => {
   const g = new THREE.Group(); g.position.set(x, 0, z); g.visible = false; g.userData.dynamic = true; scene.add(g);
   for (let k = 0; k < 4; k++) { const d = new THREE.Mesh(new THREE.CircleGeometry(rand(0.6, 1.1), 12), mat('#a38b65')); d.rotation.x = -Math.PI / 2; d.position.set(rand(-0.8, 0.8), 0.08 + k * 0.002, rand(-0.8, 0.8)); g.add(d); }
@@ -1100,7 +1227,7 @@ const patches = PATCH_POS.map(([x, z]) => {
    ========================================================= */
 const CAR_COLS = ['#e4572e', '#f3f3f3', '#2e86ab', '#f6c85f', '#6c757d', '#8e6bbf'];
 function makeCar(col) {
-  const g = new THREE.Group(); g.userData.dynamic = true; scene.add(g); const wheels = [];
+  const g = new THREE.Group(); g.userData.dynamic = true; g.userData.global = true; scene.add(g); const wheels = [];
   box(1.8, 0.7, 3.6, col, 0, 0.6, 0, g); box(1.62, 0.62, 1.9, '#2b3a48', 0, 1.25, -0.25, g); box(1.66, 0.1, 1.75, col, 0, 1.6, -0.25, g);
   for (const sx of [-0.6, 0.6]) { box(0.3, 0.16, 0.05, '#fff6c8', sx, 0.7, 1.81, g, false); box(0.3, 0.16, 0.05, '#c8303a', sx, 0.7, -1.81, g, false); }
   for (const sx of [-0.9, 0.9]) for (const sz of [-1.15, 1.15]) { const w = cyl(0.34, 0.34, 0.24, '#26282b', sx, 0.34, sz, g, 12); w.rotation.z = Math.PI / 2; wheels.push(w); }
@@ -1134,13 +1261,14 @@ function updateCars(dt) {
     const hd = ringPoint(c.s, c.off, _rp) + (c.dir < 0 ? Math.PI : 0);
     c.pos.copy(_rp); c.heading = angLerp(c.heading, hd, 1 - Math.exp(-7 * dt)); c.g.rotation.y = c.heading;
     c.wheels.forEach((w) => (w.rotation.x += (c.cur * dt) / 0.34));
+    c.g.visible = !started || zoneOf(c.pos.x, c.pos.z) === curRoom;
   }
 }
 // 그림자만 드리우는 구름 (화면엔 안 보이고 땅에 그늘만 지나감)
 const shadowCloudMat = new THREE.MeshLambertMaterial({ color: '#ffffff' }); shadowCloudMat.colorWrite = false; shadowCloudMat.depthWrite = false;
 const shadowClouds = [];
 for (let i = 0; i < 7; i++) {
-  const g = new THREE.Group(); g.userData.dynamic = true;
+  const g = new THREE.Group(); g.userData.dynamic = true; g.userData.global = true;
   for (let k = 0; k < 4; k++) { const m = new THREE.Mesh(new THREE.SphereGeometry(rand(2.6, 4.4), 8, 6), shadowCloudMat); m.scale.y = 0.4; m.position.set(rand(-4, 4), 0, rand(-2.5, 2.5)); m.castShadow = true; g.add(m); }
   g.position.set(rand(-70, 70), 30, rand(-70, 70)); scene.add(g); shadowClouds.push(g);
 }
@@ -1152,7 +1280,7 @@ function updateShadowClouds(dt, cx, cz) {
   }
 }
 // 새 떼 (하늘이 절반 넘게 맑아지면 등장)
-const birdGroup = new THREE.Group(); birdGroup.userData.dynamic = true; scene.add(birdGroup);
+const birdGroup = new THREE.Group(); birdGroup.userData.dynamic = true; birdGroup.userData.global = true; scene.add(birdGroup);
 const birds = [];
 for (let i = 0; i < 7; i++) {
   const b = new THREE.Group(); birdGroup.add(b);
@@ -1164,9 +1292,9 @@ for (let i = 0; i < 7; i++) {
 const flock = { a: 0, c: new THREE.Vector3() };
 let chirpT = 3;
 // 나비
-const flies = [[-8, 7], [8, 8], [-8, 7], [8, 8], [27, 11]].map(([x, z], i) => {
-  const g = new THREE.Group(); g.userData.dynamic = true; scene.add(g);
-  const wm = new THREE.MeshBasicMaterial({ color: ['#f6bd60', '#f7ede2', '#f28482', '#a0c4ff', '#ffd6a5'][i], side: THREE.DoubleSide });
+const flies = [[-8, 7], [8, 8], [-8, 7], [8, 8], [SKY_C.x + 2, SKY_C.z - 4], [SKY_C.x - 8, SKY_C.z + 3], [SKY_C.x + 6, SKY_C.z + 7]].map(([x, z], i) => {
+  const g = new THREE.Group(); g.userData.dynamic = true; g.userData.zone = zoneOf(x, z); scene.add(g);
+  const wm = new THREE.MeshBasicMaterial({ color: ['#f6bd60', '#f7ede2', '#f28482', '#a0c4ff', '#ffd6a5', '#cdb4db', '#ffffff'][i], side: THREE.DoubleSide });
   const mk = (sx) => { const p = new THREE.Group(); const w = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.18), wm); w.rotation.x = -Math.PI / 2; w.position.x = sx * 0.11; p.add(w); g.add(p); return p; };
   return { g, pl: mk(-1), pr: mk(1), x, z, ph: rand(0, 6) };
 });
@@ -1181,9 +1309,9 @@ const skyUni = { top: { value: new THREE.Color() }, bot: { value: new THREE.Colo
 const skyDome = new THREE.Mesh(new THREE.SphereGeometry(450, 32, 16), new THREE.ShaderMaterial({
   uniforms: skyUni, side: THREE.BackSide, depthWrite: false, fog: false,
   vertexShader: 'varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-  fragmentShader: 'uniform vec3 top; uniform vec3 bot; uniform vec3 sunDir; uniform float haze; varying vec3 vDir;\nvoid main(){ vec3 d = normalize(vDir); float h = clamp(d.y, 0.0, 1.0); vec3 c = mix(bot, top, pow(h, 0.55)); float s = max(dot(d, sunDir), 0.0); c += vec3(1.0, 0.95, 0.82) * (pow(s, 900.0) * 1.4 + pow(s, 14.0) * 0.28 * (1.0 - haze * 0.6)); gl_FragColor = vec4(c, 1.0);\n#include <colorspace_fragment>\n}',
+  fragmentShader: 'uniform vec3 top; uniform vec3 bot; uniform vec3 sunDir; uniform float haze; varying vec3 vDir;\nvoid main(){ vec3 d = normalize(vDir); float h = clamp(d.y, 0.0, 1.0); vec3 c = mix(bot, top, pow(h, 0.55)); float s = max(dot(d, sunDir), 0.0); c += vec3(1.0, 0.96, 0.86) * (pow(s, 900.0) * 0.85 + pow(s, 14.0) * 0.15 * (1.0 - haze * 0.6)); gl_FragColor = vec4(c, 1.0);\n#include <colorspace_fragment>\n}',
 }));
-skyDome.renderOrder = -1; skyDome.frustumCulled = false; skyDome.visible = false; skyDome.userData.dynamic = true; scene.add(skyDome);
+skyDome.renderOrder = -1; skyDome.frustumCulled = false; skyDome.visible = false; skyDome.userData.dynamic = true; skyDome.userData.global = true; scene.add(skyDome);
 const CLOUD_TEX = (() => {
   const c = document.createElement('canvas'); c.width = 256; c.height = 128; const g = c.getContext('2d');
   for (let i = 0; i < 16; i++) { const x = rand(50, 206), y = rand(50, 86), r = rand(22, 46); const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(255,255,255,.9)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 256, 128); }
@@ -1193,31 +1321,33 @@ const skyClouds = [];
 for (let i = 0; i < 22; i++) {
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: CLOUD_TEX, transparent: true, depthWrite: false, fog: false, opacity: 0.92 }));
   const w = rand(45, 95); s.scale.set(w, w * rand(0.38, 0.5), 1); s.visible = false;
-  s.userData.off = new THREE.Vector3(rand(-170, 170), rand(55, 120), rand(-190, 60)); scene.add(s); skyClouds.push(s);
+  s.userData.off = new THREE.Vector3(rand(-170, 170), rand(55, 120), rand(-190, 60)); s.userData.global = true; scene.add(s); skyClouds.push(s);
 }
 
 /* 정적인 건물·소품을 재질별로 합쳐 그리기 횟수를 줄임 (모바일 성능) */
 (function bakeStatic() {
-  const cached = new Set(mats.values()), buckets = new Map();
+  const cached = new Set(mats.values()), buckets = new Map(), cv = new THREE.Vector3();
   scene.updateMatrixWorld(true);
   const visit = (o) => {
     if (o.userData.dynamic) return;
     if (o.isMesh && !o.isInstancedMesh && o.visible && cached.has(o.material)) {
-      const key = `${o.material.uuid}:${o.castShadow ? 1 : 0}`;
-      if (!buckets.has(key)) buckets.set(key, { mat: o.material, cast: o.castShadow, list: [] });
+      if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
+      o.geometry.boundingBox.getCenter(cv).applyMatrix4(o.matrixWorld);
+      const zone = zoneOf(cv.x, cv.z), key = `${zone}:${o.material.uuid}:${o.castShadow ? 1 : 0}`;
+      if (!buckets.has(key)) buckets.set(key, { mat: o.material, cast: o.castShadow, zone, list: [] });
       buckets.get(key).list.push(o);
     }
     o.children.forEach(visit);
   };
   scene.children.forEach(visit);
   for (const b of buckets.values()) {
-    if (b.list.length < 2) continue;
+    if (b.list.length < 2) { b.list.forEach((o) => (o.userData.zone = b.zone)); continue; }
     const geos = b.list.map((o) => { const g = o.geometry.clone(); g.applyMatrix4(o.matrixWorld); for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k); return g.index ? g : g.toNonIndexed(); });
     let merged = null;
     try { merged = mergeGeometries(geos, false); } catch (e) { merged = null; }
     geos.forEach((g) => g.dispose());
     if (!merged) continue;
-    const m = new THREE.Mesh(merged, b.mat); m.castShadow = b.cast; m.receiveShadow = true; m.matrixAutoUpdate = false; scene.add(m);
+    const m = new THREE.Mesh(merged, b.mat); m.castShadow = b.cast; m.receiveShadow = true; m.matrixAutoUpdate = false; m.userData.zone = b.zone; scene.add(m);
     b.list.forEach((o) => { o.parent.remove(o); o.geometry.dispose(); });
   }
 })();
@@ -1225,31 +1355,69 @@ for (let i = 0; i < 22; i++) {
 /* =========================================================
    characters
    ========================================================= */
-function makePerson({ shirt = '#3b82c4', pants = '#38485a', hair = '#2a221d', skin = '#f1c8a4', vest = false, helmet = false, style = 'short', acc = 'none', scale = 1 } = {}) {
+const shade = (hex, k) => { const c = new THREE.Color(hex); c.multiplyScalar(k); return `#${c.getHexString()}`; };
+function makePerson({ shirt = '#3b82c4', pants = '#38485a', hair = '#2a221d', skin = '#f1c8a4', vest = false, helmet = false, style = 'short', acc = 'none', scale = 1, body: shape = 'm', top = 'long', bottom = 'pants' } = {}) {
   const root = new THREE.Group(); const body = new THREE.Group(); root.add(body);
   const mk = (geo, c, x, y, z, parent = body) => { const m = new THREE.Mesh(geo, mat(c)); m.position.set(x, y, z); m.castShadow = true; parent.add(m); return m; };
-  const legGeo = new THREE.BoxGeometry(0.24, 0.72, 0.26), shoeGeo = new THREE.BoxGeometry(0.26, 0.12, 0.34);
-  const legs = [-0.14, 0.14].map((x) => { const p = new THREE.Group(); p.position.set(x, 0.76, 0); body.add(p); mk(legGeo, pants, 0, -0.36, 0, p); mk(shoeGeo, '#2b2b2b', 0, -0.7, 0.04, p); return p; });
-  const torso = mk(new THREE.BoxGeometry(0.66, 0.72, 0.38), shirt, 0, 1.12, 0);
-  if (vest) { mk(new THREE.BoxGeometry(0.7, 0.58, 0.42), '#217569', 0, 1.15, 0); mk(new THREE.BoxGeometry(0.71, 0.07, 0.43), '#e9f27a', 0, 1.02, 0); }
-  const armGeo = new THREE.BoxGeometry(0.18, 0.64, 0.2), handGeo = new THREE.BoxGeometry(0.16, 0.14, 0.18);
-  const arms = [-0.44, 0.44].map((x) => { const p = new THREE.Group(); p.position.set(x, 1.44, 0); body.add(p); mk(armGeo, shirt, 0, -0.3, 0, p); mk(handGeo, skin, 0, -0.66, 0, p); return p; });
+  const f = shape === 'f', TW = f ? 0.58 : 0.66, TD = f ? 0.34 : 0.38, AX = f ? 0.39 : 0.44, LX = f ? 0.12 : 0.14;
+  const jacket = top === 'suit' ? shirt : top === 'vest' ? '#f4f4f0' : shirt; // 정장은 고른 색이 재킷, 조끼는 흰 셔츠 위에
+  // 다리: 긴바지 / 반바지 / 치마
+  const shoeGeo = new THREE.BoxGeometry(0.26, 0.12, 0.34);
+  const legs = [-LX, LX].map((x) => {
+    const p = new THREE.Group(); p.position.set(x, 0.76, 0); body.add(p);
+    if (bottom === 'pants') mk(new THREE.BoxGeometry(0.24, 0.72, 0.26), pants, 0, -0.36, 0, p);
+    else { mk(new THREE.BoxGeometry(0.24, 0.3, 0.26), bottom === 'shorts' ? pants : skin, 0, -0.15, 0, p); mk(new THREE.BoxGeometry(0.2, 0.42, 0.22), skin, 0, -0.5, 0, p); }
+    mk(shoeGeo, f && bottom === 'skirt' ? '#7a3b3b' : '#2b2b2b', 0, -0.7, 0.04, p); return p;
+  });
+  if (bottom === 'skirt') mk(new THREE.CylinderGeometry(TW * 0.5, TW * 0.72, 0.42, 10), pants, 0, 0.62, 0);
+  // 몸통·윗옷
+  const torso = mk(new THREE.BoxGeometry(TW, 0.72, TD), jacket, 0, 1.12, 0);
+  if (vest) { mk(new THREE.BoxGeometry(TW + 0.04, 0.58, TD + 0.04), '#217569', 0, 1.15, 0); mk(new THREE.BoxGeometry(TW + 0.05, 0.07, TD + 0.05), '#e9f27a', 0, 1.02, 0); }
+  if (top === 'vest') { mk(new THREE.BoxGeometry(TW + 0.04, 0.58, TD + 0.04), shirt, 0, 1.15, 0); mk(new THREE.BoxGeometry(TW + 0.05, 0.07, TD + 0.05), '#e9f27a', 0, 1.02, 0); mk(new THREE.BoxGeometry(TW + 0.05, 0.07, TD + 0.05), '#e9f27a', 0, 1.24, 0); }
+  if (top === 'shirt' || top === 'suit') {
+    if (top === 'suit') mk(new THREE.BoxGeometry(0.2, 0.42, 0.02), '#f6f6f2', 0, 1.26, TD / 2 + 0.005);
+    for (const s of [-1, 1]) { const c = mk(new THREE.BoxGeometry(0.13, 0.07, 0.04), '#f6f6f2', s * 0.07, 1.45, TD / 2 - 0.005); c.rotation.z = s * -0.5; }
+    mk(new THREE.BoxGeometry(0.07, 0.36, 0.02), top === 'suit' ? '#8b2d34' : '#2f3e46', 0, 1.23, TD / 2 + 0.015);
+  }
+  if (top === 'hoodie') {
+    mk(new THREE.BoxGeometry(0.48, 0.26, 0.16), shade(shirt, 0.85), 0, 1.44, -TD / 2 - 0.06);
+    mk(new THREE.BoxGeometry(0.36, 0.16, 0.02), shade(shirt, 0.85), 0, 0.94, TD / 2 + 0.005);
+    for (const s of [-1, 1]) mk(new THREE.BoxGeometry(0.02, 0.18, 0.02), '#f6f6f2', s * 0.07, 1.36, TD / 2 + 0.01);
+  }
+  // 팔: 반팔이면 팔뚝이 보임
+  const handGeo = new THREE.BoxGeometry(0.16, 0.14, 0.18), sleeve = top === 'vest' ? '#f4f4f0' : jacket;
+  const arms = [-AX, AX].map((x) => {
+    const p = new THREE.Group(); p.position.set(x, 1.44, 0); body.add(p);
+    if (top === 'tee') { mk(new THREE.BoxGeometry(0.19, 0.26, 0.21), sleeve, 0, -0.13, 0, p); mk(new THREE.BoxGeometry(0.15, 0.36, 0.17), skin, 0, -0.44, 0, p); }
+    else mk(new THREE.BoxGeometry(0.18, 0.64, 0.2), sleeve, 0, -0.3, 0, p);
+    mk(handGeo, skin, 0, -0.66, 0, p); return p;
+  });
+  // 머리
   const head = new THREE.Group(); head.position.set(0, 1.62, 0); body.add(head);
   mk(new THREE.SphereGeometry(0.3, 14, 10), skin, 0, 0.16, 0, head);
   const cap = (c, y = 0.18, k = 0.55) => mk(new THREE.SphereGeometry(0.315, 14, 10, 0, Math.PI * 2, 0, Math.PI * k), c, 0, y, -0.02, head);
   if (helmet) { mk(new THREE.SphereGeometry(0.335, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), '#f6f6f2', 0, 0.2, 0, head); mk(new THREE.BoxGeometry(0.5, 0.04, 0.2), '#f6f6f2', 0, 0.21, 0.3, head); }
   else if (style === 'cap') { mk(new THREE.SphereGeometry(0.33, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), shirt, 0, 0.2, 0, head); mk(new THREE.BoxGeometry(0.44, 0.04, 0.26), shirt, 0, 0.2, 0.33, head); }
+  else if (style === 'beanie') { mk(new THREE.SphereGeometry(0.335, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.52), shade(shirt, 0.9), 0, 0.2, 0, head); mk(new THREE.CylinderGeometry(0.34, 0.34, 0.09, 16), shirt, 0, 0.21, 0, head); mk(new THREE.SphereGeometry(0.07, 8, 6), '#f6f6f2', 0, 0.55, 0, head); }
   else {
     cap(hair);
     if (style === 'bob') mk(new THREE.BoxGeometry(0.66, 0.38, 0.42), hair, 0, 0.05, -0.08, head);
-    if (style === 'long') mk(new THREE.BoxGeometry(0.62, 0.74, 0.26), hair, 0, -0.12, -0.19, head);
+    if (style === 'long') { mk(new THREE.BoxGeometry(0.62, 0.74, 0.26), hair, 0, -0.12, -0.19, head); mk(new THREE.BoxGeometry(0.64, 0.3, 0.3), hair, 0, 0.1, -0.06, head); }
     if (style === 'bun') mk(new THREE.SphereGeometry(0.15, 10, 8), hair, 0, 0.44, -0.14, head);
+    if (style === 'pony') { const t = mk(new THREE.BoxGeometry(0.15, 0.46, 0.14), hair, 0, 0.02, -0.36, head); t.rotation.x = 0.35; mk(new THREE.BoxGeometry(0.17, 0.05, 0.16), '#e5484d', 0, 0.23, -0.32, head); }
+    if (style === 'curly') for (let k = 0; k < 9; k++) { const a = (k / 9) * Math.PI * 2; mk(new THREE.SphereGeometry(0.11, 8, 6), hair, Math.cos(a) * 0.24, 0.3 + Math.sin(k * 1.7) * 0.05, Math.sin(a) * 0.22 - 0.04, head); }
   }
   const eyes = [-0.1, 0.1].map((x) => mk(new THREE.BoxGeometry(0.06, 0.09, 0.03), '#1d1d1d', x, 0.17, 0.285, head));
-  if (acc === 'glasses') { for (const x of [-0.1, 0.1]) mk(new THREE.TorusGeometry(0.075, 0.016, 6, 14), '#1f2327', x, 0.17, 0.3, head); mk(new THREE.BoxGeometry(0.06, 0.016, 0.016), '#1f2327', 0, 0.18, 0.3, head); }
+  if (f) for (const x of [-0.1, 0.1]) mk(new THREE.BoxGeometry(0.09, 0.02, 0.03), '#1d1d1d', x + (x > 0 ? 0.01 : -0.01), 0.225, 0.283, head);
+  if (acc === 'glasses' || acc === 'sunglasses') {
+    for (const x of [-0.1, 0.1]) { mk(new THREE.TorusGeometry(0.075, 0.016, 6, 14), '#1f2327', x, 0.17, 0.3, head); if (acc === 'sunglasses') mk(new THREE.CircleGeometry(0.07, 14), '#2b3138', x, 0.17, 0.301, head); }
+    mk(new THREE.BoxGeometry(0.06, 0.016, 0.016), '#1f2327', 0, 0.18, 0.3, head);
+  }
+  if (acc === 'headphones') { const b = mk(new THREE.TorusGeometry(0.33, 0.03, 6, 20, Math.PI), '#2f3437', 0, 0.16, 0, head); b.rotation.z = 0; for (const s of [-1, 1]) mk(new THREE.CylinderGeometry(0.1, 0.1, 0.08, 12), '#e5484d', s * 0.31, 0.14, 0, head).rotation.z = Math.PI / 2; }
   if (acc === 'mask') mk(new THREE.BoxGeometry(0.36, 0.17, 0.06), '#f4f6f8', 0, 0.04, 0.28, head);
-  else mk(new THREE.BoxGeometry(0.11, 0.025, 0.02), '#b8655b', 0, 0.05, 0.293, head);
+  else mk(new THREE.BoxGeometry(0.11, 0.025, 0.02), f ? '#cf6a78' : '#b8655b', 0, 0.05, 0.293, head);
   if (scale !== 1) root.scale.setScalar(scale);
+  root.rotation.order = 'YXZ'; // 방향을 먼저 돌리고 몸을 기울여야 눕기·날기 자세가 바르게 나옴
   return { root, body, head, torso, eyes, legL: legs[0], legR: legs[1], armL: arms[0], armR: arms[1], phase: Math.random() * 6, carry: false, blink: rand(1, 4), wave: 0, lastSt: 1, look: 0 };
 }
 function animPerson(rig, speed, dt) { // 걸음 이벤트가 생기면 true
@@ -1270,7 +1438,7 @@ function animPerson(rig, speed, dt) { // 걸음 이벤트가 생기면 true
   const st = Math.sin(rig.phase) >= 0 ? 1 : -1, step = a > 0.25 && st !== rig.lastSt; rig.lastSt = st;
   return step;
 }
-const avatarLook = (a) => ({ shirt: a.shirt, pants: a.pants, hair: a.hairColor, skin: a.skin, style: a.hair, acc: a.acc });
+const avatarLook = (a) => ({ shirt: a.shirt, pants: a.pants, hair: a.hairColor, skin: a.skin, style: a.hair, acc: a.acc, body: a.body, top: a.top, bottom: a.bottom });
 
 const npcs = [];
 function addNPC(key, name, x, z, face, look) {
@@ -1282,22 +1450,22 @@ function addNPC(key, name, x, z, face, look) {
   npcs.push(n); return n;
 }
 const guide = addNPC('guide', '안내 직원', -4.2, 2.8, 0.2, { shirt: '#217569', pants: '#2f3b4a', hair: '#3b2a20' });
-addNPC('plan', '기획과 주무관', -13.5, -7.2, 0.4, { shirt: '#f4f4f0', vest: true, hair: '#1f1a17' });
+addNPC('plan', '기획과 주무관', -17, -15, 0.8, { shirt: '#f4f4f0', vest: true, hair: '#1f1a17' });
 addNPC('total', '대기총량과 주무관', 16, -8.5, -0.3, { shirt: '#f4f4f0', vest: true, helmet: true });
 addNPC('lab', '조사분석과 주무관', 21, 31.5, 0.6, { shirt: '#f4f4f0', vest: true, helmet: true, skin: '#e8b991' });
 addNPC('car', '자동차관리과 주무관', -14, 27, -0.5, { shirt: '#f4f4f0', vest: true, hair: '#5a3d2b' });
 const npcByKey = Object.fromEntries(npcs.map((n) => [n.key, n]));
 
 const walkers = [];
-const WALK_ZONE = { x0: -12, x1: 12, z0: 4, z1: 20 };
+const WALK_ZONE = { x0: -9, x1: 9, z0: 2, z1: 11 };
 for (let i = 0; i < 6; i++) {
   const rig = makePerson({ shirt: pick(['#e07a5f', '#81b29a', '#f2cc8f', '#3d5a80', '#9c89b8', '#ee964b']), pants: pick(['#3d405b', '#5c5552', '#2f3e46']), hair: pick(['#2a211b', '#5a3d2b', '#1b1b1b', '#8a6a4a']), skin: pick(['#f3cfae', '#e8b991', '#d9a37c']) });
   rig.root.position.set(rand(WALK_ZONE.x0, WALK_ZONE.x1), 0, rand(WALK_ZONE.z0, WALK_ZONE.z1)); scene.add(rig.root);
   walkers.push({ rig, pos: rig.root.position, target: new THREE.Vector3(), wait: rand(0, 3), heading: rand(0, 6), stuck: 0 });
 }
-const kids = [-25.8, -24.6, -23.4, -22.2].map((x, i) => {
+const kids = [-36.3, -35.1, -33.9, -32.7].map((x, i) => {
   const rig = makePerson({ shirt: ['#f28482', '#84a59d', '#f6bd60', '#a0c4ff'][i], pants: '#3d405b', hair: pick(['#2a211b', '#5a3d2b']), style: i % 2 ? 'bun' : 'short', scale: 0.62 });
-  rig.root.position.set(x, 0, 7.4); rig.root.rotation.y = Math.PI; scene.add(rig.root);
+  rig.root.position.set(x, 0, -9.7); rig.root.rotation.y = Math.PI; scene.add(rig.root);
   return rig;
 });
 
@@ -1322,25 +1490,30 @@ const kids = [-25.8, -24.6, -23.4, -22.2].map((x, i) => {
     if (!ok(x, z) || spots.some((s) => Math.hypot(s[0] - x, s[1] - z) < 3)) continue;
     spots.push([x, z, rand(0.8, 1.35)]);
   }
-  const trunk = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.16, 0.24, 1.4, 6), mat('#7a5a3c'), spots.length);
-  const crown = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1.15, 0), new THREE.MeshLambertMaterial({ color: '#ffffff', flatShading: true }), spots.length * 2);
-  const dm = new THREE.Object3D(), col = new THREE.Color(), greens = ['#5e9e57', '#6aa85c', '#4f8f4f', '#7bb265', '#5a9a6a'];
-  spots.forEach(([x, z, s], i) => {
-    dm.position.set(x, 0.7 * s, z); dm.rotation.set(0, 0, 0); dm.scale.set(s, s, s); dm.updateMatrix(); trunk.setMatrixAt(i, dm.matrix);
-    dm.position.set(x, 2.1 * s, z); dm.rotation.set(rand(0, 3), rand(0, 3), 0); dm.scale.set(s * 1.1, s, s * 1.1); dm.updateMatrix();
-    crown.setMatrixAt(i * 2, dm.matrix); crown.setColorAt(i * 2, col.set(pick(greens)));
-    dm.position.set(x + rand(-0.3, 0.3), 2.95 * s, z + rand(-0.3, 0.3)); dm.scale.set(s * 0.72, s * 0.72, s * 0.72); dm.updateMatrix();
-    crown.setMatrixAt(i * 2 + 1, dm.matrix); crown.setColorAt(i * 2 + 1, col.set(pick(greens)));
+  // 하늘멍 언덕: 둘레 숲 + 돗자리 곁 나무(누웠을 때 화면 가장자리를 감싸도록)
+  [[-5.5, -4.5], [6, -6], [4.8, 3.2], [-6.5, 2.5]].forEach(([dx, dz]) => spots.push([REST.x + dx, REST.z + dz, 1.25]));
+  tries = 0;
+  while (tries++ < 3000) {
+    const a = rand(0, Math.PI * 2), r = rand(17, 52), x = SKY_C.x + Math.cos(a) * r, z = SKY_C.z + Math.sin(a) * r;
+    if (Math.hypot(x - POND.x, z - POND.z) < 7 || Math.hypot(x - SKY_C.x, z - SKY_C.z - 15) < 5 || spots.some((s) => Math.hypot(s[0] - x, s[1] - z) < 3.4)) continue;
+    spots.push([x, z, rand(0.9, 1.45)]); if (spots.length > 270) break;
+  }
+  const dm = new THREE.Object3D(), greens = ['#5e9e57', '#6aa85c', '#4f8f4f', '#7bb265', '#5a9a6a'], trunks = [], crowns = [];
+  spots.forEach(([x, z, s]) => {
+    dm.position.set(x, 0.7 * s, z); dm.rotation.set(0, 0, 0); dm.scale.set(s, s, s); dm.updateMatrix(); trunks.push({ x, z, m: dm.matrix.clone() });
+    dm.position.set(x, 2.1 * s, z); dm.rotation.set(rand(0, 3), rand(0, 3), 0); dm.scale.set(s * 1.1, s, s * 1.1); dm.updateMatrix(); crowns.push({ x, z, m: dm.matrix.clone(), c: new THREE.Color(pick(greens)) });
+    dm.position.set(x + rand(-0.3, 0.3), 2.95 * s, z + rand(-0.3, 0.3)); dm.scale.set(s * 0.72, s * 0.72, s * 0.72); dm.updateMatrix(); crowns.push({ x, z, m: dm.matrix.clone(), c: new THREE.Color(pick(greens)) });
     addCircle(x, z, 0.45 * s);
   });
-  trunk.castShadow = crown.castShadow = true; trunk.receiveShadow = crown.receiveShadow = true;
-  scene.add(trunk, crown);
+  zoneInstanced(new THREE.CylinderGeometry(0.16, 0.24, 1.4, 6), mat('#7a5a3c'), trunks, { cast: true });
+  zoneInstanced(new THREE.IcosahedronGeometry(1.15, 0), new THREE.MeshLambertMaterial({ color: '#ffffff', flatShading: true }), crowns, { cast: true });
 })();
 (function buildGrass() { // 풀포기·들꽃 (그림자 없이 가볍게)
-  const N = isTouch ? 520 : 960, F = 220;
-  const tuft = new THREE.InstancedMesh(new THREE.ConeGeometry(0.09, 0.42, 3), new THREE.MeshLambertMaterial({ color: '#ffffff' }), N);
-  const flower = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(0.1, 0), new THREE.MeshLambertMaterial({ color: '#ffffff' }), F);
-  const dm = new THREE.Object3D(), col = new THREE.Color();
+  const N = isTouch ? 520 : 960, F = 220, tufts = [], flowers = [];
+  const dm = new THREE.Object3D();
+  const tuft = { setMatrixAt: (i, m) => (tufts[i] = { x: dm.position.x, z: dm.position.z, m: m.clone() }), setColorAt: (i, c) => (tufts[i].c = c.clone()) };
+  const flower = { setMatrixAt: (i, m) => (flowers[i] = { x: dm.position.x, z: dm.position.z, m: m.clone() }), setColorAt: (i, c) => (flowers[i].c = c.clone()) };
+  const col = new THREE.Color();
   const road = (x, z) => { const ax = Math.abs(x), az = Math.abs(z); return (ax > 38 && ax < 46 && az < 46) || (az > 38 && az < 46 && ax < 46) || (ax < 4.8 && az < 46) || (az < 4.8 && ax < 46); };
   const bad = (x, z) => Math.hypot(x, z) < 15 || road(x, z) || (x < -3 && z < -3 && x > -40 && z > -40) || (x > 3 && z < -3 && x < 40 && z > -40) || (x > -34 && x < -8 && z > 11 && z < 35) || (x > 8 && x < 38 && z > 26 && z < 36) || Math.hypot(x - REST.x, z - REST.z + 1) < 2.2 || rects.some((c) => x > c.x0 - 0.6 && x < c.x1 + 0.6 && z > c.z0 - 0.6 && z < c.z1 + 0.6);
   let n = 0, f = 0, tries = 0;
@@ -1350,13 +1523,37 @@ const kids = [-25.8, -24.6, -23.4, -22.2].map((x, i) => {
       for (let k = 0; k < 3 && n < N; k++) { dm.position.set(x + rand(-0.25, 0.25), 0.2, z + rand(-0.25, 0.25)); dm.rotation.set(rand(-0.25, 0.25), rand(0, 3), rand(-0.25, 0.25)); dm.scale.setScalar(rand(0.7, 1.3)); dm.updateMatrix(); tuft.setMatrixAt(n, dm.matrix); tuft.setColorAt(n, col.set(pick(['#6fa85a', '#7fb865', '#5e9a50', '#8cc06c']))); n++; }
     } else if (f < F) { dm.position.set(x, 0.18, z); dm.rotation.set(0, 0, 0); dm.scale.setScalar(1); dm.updateMatrix(); flower.setMatrixAt(f, dm.matrix); flower.setColorAt(f, col.set(pick(['#f7ede2', '#f6bd60', '#f28482', '#cdb4db', '#ffffff']))); f++; }
   }
-  tuft.count = n; flower.count = f; tuft.frustumCulled = flower.frustumCulled = false; scene.add(tuft, flower);
+  // 하늘멍 언덕은 들꽃을 넉넉히
+  for (let k = 0; k < (isTouch ? 420 : 700); k++) {
+    const a = rand(0, Math.PI * 2), r = Math.sqrt(Math.random()) * 46, x = SKY_C.x + Math.cos(a) * r, z = SKY_C.z + Math.sin(a) * r;
+    if (Math.hypot(x - REST.x, z - REST.z + 1) < 2.4 || Math.hypot(x - POND.x, z - POND.z) < 5.6 || Math.abs(x - SKY_C.x) < 1.6 && z > SKY_C.z + 4 && z < SKY_C.z + 17) continue;
+    dm.position.set(x, 0.18, z); dm.rotation.set(rand(-0.25, 0.25), rand(0, 3), 0); dm.scale.setScalar(rand(0.8, 1.3)); dm.updateMatrix();
+    if (k % 2) { tuft.setMatrixAt(n, dm.matrix); tuft.setColorAt(n, col.set(pick(['#7fb865', '#8cc06c', '#6fa85a']))); n++; }
+    else { flower.setMatrixAt(f, dm.matrix); flower.setColorAt(f, col.set(pick(['#f7ede2', '#f6bd60', '#f28482', '#cdb4db', '#ffffff', '#a0c4ff']))); f++; }
+  }
+  zoneInstanced(new THREE.ConeGeometry(0.09, 0.42, 3), new THREE.MeshLambertMaterial({ color: '#ffffff' }), tufts.filter(Boolean));
+  zoneInstanced(new THREE.IcosahedronGeometry(0.1, 0), new THREE.MeshLambertMaterial({ color: '#ffffff' }), flowers.filter(Boolean));
 })();
 
 /* trail dots (기획과 이동측정 궤적) */
 const DOT_MAX = 800;
 const dotMesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.55, 0.55, 0.06, 10), new THREE.MeshBasicMaterial({ color: '#ffffff' }), DOT_MAX);
-dotMesh.setColorAt(0, new THREE.Color('#ffffff')); dotMesh.count = 0; dotMesh.frustumCulled = false; scene.add(dotMesh);
+dotMesh.setColorAt(0, new THREE.Color('#ffffff')); dotMesh.count = 0; dotMesh.frustumCulled = false; dotMesh.userData.zone = 'plan'; scene.add(dotMesh);
+
+/* 모든 물체를 룸 묶음으로 나눠 두고, 지금 룸만 보이게 */
+const zoneGroups = {};
+(function assignZones() {
+  ROOM_IDS.forEach((k) => { const g = new THREE.Group(); g.name = `zone-${k}`; zoneGroups[k] = g; });
+  const v = new THREE.Vector3();
+  for (const o of scene.children.slice()) {
+    if (o.isLight || o === sun.target || o.userData.global) continue;
+    let zn = o.userData.zone;
+    if (!zn) { o.getWorldPosition(v); zn = zoneOf(v.x, v.z); }
+    zoneGroups[zn].add(o);
+  }
+  ROOM_IDS.forEach((k) => scene.add(zoneGroups[k]));
+})();
+function showZones(id) { ROOM_IDS.forEach((k) => (zoneGroups[k].visible = id === 'all' ? k !== 'sky' : k === id)); }
 
 /* =========================================================
    player & control
@@ -1421,7 +1618,7 @@ function walkCtrl(dt, inp) {
   const k = 1 - Math.exp(-(inp.mag > 0.05 ? 11 : 15) * dt);
   p.vel.x += (inp.ix * top - p.vel.x) * k; p.vel.z += (inp.iz * top - p.vel.z) * k;
   const px = p.pos.x, pz = p.pos.z;
-  p.pos.x += p.vel.x * dt; p.pos.z += p.vel.z * dt; resolve(p.pos, p.radius);
+  p.pos.x += p.vel.x * dt; p.pos.z += p.vel.z * dt; resolve(p.pos, p.radius); clampRoom(p.pos, p.radius);
   p.moved = Math.hypot(p.pos.x - px, p.pos.z - pz);
   const sp = Math.hypot(p.vel.x, p.vel.z);
   if (moveTarget && sp > 1 && p.moved < sp * dt * 0.15) { moveTarget.stuck = (moveTarget.stuck || 0) + dt; if (moveTarget.stuck > 0.5) { moveTarget = null; pendingAct = null; } }
@@ -1444,7 +1641,7 @@ function driveCtrl(dt, inp) { // 조이스틱 방향으로 핸들을 꺾으며 �
   v.braking = v.fwd > 0.8 && dF < -dt * 2.5;
   const want = v.fwd * dt, px = v.pos.x, pz = v.pos.z;
   v.pos.x += Math.sin(v.heading) * want; v.pos.z += Math.cos(v.heading) * want;
-  resolve(v.pos, v.radius);
+  resolve(v.pos, v.radius); clampRoom(v.pos, v.radius);
   v.moved = Math.hypot(v.pos.x - px, v.pos.z - pz);
   if (want > 0.04 && v.moved < want * 0.5) {
     const k = clamp(v.fwd / v.speed, 0, 1);
@@ -1534,7 +1731,7 @@ function addI(o) { const it = Object.assign({ r: 2.6, modes: ['walk'], dy: 2.9, 
 let cur = null;
 npcs.forEach((n) => addI({ pos: n.pos, r: 2.9, label: () => '대화하기', act: () => talkTo(n) }));
 addI({ pos: new THREE.Vector3(7, 0, 38.6), r: 2.6, dy: 2.2, label: () => (M.active === 'net' ? '측정자료 점검하기' : '측정소 안내 보기'), act: () => (M.active === 'net' ? openNetCheck() : talk('안내판', ['<b>국가대기오염측정망 측정소</b>예요. 흡입구로 주변 공기를 받아들여 미세먼지·오존 같은 항목별 대기오염도를 연속으로 측정해요.', '조사분석과가 측정망을 설치·운영하고, 장비 상태와 측정자료를 점검해 품질을 관리해요. 측정자료는 분석·평가를 거쳐 대기환경 현황을 파악하는 데 쓰여요.'])) });
-addI({ pos: new THREE.Vector3(-12, 0, 2.6), r: 2.6, dy: 4.8, label: () => '전광판 보기', act: () => talk('전광판', [`지금 수도권 하늘 맑음도는 <b>${Math.round(skyTarget * 100)}%</b>예요. 업무를 하나 체험할 때마다 25%씩 맑아져요.`]) });
+addI({ pos: new THREE.Vector3(-10.8, 0, 5.8), r: 2.6, dy: 4.8, label: () => '전광판 보기', act: () => talk('전광판', [`지금 수도권 하늘 맑음도는 <b>${Math.round(skyTarget * 100)}%</b>예요. 업무를 하나 체험할 때마다 25%씩 맑아져요.`]) });
 
 /* =========================================================
    mission 1 — 기획과: 이동측정으로 배출원 찾기
@@ -1834,7 +2031,7 @@ function renderMission() {
   if (!k) { missionEl.hidden = true; missionEl.innerHTML = ''; return; }
   missionEl.hidden = false;
   let h = `<h3>${INFO(k).name} · ${INFO(k).task}</h3>`;
-  if (k === 'edu') h += '<p class="hint">서남쪽 <b>푸른하늘 교실</b> 텐트 앞으로 가서 수업을 시작하세요.</p>';
+  if (k === 'edu') h += '<p class="hint">기획과 차고 옆 <b>푸른하늘 교실</b> 텐트 앞으로 가서 수업을 시작하세요.</p>';
   if (k === 'quota') h += '<p class="hint">동북쪽 <b>대기총량과 사무실</b> 문 앞에서 배출량 자료를 확인하세요.</p>';
   if (k === 'net') h += '<p class="hint">동남쪽 <b>대기오염측정소</b> 앞에서 측정자료를 점검하세요.</p>';
   if (k === 'fuel') h += `<div class="cp-list">${fuelCans.map((c, i) => `<span class="${c.got ? 'good' : ''}">${i + 1}</span>`).join('')}</div><p class="hint">마당의 연료 시료 3통을 모아 <b>연료 분석대</b>로 가져가세요.</p>`;
@@ -1852,13 +2049,15 @@ function renderMission() {
   if (k === 'car') h += `<div class="g-row"><span class="g-num" id="carLeft">${car.left}</span><span class="g-unit">곳 남음</span><span class="g-time" id="carTime">${Math.floor(car.t)}초</span></div>
     <div class="dustbar"><span>도로 먼지</span><div><i id="dustFill" style="width:${(car.left / patches.length) * 100}%"></i></div></div>
     <p class="hint">도로 위 갈색 먼지 위를 지나가면 빨아들여요. 지도에 위치가 보여요.</p>`;
-  h += '<button class="mini-btn" id="abortBtn">체험 그만두기</button>';
+  if (k === 'fly') h += `<div class="g-row"><span class="g-num" id="flyAlt">32</span><span class="g-unit">m 높이</span></div><p class="hint">${isTouch ? '조이스틱 좌우로 방향, 위로 밀면 빨라져요. 오른쪽 버튼을 누르고 있으면 올라가요.' : '<b>A·D</b> 방향, <b>W</b> 빨리, <b>Space</b>를 누르고 있으면 올라가요.'}</p>`;
+  h += `<button class="mini-btn" id="abortBtn">${k === 'fly' ? '내려오기' : '체험 그만두기'}</button>`;
   missionEl.innerHTML = h;
   $('#abortBtn').onclick = abortMission;
   if (k === 'plan') { updateWindUI(); drawSpark(); }
 }
 function abortMission() {
   const k = M.active; if (!k || modalOpen) return;
+  if (k === 'fly') { endFly(); return; }
   tweens.length = 0; player.animSpeed = null; actionHeld = false; setRing(0);
   if (k === 'plan') endPlan();
   if (k === 'total') checkpoints.forEach((c) => { c.ring.visible = false; c.tag.visible = false; c.checked = false; });
@@ -1941,7 +2140,7 @@ function talkGuide() {
     return talk('안내 직원', [
       `어서 오세요, <b>${esc(state.name)}</b> 님! 수도권대기환경청 업무체험관이에요.`,
       '지금 하늘이 좀 뿌옇죠? 네 개 과의 업무를 하나씩 체험할 때마다 하늘이 조금씩 맑아져요.',
-      `머리 위에 <span class="ib">!</span> 표시가 있는 직원을 찾아가 말을 걸어 보세요. 서북쪽 산업단지에 기획과, 동북쪽 화학공장에 대기총량과, 동남쪽 굴뚝에 조사분석과, 서남쪽에 자동차관리과가 있어요.<span class="sub">${isTouch ? '왼쪽 조이스틱으로 움직이고, 오른쪽 버튼으로 대화해요.' : 'WASD·방향키로 움직이고, E나 스페이스로 대화해요. 땅을 클릭해도 걸어가요.'} 오른쪽 위 지도는 위쪽이 북쪽이에요.</span>`,
+      `광장 가장자리의 <b>색깔 문</b>으로 들어가면 과마다 따로 마련된 <b>미션룸</b>이 나와요. 미션룸 안에서 <span class="ib">!</span> 표시 직원에게 말을 걸면 체험이 시작돼요. 왼쪽 위 <b>룸 이동</b> 버튼으로 바로 갈 수도 있어요.<span class="sub">${isTouch ? '왼쪽 조이스틱으로 움직이고, 오른쪽 버튼으로 대화해요.' : 'WASD·방향키로 움직이고, E나 스페이스로 대화해요. 땅을 클릭해도 걸어가요.'} 오른쪽 위 지도는 위쪽이 북쪽이에요.</span>`,
     ], [{ label: '좋아요!', primary: true, onClick: () => { state.metGuide = true; save(); refreshAll(); } }]);
   }
   if (n === 4) return talk('안내 직원', ['네 가지 업무를 모두 체험하셨네요! 하늘이 이렇게 맑아졌어요. 작은 기념장을 드릴게요.'], [{ label: '기념장 받기', primary: true, onClick: showCert }]);
@@ -1969,6 +2168,7 @@ function showHelp() {
     <li><b>이동</b> · ${isTouch ? '화면 왼쪽 아무 곳이나 끌어서 움직이세요. 끝까지 밀면 달려요. 땅을 눌러도 걸어가요.' : '<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>·방향키, <kbd>Shift</kbd>로 달리기. 땅을 클릭해도 걸어가요.'}</li>
     <li><b>대화·행동</b> · ${isTouch ? '오른쪽 동그란 버튼을 누르거나, 직원·물건을 직접 누르세요.' : '<kbd>E</kbd>·<kbd>Space</kbd>, 또는 직원·물건을 클릭하세요.'}</li>
     <li><b>운전</b> · 가고 싶은 방향으로 밀면 차가 그쪽으로 핸들을 꺾으며 달려요.</li>
+    <li><b>룸 이동</b> · 로비 광장의 색깔 문으로 들어가거나, 왼쪽 위 <b>룸 이동</b>${isTouch ? '' : '(<kbd>R</kbd>)'}을 누르세요. 과마다 미션룸이 따로 있어요.</li>
     <li><b>채팅</b> · ${isTouch ? '말풍선 버튼을 누르세요.' : '<kbd>Enter</kbd>로 채팅, <kbd>Q</kbd>로 손 인사.'} 같은 방 링크로 들어온 사람끼리 보여요.</li>
     <li><b>확대·축소</b> · ${isTouch ? '오른쪽 화면을 두 손가락으로 벌리거나 오므리세요.' : '마우스 휠을 굴리세요.'} 지도를 누르면 크게 보여요.</li>
     <li><b>지도</b> · 오른쪽 위 지도는 위쪽이 북쪽이에요. <span class="ib">!</span>는 체험할 수 있는 직원이에요.</li></ul>
@@ -1981,7 +2181,7 @@ function showHelp() {
    ========================================================= */
 const XD = {
   edu: { dept: 'plan', name: '기획과', task: '푸른하늘 교실', cta: '교실로 가기',
-    pages: ['기획과는 <b>대기환경 교육·홍보</b>도 맡아요. 서남쪽 <b>푸른하늘 교실</b> 텐트에서 어린이들이 기다리고 있어요.', '미세먼지와 오존이 왜 생기는지, 나쁜 날엔 어떻게 하면 되는지 아이들 질문에 답해 주세요!'] },
+    pages: ['기획과는 <b>대기환경 교육·홍보</b>도 맡아요. 차고 옆 <b>푸른하늘 교실</b> 텐트에서 어린이들이 기다리고 있어요.', '미세먼지와 오존이 왜 생기는지, 나쁜 날엔 어떻게 하면 되는지 아이들 질문에 답해 주세요!'] },
   quota: { dept: 'total', name: '대기총량과', task: '배출권 거래 관리', cta: '사무실로 가기',
     pages: ['사업장마다 한 해 동안 내보낼 수 있는 <b>배출허용총량</b>이 정해져 있어요. 사업장은 가동·측정자료로 실제 배출량을 산정해 제출하죠.', '사무실에서 사업장 세 곳의 배출량 자료를 보고, 남는 곳과 모자란 곳을 가려 주세요. 남거나 모자란 양은 <b>이전·거래</b>로 관리해요.'] },
   net: { dept: 'lab', name: '조사분석과', task: '측정소 자료 점검', cta: '측정소로 가기',
@@ -1990,7 +2190,7 @@ const XD = {
     pages: ['자동차 연료의 품질도 관리해요. 연료가 <b>제조기준</b>에 맞는지 시료를 검사하고, 환경품질등급을 평가·공개하죠.', '마당 곳곳에 놓인 <b>연료 시료 3통</b>을 모아서 <b>연료 분석대</b>로 가져와 주세요.'] },
 };
 const XBY = { plan: 'edu', total: 'quota', lab: 'net', car: 'fuel' };
-const INFO = (k) => DEPT[k] || XD[k];
+const INFO = (k) => DEPT[k] || XD[k] || (k === 'fly' ? { name: '하늘멍 언덕', task: '하늘 날기' } : { name: '', task: '' });
 function startExtra(k) {
   if (M.active) return;
   M.active = k; if (k === 'fuel') resetFuel();
@@ -2127,16 +2327,28 @@ function openFuel() {
    avatar customizer
    ========================================================= */
 const SKINS = ['#f6d7b8', '#f1c8a4', '#dfae84', '#b98159', '#8a5a3c'];
-const HAIRS = [['short', '짧은 머리'], ['bob', '단발'], ['long', '긴 머리'], ['bun', '묶은 머리'], ['cap', '모자']];
-const HAIR_COLS = ['#2a211b', '#5a3d2b', '#8a6a4a', '#c9a15a', '#6b6f78'];
-const SHIRTS = ['#3b82c4', '#2f9e6e', '#e0a526', '#d9667f', '#8e6bbf', '#e4572e', '#f3f3f3', '#3d405b'];
-const PANTS = ['#34495e', '#2f3e46', '#5c5552', '#3b6ea5', '#c9b48a'];
-const ACCS = [['none', '없음'], ['glasses', '안경'], ['mask', '마스크']];
-const AV_OK = { skin: SKINS, hair: HAIRS.map((h) => h[0]), hairColor: HAIR_COLS, shirt: SHIRTS, pants: PANTS, acc: ACCS.map((a) => a[0]) };
-const avatarCode = (a) => [a.skin, a.hair, a.hairColor, a.shirt, a.pants, a.acc].join('|');
+const BODIES = [['m', '남자'], ['f', '여자']];
+const HAIRS = [['short', '짧은 머리'], ['curly', '곱슬머리'], ['bob', '단발'], ['long', '긴 머리'], ['pony', '포니테일'], ['bun', '똥머리'], ['cap', '야구모자'], ['beanie', '비니']];
+const HAIR_COLS = ['#2a211b', '#5a3d2b', '#8a6a4a', '#c9a15a', '#6b6f78', '#a8452f'];
+const TOPS = [['tee', '반팔 티'], ['long', '긴팔 티'], ['shirt', '셔츠·넥타이'], ['hoodie', '후드티'], ['suit', '정장'], ['vest', '형광 조끼']];
+const SHIRTS = ['#3b82c4', '#2f9e6e', '#e0a526', '#d9667f', '#8e6bbf', '#e4572e', '#f3f3f3', '#3d405b', '#2b2f36', '#f2a7c3'];
+const BOTTOMS = [['pants', '긴바지'], ['shorts', '반바지'], ['skirt', '치마']];
+const PANTS = ['#34495e', '#2f3e46', '#5c5552', '#3b6ea5', '#c9b48a', '#2b2f36', '#d9667f', '#f3f3f3'];
+const ACCS = [['none', '없음'], ['glasses', '안경'], ['sunglasses', '선글라스'], ['mask', '마스크'], ['headphones', '헤드폰']];
+const PRESETS = [
+  ['남자 캐주얼', { body: 'm', hair: 'short', hairColor: '#2a211b', top: 'tee', shirt: '#3b82c4', bottom: 'pants', pants: '#34495e', acc: 'none' }],
+  ['남자 정장', { body: 'm', hair: 'short', hairColor: '#2a211b', top: 'suit', shirt: '#2b2f36', bottom: 'pants', pants: '#2b2f36', acc: 'none' }],
+  ['남자 현장', { body: 'm', hair: 'cap', hairColor: '#2a211b', top: 'vest', shirt: '#2f9e6e', bottom: 'pants', pants: '#3b6ea5', acc: 'none' }],
+  ['여자 캐주얼', { body: 'f', hair: 'long', hairColor: '#5a3d2b', top: 'tee', shirt: '#f2a7c3', bottom: 'pants', pants: '#3b6ea5', acc: 'none' }],
+  ['여자 원피스', { body: 'f', hair: 'bob', hairColor: '#2a211b', top: 'long', shirt: '#8e6bbf', bottom: 'skirt', pants: '#8e6bbf', acc: 'none' }],
+  ['여자 정장', { body: 'f', hair: 'pony', hairColor: '#2a211b', top: 'suit', shirt: '#3d405b', bottom: 'skirt', pants: '#3d405b', acc: 'glasses' }],
+];
+const AV_OK = { body: BODIES.map((b) => b[0]), skin: SKINS, hair: HAIRS.map((h) => h[0]), hairColor: HAIR_COLS, top: TOPS.map((t) => t[0]), shirt: SHIRTS, bottom: BOTTOMS.map((b) => b[0]), pants: PANTS, acc: ACCS.map((a) => a[0]) };
+const AV_KEYS = Object.keys(AV_OK);
+const avatarCode = (a) => AV_KEYS.map((k) => a[k]).join('|');
 function parseAvatar(code) { // 네트워크로 받은 값은 허용 목록 안에서만
-  const p = String(code || '').split('|'), keys2 = ['skin', 'hair', 'hairColor', 'shirt', 'pants', 'acc'], a = {};
-  keys2.forEach((k, i) => (a[k] = AV_OK[k].includes(p[i]) ? p[i] : AV_OK[k][0]));
+  const p = String(code || '').split('|'), a = {};
+  AV_KEYS.forEach((k, i) => (a[k] = AV_OK[k].includes(p[i]) ? p[i] : AV_OK[k][0]));
   return a;
 }
 let czR = null;
@@ -2147,12 +2359,15 @@ function openCustomizer(onDone) {
   openModal(`<p class="m-k">내 캐릭터</p><h2>캐릭터 꾸미기</h2>
     <div class="cz"><div class="cz-prev"><canvas id="czCv" aria-label="캐릭터 미리보기. 끌어서 돌려 볼 수 있어요"></canvas><button class="mini-btn" data-rand>무작위로 꾸미기</button></div>
     <div class="cz-opts"><label class="field"><span>닉네임</span><input id="czName" maxlength="10" placeholder="예: 맑음이"></label>
-    ${sw('skin', '피부', SKINS)}${ch('hair', '머리 모양', HAIRS)}${sw('hairColor', '머리 색', HAIR_COLS)}${sw('shirt', '윗옷', SHIRTS)}${sw('pants', '아래옷', PANTS)}${ch('acc', '소품', ACCS)}</div></div>
+    <div class="field"><span>추천 조합</span><div class="mopts" data-preset>${PRESETS.map(([nm], i) => `<button class="chip" data-p="${i}">${nm}</button>`).join('')}</div></div>
+    ${ch('body', '성별', BODIES)}${sw('skin', '피부', SKINS)}${ch('hair', '머리 모양', HAIRS)}${sw('hairColor', '머리 색', HAIR_COLS)}
+    ${ch('top', '윗옷 종류', TOPS)}${sw('shirt', '윗옷 색', SHIRTS)}${ch('bottom', '아래옷 종류', BOTTOMS)}${sw('pants', '아래옷 색', PANTS)}${ch('acc', '소품', ACCS)}</div></div>
     <div class="m-btns"><button class="btn" data-cancel>취소</button><button class="btn primary" data-save>저장</button></div>`);
   $('#czName').value = state.name || $('#nameIn').value || '';
   const sync = () => mcard.querySelectorAll('[data-key]').forEach((g) => g.querySelectorAll('[data-v]').forEach((b) => b.setAttribute('aria-pressed', String(draft[g.dataset.key] === b.dataset.v))));
   mcard.querySelectorAll('[data-key]').forEach((g) => g.addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (!b) return; draft[g.dataset.key] = b.dataset.v; sync(); SFX.tick(); czR && czR.rebuild(); }));
-  $('[data-rand]', mcard).onclick = () => { Object.keys(AV_OK).forEach((k) => (draft[k] = pick(AV_OK[k]))); sync(); SFX.pop(); czR && czR.rebuild(); };
+  $('[data-preset]', mcard).addEventListener('click', (e) => { const b = e.target.closest('[data-p]'); if (!b) return; Object.assign(draft, PRESETS[Number(b.dataset.p)][1]); sync(); SFX.pop(); czR && czR.rebuild(); });
+  $('[data-rand]', mcard).onclick = () => { AV_KEYS.forEach((k) => (draft[k] = pick(AV_OK[k]))); sync(); SFX.pop(); czR && czR.rebuild(); };
   const close = () => { if (czR) { czR.stop(); czR = null; } closeModal(); };
   $('[data-cancel]', mcard).onclick = close;
   $('[data-save]', mcard).onclick = () => {
@@ -2192,7 +2407,9 @@ const SKY_MSGS = ['잠깐 멈추고, 하늘을 바라봐요.', '어깨에 힘을
 const skyUI = $('#skyUI');
 function enterSky() {
   if (!started || skyM.on) return;
+  if (fly.on) endFly(true);
   if (M.active) { toast('하던 체험을 마치거나 그만둔 뒤에 하늘멍을 할 수 있어요.'); return; }
+  if (curRoom !== 'sky') { moveRoom('sky', () => setTimeout(enterSky, 250)); return; }
   if (dialogOpen) closeDialog(); if (modalOpen) closeModal(); if (chatOpen) closeChat();
   SFX.init();
   skyM.on = true; skyM.done = false; skyM.msgT = 0; skyM.mi = -1; skyM.bT = 0; skyM.inhale = null; skyM.a = 0; setSkyMin(false);
@@ -2207,14 +2424,14 @@ function enterSky() {
   const pct = Math.round(skyLevel * 100);
   showSkyMsg(pct < 99 ? `지금 하늘 맑음도는 ${pct}%예요. 업무 체험을 마칠수록 하늘이 더 맑아져요.` : SKY_MSGS[0]);
 }
-function exitSky() {
+function exitSky(silent) {
   if (!skyM.on) return;
   skyM.on = false; mode = 'walk';
   player.rig.root.rotation.x = 0; player.pos.set(REST.x + 1.4, 0, REST.z + 1.6); player.heading = 0;
   document.body.classList.remove('skymode'); skyUI.hidden = true;
   skyDome.visible = false; skyClouds.forEach((c) => (c.visible = false));
   camera.fov = 38; camera.updateProjectionMatrix();
-  SFX.wind(false); toast('잘 쉬었어요. 맑은 하늘, 함께 지켜요.');
+  SFX.wind(false); if (!silent) toast('잘 쉬었어요. 맑은 하늘, 함께 지켜요.');
 }
 function setSkyTimer(min) {
   skyM.dur = min * 60; skyM.left = skyM.dur; skyM.done = false;
@@ -2228,20 +2445,24 @@ function showSkyMsg(text) {
 function setSkyMin(v) { skyM.min = v; skyUI.classList.toggle('min', v); }
 skyUI.querySelectorAll('[data-min]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); setSkyTimer(Number(b.dataset.min)); SFX.tick(); }));
 $('#skyHide').addEventListener('click', (e) => { e.stopPropagation(); setSkyMin(true); });
+$('#skyFly').addEventListener('click', (e) => { e.stopPropagation(); exitSky(true); setTimeout(startFly, 100); });
 $('#skyExit').addEventListener('click', (e) => { e.stopPropagation(); exitSky(); });
 skyUI.addEventListener('click', () => { if (skyM.min) setSkyMin(false); });
 const _skyTop = new THREE.Color(), _skyBot = new THREE.Color();
-function updateSky(dt, t) {
+function skyEnv(dt, yOff = 0) { // 하늘 돔·뭉게구름 색과 위치
   const l = skyLevel;
-  skyUni.top.value.copy(_skyTop.set('#cfc6ad')).lerp(_skyBot.set('#3d8fe0'), l);
-  skyUni.bot.value.copy(_skyTop.set('#e2d8c2')).lerp(_skyBot.set('#cfe8f7'), l);
+  skyUni.top.value.copy(_skyTop.set('#c9c2ab')).lerp(_skyBot.set('#3a7fc6'), l); // 깊고 차분한 파랑
+  skyUni.bot.value.copy(_skyTop.set('#ddd4be')).lerp(_skyBot.set('#a3cde9'), l);
   skyUni.haze.value = 1 - l;
   skyDome.position.copy(camera.position);
-  const cc = _skyTop.set('#ddd4c1').lerp(_skyBot.set('#ffffff'), l);
+  const cc = _skyTop.set('#ddd4c1').lerp(_skyBot.set('#eef3f8'), l);
   for (const c of skyClouds) {
     const o = c.userData.off; o.x += dt * 1.6; if (o.x > 170) o.x -= 340;
-    c.position.set(REST.x + o.x, o.y, REST.z + o.z); c.material.color.copy(cc); c.material.opacity = 0.75 + l * 0.2;
+    c.position.set(REST.x + o.x, o.y + yOff, REST.z + o.z); c.material.color.copy(cc); c.material.opacity = 0.7 + l * 0.15;
   }
+}
+function updateSky(dt, t) {
+  skyEnv(dt);
   // 카메라: 머리맡에서 하늘을 올려다보며 아주 천천히 흔들림
   skyM.a += dt * 0.025;
   const yaw = Math.sin(skyM.a) * 0.35, cp = camera.position;
@@ -2261,6 +2482,72 @@ function updateSky(dt, t) {
   chirpT -= dt * 0.6;
 }
 addI({ pos: REST, r: 2.6, dy: 1.8, label: () => (M.active ? null : '하늘 보며 쉬기'), act: enterSky });
+
+/* =========================================================
+   하늘 날기 — 내 캐릭터로 떠 있는 섬 위를 활공
+   ========================================================= */
+const fly = { on: false, vy: 0, spd: 6, bank: 0 };
+addI({ pos: LAUNCH, r: 2.4, dy: 1.6, label: () => (M.active ? null : '하늘 날아 보기'), act: startFly });
+function startFly() {
+  if (!started || fly.on) return;
+  if (M.active) { toast('하던 체험을 마치거나 그만둔 뒤에 날 수 있어요.'); return; }
+  if (curRoom !== 'sky') { moveRoom('sky', () => setTimeout(startFly, 300)); return; }
+  if (skyM.on) exitSky(true);
+  if (dialogOpen) closeDialog(); if (modalOpen) closeModal();
+  SFX.init(); setCtrl(player);
+  fly.on = true; fly.vy = 0; fly.spd = 6; M.active = 'fly'; mode = 'fly';
+  skyDome.visible = true; skyClouds.forEach((c) => (c.visible = true));
+  camera.fov = 52; camera.updateProjectionMatrix();
+  SFX.wind(true); SFX.whoosh(); buzz(30);
+  const p = player.pos, y0 = p.y;
+  tween(1.4, (k) => { p.y = lerp(y0, 16, ease(k)); }, null);
+  renderMission();
+  toast(isTouch ? '조이스틱 좌우로 방향, 위로 밀면 빨라져요. 오른쪽 버튼을 누르고 있으면 위로 올라가요.' : '<kbd>A</kbd><kbd>D</kbd>로 방향, <kbd>W</kbd>로 빨리, <kbd>Space</kbd>를 누르고 있으면 위로 올라가요.', 4200);
+}
+function endFly(instant) {
+  if (!fly.on) return;
+  fly.on = false; M.active = null; mode = 'cutscene'; renderMission();
+  const p = player.pos, a = p.clone();
+  const dx = a.x - SKY_C.x, dz = a.z - SKY_C.z, d = Math.hypot(dx, dz), k = d > 26 ? 26 / d : 1, tx = SKY_C.x + dx * k, tz = SKY_C.z + dz * k;
+  const landed = () => {
+    p.set(tx, 0, tz); mode = 'walk'; resetPose(player.rig);
+    skyDome.visible = false; skyClouds.forEach((c) => (c.visible = false));
+    camera.fov = 38; camera.updateProjectionMatrix(); SFX.wind(false);
+    if (!instant) { SFX.ok(); toast('사뿐히 내려왔어요!'); }
+  };
+  if (instant) { tweens.length = 0; landed(); return; }
+  tween(1.8, (e) => { const s = ease(e); p.set(lerp(a.x, tx, s), lerp(a.y, 0, s), lerp(a.z, tz, s)); }, landed);
+}
+function resetPose(rig) { rig.root.rotation.x = 0; rig.root.rotation.z = 0; rig.armL.rotation.z = 0; rig.armR.rotation.z = 0; }
+function flyPose(rig, t, bank = 0) { // 두 팔을 날개처럼 펴고 살짝 엎드린 자세
+  rig.root.rotation.x = lerp(rig.root.rotation.x, 1.32, 0.08); rig.root.rotation.z = lerp(rig.root.rotation.z, bank, 0.1);
+  const f = Math.sin(t * 2.4) * 0.12;
+  rig.armL.rotation.set(0, 0, -1.4 + f); rig.armR.rotation.set(0, 0, 1.4 - f);
+  rig.legL.rotation.x = 0.15 + f; rig.legR.rotation.x = 0.15 - f;
+}
+function flyCtrl(dt) {
+  const p = player;
+  let ix = joy.x, iz = joy.y;
+  if (keys.KeyA || keys.ArrowLeft) ix -= 1; if (keys.KeyD || keys.ArrowRight) ix += 1;
+  if (keys.KeyW || keys.ArrowUp) iz -= 1; if (keys.KeyS || keys.ArrowDown) iz += 1;
+  ix = clamp(ix, -1, 1); iz = clamp(iz, -1, 1);
+  const boost = keys.ShiftLeft || keys.ShiftRight || joy.mag > 0.92;
+  p.heading -= ix * 1.5 * dt; // 오른쪽으로 밀면 오른쪽으로 돌아요
+  const target = clamp(6 - iz * 6 + (boost ? 5 : 0), 2.5, 17);
+  fly.spd += (target - fly.spd) * (1 - Math.exp(-1.8 * dt));
+  fly.bank += (-ix * 0.45 - fly.bank) * (1 - Math.exp(-4 * dt));
+  const px = p.pos.x, pz = p.pos.z;
+  p.pos.x += Math.sin(p.heading) * fly.spd * dt; p.pos.z += Math.cos(p.heading) * fly.spd * dt;
+  const dx = p.pos.x - SKY_C.x, dz = p.pos.z - SKY_C.z, d = Math.hypot(dx, dz);
+  if (d > 64) { p.pos.x = SKY_C.x + (dx / d) * 64; p.pos.z = SKY_C.z + (dz / d) * 64; p.heading = angLerp(p.heading, Math.atan2(-dx, -dz), 0.04); }
+  fly.vy += ((actionHeld ? 6.5 : -1.4) - fly.vy) * (1 - Math.exp(-2.5 * dt));
+  if (!tweens.length) p.pos.y = clamp(p.pos.y + fly.vy * dt, 7, 72);
+  p.vel.set((p.pos.x - px) / dt, 0, (p.pos.z - pz) / dt); p.moved = 0;
+  const el = $('#flyAlt'); if (el) el.textContent = Math.round(p.pos.y * 2);
+  return 0;
+}
+
+/* =========================================================
 
 /* =========================================================
    HUD refresh
@@ -2290,9 +2577,12 @@ function objective() {
   if (M.active === 'net') return '<b>대기오염측정소</b>로 가서 자료를 점검하세요.';
   if (M.active === 'fuel') { const n = fuelCans.filter((c) => c.got).length; return n < 3 ? `연료 시료를 모으세요 (<b>${n}/3</b>).` : '<b>연료 분석대</b>로 시료를 가져가세요.'; }
   if (skyM.on) return '하늘멍 중…';
+  if (M.active === 'fly') return '하늘을 날고 있어요. 구름 사이를 천천히 둘러보세요.';
   const n = doneCount();
   if (n === 4) return '모든 업무 완료! 청사 앞 <b>안내 직원</b>에게 가 보세요.';
-  return `<span class="ib">!</span> 표시 직원을 찾아가세요 (<b>${n}/4</b>). 남은 곳: ${Object.keys(DEPT).filter((k) => !state.done[k]).map((k) => DEPT[k].name).join(', ')}`;
+  const left = Object.keys(DEPT).filter((k) => !state.done[k]);
+  if (DEPT[curRoom] && !state.done[curRoom]) return `<span class="ib">!</span> <b>${DEPT[curRoom].name} 주무관</b>에게 말을 걸어 체험을 시작하세요.`;
+  return `<span class="ib">!</span> 남은 미션룸으로 가세요 (<b>${n}/4</b>): ${left.map((k) => DEPT[k].name).join(', ')}. 로비의 색깔 문이나 <b>룸 이동</b>을 쓰세요.`;
 }
 
 /* =========================================================
@@ -2300,40 +2590,62 @@ function objective() {
    ========================================================= */
 const mm = $('#minimap'), mmx = mm.getContext('2d'), mmStatic = document.createElement('canvas');
 let MMS = 150;
-const W2M = (v) => ((v + 60) / 120) * MMS;
+const mmView = { cx: 0, cz: 0, half: 60 };
+const W2X = (v) => ((v - mmView.cx + mmView.half) / (mmView.half * 2)) * MMS, W2Z = (v) => ((v - mmView.cz + mmView.half) / (mmView.half * 2)) * MMS;
+const W2S = (r) => (r / (mmView.half * 2)) * MMS;
 function sizeMinimap() {
   const css = mm.clientWidth || 150, d = Math.min(devicePixelRatio || 1, 2);
   MMS = css; mm.width = Math.round(css * d); mm.height = Math.round(css * d); mmx.setTransform(d, 0, 0, d, 0, 0);
   mmStatic.width = mm.width; mmStatic.height = mm.height;
   const c = mmStatic.getContext('2d'); c.setTransform(d, 0, 0, d, 0, 0);
-  const R = (x0, z0, x1, z1, col) => { c.fillStyle = col; c.fillRect(W2M(x0), W2M(z0), W2M(x1) - W2M(x0), W2M(z1) - W2M(z0)); };
-  c.fillStyle = '#a6d18f'; c.fillRect(0, 0, MMS, MMS);
-  R(-39, -39, -3, -3, '#d8d5cc'); R(3, -39, 39, -3, '#dcd9d0'); R(-34, 11, -8, 35, '#c6cbcf');
-  roadSegs.forEach(([x, z, w, dd]) => R(x - w / 2, z - dd / 2, x + w / 2, z + dd / 2, '#6b7279'));
-  c.fillStyle = '#efe9da'; c.beginPath(); c.arc(W2M(0), W2M(0), (13.5 / 120) * MMS, 0, Math.PI * 2); c.fill();
+  const R = (x0, z0, x1, z1, col) => { c.fillStyle = col; c.fillRect(W2X(x0), W2Z(z0), W2X(x1) - W2X(x0), W2Z(z1) - W2Z(z0)); };
+  const circ = (x, z, r, col) => { c.fillStyle = col; c.beginPath(); c.arc(W2X(x), W2Z(z), W2S(r), 0, Math.PI * 2); c.fill(); };
+  const inView = (x, z) => Math.abs(x - mmView.cx) < mmView.half + 5 && Math.abs(z - mmView.cz) < mmView.half + 5;
+  if (curRoom === 'sky') { // 하늘멍 언덕 지도
+    Object.assign(mmView, { cx: SKY_C.x, cz: SKY_C.z, half: 36 });
+    c.fillStyle = '#8fbf7c'; c.fillRect(0, 0, MMS, MMS); circ(SKY_C.x, SKY_C.z, 30, '#a9d58f');
+    c.fillStyle = '#7db7dc'; c.beginPath(); c.ellipse(W2X(POND.x), W2Z(POND.z), W2S(5.1), W2S(3.4), 0, 0, Math.PI * 2); c.fill();
+    R(REST.x - 1.2, REST.z - 2.6, REST.x + 1.2, REST.z + 0.6, '#f2d7a6');
+  } else {
+    Object.assign(mmView, { cx: 0, cz: 0, half: 60 });
+    c.fillStyle = '#a6d18f'; c.fillRect(0, 0, MMS, MMS);
+    R(-39, -39, -3, -3, '#d8d5cc'); R(3, -39, 39, -3, '#dcd9d0'); R(-34, 11, -8, 35, '#c6cbcf');
+    roadSegs.forEach(([x, z, w, dd]) => R(x - w / 2, z - dd / 2, x + w / 2, z + dd / 2, '#6b7279'));
+    circ(0, 0, 13.5, '#efe9da');
+  }
   c.fillStyle = '#8b949b';
-  rects.forEach((r) => { if (r.x1 - r.x0 > 1.5 && r.z1 - r.z0 > 1.5 && r.x0 < 1e8) c.fillRect(W2M(r.x0), W2M(r.z0), W2M(r.x1) - W2M(r.x0), W2M(r.z1) - W2M(r.z0)); });
-  circles.forEach((r) => { if (r.r > 1.5) { c.beginPath(); c.arc(W2M(r.x), W2M(r.z), (r.r / 120) * MMS, 0, Math.PI * 2); c.fill(); } });
-  c.fillStyle = '#ffffff'; c.font = `800 ${Math.round(MMS / 16)}px ${FONT}`; c.textAlign = 'center';
-  factories.forEach((f) => c.fillText(f.L, W2M(f.x), W2M(f.z) + MMS / 45));
-  c.fillStyle = '#243e3c'; c.fillText('N', MMS / 2, MMS / 14);
+  rects.forEach((r) => { if (r.x1 - r.x0 > 1.5 && r.z1 - r.z0 > 1.5 && r.x0 < 1e8 && inView(r.x0, r.z0)) c.fillRect(W2X(r.x0), W2Z(r.z0), W2X(r.x1) - W2X(r.x0), W2Z(r.z1) - W2Z(r.z0)); });
+  circles.forEach((r) => { if (r.r > 1.5 && inView(r.x, r.z)) circ(r.x, r.z, r.r, '#8b949b'); });
+  if (curRoom !== 'sky') {
+    c.fillStyle = '#ffffff'; c.font = `800 ${Math.round(MMS / 16)}px ${FONT}`; c.textAlign = 'center';
+    factories.forEach((f) => c.fillText(f.L, W2X(f.x), W2Z(f.z) + MMS / 45));
+    // 다른 룸은 어둡게
+    c.fillStyle = 'rgba(20,40,36,.42)';
+    const q = { plan: [-60, -60, 0, 0], total: [0, -60, 60, 0], lab: [0, 0, 60, 60], car: [-60, 0, 0, 60] };
+    Object.entries(q).forEach(([k, [x0, z0, x1, z1]]) => { if (k !== curRoom) c.fillRect(W2X(x0), W2Z(z0), W2X(x1) - W2X(x0), W2Z(z1) - W2Z(z0)); });
+    if (curRoom !== 'lobby') { c.beginPath(); c.arc(W2X(0), W2Z(0), W2S(15.5), 0, Math.PI * 2); c.fill(); }
+    else { c.save(); c.globalCompositeOperation = 'source-over'; c.fillStyle = 'rgba(20,40,36,.42)'; c.beginPath(); c.rect(0, 0, MMS, MMS); c.arc(W2X(0), W2Z(0), W2S(15.5), 0, Math.PI * 2, true); c.fill('evenodd'); c.restore(); }
+  }
+  GATES.forEach((g) => { if (g.from === curRoom) circ(g.pos.x, g.pos.z, 1.6, ROOMS[g.to].color); });
+  c.fillStyle = '#243e3c'; c.font = `800 ${Math.round(MMS / 16)}px ${FONT}`; c.textAlign = 'center'; c.fillText('N', MMS / 2, MMS / 14);
 }
 function drawMinimap(t) {
   mmx.clearRect(0, 0, MMS, MMS); mmx.drawImage(mmStatic, 0, 0, MMS, MMS);
-  const dot = (x, z, r, col, stroke) => { mmx.beginPath(); mmx.arc(W2M(x), W2M(z), r, 0, Math.PI * 2); mmx.fillStyle = col; mmx.fill(); if (stroke) { mmx.lineWidth = 1.5; mmx.strokeStyle = stroke; mmx.stroke(); } };
-  if (M.active === 'plan') for (const d of plan.dots) { mmx.fillStyle = d.col; mmx.fillRect(W2M(d.x) - 1.5, W2M(d.z) - 1.5, 3, 3); }
+  const dot = (x, z, r, col, stroke) => { mmx.beginPath(); mmx.arc(W2X(x), W2Z(z), r, 0, Math.PI * 2); mmx.fillStyle = col; mmx.fill(); if (stroke) { mmx.lineWidth = 1.5; mmx.strokeStyle = stroke; mmx.stroke(); } };
+  if (M.active === 'plan') for (const d of plan.dots) { mmx.fillStyle = d.col; mmx.fillRect(W2X(d.x) - 1.5, W2Z(d.z) - 1.5, 3, 3); }
   if (M.active === 'total') checkpoints.forEach((c) => dot(c.x, c.pos.z, 2.6, c.checked ? (c.leak ? '#e5484d' : '#2f9e6e') : '#f2b93b', '#ffffff'));
   if (M.active === 'car') patches.forEach((p) => p.alive && dot(p.x, p.z, 2.6, '#8d6b3d', '#ffffff'));
   if (M.active && M.active !== 'plan') { const tp = objTarget(); if (tp) dot(tp.x, tp.z, 3 + Math.sin(t * 5) * 1.2, '#f2b93b', '#ffffff'); }
   if (M.active === 'fuel') fuelCans.forEach((c) => !c.got && dot(c.pos.x, c.pos.z, 2.4, '#e2b53c', '#ffffff'));
-  for (const p of net.peers.values()) dot(p.pos.x, p.pos.z, 2.8, p.color, '#ffffff');
-  npcs.forEach((n) => {
+  for (const p of net.peers.values()) if (p.sp === curRoom) dot(p.pos.x, p.pos.z, 2.8, p.color, '#ffffff');
+  if (curRoom !== 'sky') npcs.forEach((n) => {
     const m = npcMark(n);
-    if (m === 'bang') { dot(n.pos.x, n.pos.z, 5, '#f2b93b', '#ffffff'); mmx.fillStyle = '#3a2a00'; mmx.font = `900 7px ${FONT}`; mmx.textAlign = 'center'; mmx.fillText('!', W2M(n.pos.x), W2M(n.pos.z) + 2.5); }
+    if (m === 'bang') { dot(n.pos.x, n.pos.z, 5, '#f2b93b', '#ffffff'); mmx.fillStyle = '#3a2a00'; mmx.font = `900 7px ${FONT}`; mmx.textAlign = 'center'; mmx.fillText('!', W2X(n.pos.x), W2Z(n.pos.z) + 2.5); }
     else dot(n.pos.x, n.pos.z, 2.6, m === 'chk' ? '#2f9e6e' : '#ffffff', m === 'chk' ? '#ffffff' : '#217569');
   });
+  { const tp = objTarget(); if (tp && zoneOf(tp.x, tp.z) === curRoom && !M.active) dot(tp.x, tp.z, 3 + Math.sin(t * 5) * 1.2, '#f2b93b', '#ffffff'); }
   if (started) {
-    const p = ctrl.pos, h = ctrl.heading, x = W2M(p.x), y = W2M(p.z), s = 6;
+    const p = ctrl.pos, h = ctrl.heading, x = W2X(p.x), y = W2Z(p.z), s = 6;
     mmx.save(); mmx.translate(x, y); mmx.rotate(-h);
     mmx.beginPath(); mmx.moveTo(0, s); mmx.lineTo(-s * 0.7, -s * 0.6); mmx.lineTo(0, -s * 0.25); mmx.lineTo(s * 0.7, -s * 0.6); mmx.closePath();
     mmx.fillStyle = '#e5484d'; mmx.fill(); mmx.lineWidth = 1.5; mmx.strokeStyle = '#ffffff'; mmx.stroke(); mmx.restore();
@@ -2361,6 +2673,7 @@ addEventListener('keydown', (e) => {
   if (e.target && (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') && (e.code === 'Enter' || e.code === 'Space')) return;
   if (started && (e.code === 'Enter' || e.code === 'KeyT') && !e.repeat) { e.preventDefault(); openChat(); return; }
   if (started && e.code === 'KeyQ' && !e.repeat) doWave();
+  if (started && e.code === 'KeyR' && !e.repeat) { openRooms(); return; }
   keys[e.code] = true;
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
   if ((e.code === 'KeyE' || e.code === 'Space') && !e.repeat) { actionHeld = true; onAction(); }
@@ -2465,6 +2778,8 @@ $('#menu').addEventListener('click', (e) => {
   if (m === 'reset') confirmReset();
   if (m === 'avatar') openCustomizer();
   if (m === 'sky') enterSky();
+  if (m === 'rooms') openRooms();
+  if (m === 'fly') startFly();
   if (m === 'invite') copyInvite();
   if (m === 'newroom') { const r = Math.random().toString(36).slice(2, 8); location.href = `${location.pathname}?room=${r}`; }
   if (m === 'mp') {
@@ -2476,7 +2791,7 @@ $('#menu').addEventListener('click', (e) => {
 function refreshMenu() { const b = $('[data-m="mp"]'); if (b) b.textContent = `여럿이 함께: ${mpOn ? '켜짐' : '꺼짐'}`; }
 { // 메뉴에 꾸미기·하늘멍 추가
   const menu = $('#menu'), first = menu.firstElementChild;
-  [['avatar', '내 캐릭터 꾸미기'], ['sky', '하늘멍 하기']].forEach(([k, t]) => { const b = document.createElement('button'); b.dataset.m = k; b.textContent = t; menu.insertBefore(b, first); });
+  [['rooms', '룸 이동'], ['avatar', '내 캐릭터 꾸미기'], ['sky', '하늘멍 하기'], ['fly', '하늘 날기']].forEach(([k, t]) => { const b = document.createElement('button'); b.dataset.m = k; b.textContent = t; menu.insertBefore(b, first); });
 }
 const muteBtn = $('#muteBtn');
 function syncMute() { muteBtn.setAttribute('aria-pressed', String(SFX.muted)); muteBtn.setAttribute('aria-label', SFX.muted ? '소리 켜기' : '소리 끄기'); }
@@ -2502,7 +2817,8 @@ function pub(type, obj) { const c = net.client; if (c && net.connected) { try { 
 function setNet(st) {
   net.st = st; const el = $('#net');
   el.classList.toggle('on', st === 'on');
-  $('span', el).textContent = st === 'on' ? `같이 체험 중 · ${net.peers.size + 1}명` : st === 'wait' ? '다른 사람과 연결 중…' : '혼자 체험 중';
+  const here = [...net.peers.values()].filter((p) => p.sp === curRoom).length + 1;
+  $('span', el).textContent = st === 'on' ? `이 룸 ${here} · 전체 ${net.peers.size + 1}명` : st === 'wait' ? '연결 중…' : '혼자 체험 중';
 }
 async function netStart() {
   if (!mpOn || net.client || !started) return;
@@ -2540,7 +2856,7 @@ function netStop() {
 addEventListener('pagehide', () => { if (net.connected) { pub('l', { id: myId }); try { net.client.end(true); } catch (e) { /* ignore */ } } });
 function myState() {
   const p = ctrl.pos;
-  return { id: myId, n: state.name, a: avatarCode(state.avatar), x: +p.x.toFixed(2), y: +p.y.toFixed(2), z: +p.z.toFixed(2), h: +ctrl.heading.toFixed(2), k: ctrl.kind, cr: player.rig && player.rig.carry ? 1 : 0, s: skyM.on ? 1 : 0 };
+  return { id: myId, n: state.name, a: avatarCode(state.avatar), x: +p.x.toFixed(2), y: +p.y.toFixed(2), z: +p.z.toFixed(2), h: +ctrl.heading.toFixed(2), k: ctrl.kind, cr: player.rig && player.rig.carry ? 1 : 0, s: skyM.on ? 1 : 0, fl: fly.on ? 1 : 0, sp: curRoom };
 }
 function sendState(force) {
   if (!net.connected || !started || !player.rig) return;
@@ -2563,8 +2879,10 @@ function upsertPeer(m) {
   const x = Number(m.x), z = Number(m.z); if (!Number.isFinite(x) || !Number.isFinite(z)) return;
   let p = net.peers.get(m.id);
   if (!p) { if (net.peers.size >= MAX_PEERS) return; p = makePeer(m); net.peers.set(m.id, p); sysChat(`${p.name} 님이 들어왔어요`); SFX.pop(); setNet(net.st); }
-  p.tx = clamp(x, -60, 60); p.tz = clamp(z, -60, 60); p.ty = clamp(Number(m.y) || 0, 0, 12); p.th = Number(m.h) || 0;
+  p.tx = clamp(x, -60, 60); p.tz = clamp(z, -60, 60); p.ty = clamp(Number(m.y) || 0, 0, 80); p.th = Number(m.h) || 0; p.flying = !!m.fl;
   p.kind = ['walk', 'van', 'sweeper'].includes(m.k) ? m.k : 'walk'; p.carry = !!m.cr; p.lying = !!m.s; p.seen = T;
+  const sp = ROOM_IDS.includes(m.sp) ? m.sp : 'lobby';
+  if (sp !== p.sp) { if (p.sp && sp === curRoom) sysChat(`${cleanName(m.n)} 님이 이 룸에 왔어요`); p.sp = sp; setNet(net.st); }
   const nm = cleanName(m.n); if (nm !== p.name) { p.name = nm; p.nameEl.textContent = nm; }
   if (typeof m.a === 'string' && m.a !== p.code) setPeerLook(p, m.a);
 }
@@ -2603,9 +2921,12 @@ function updatePeers(dt) {
     else { p.pos.x += (p.tx - p.pos.x) * k; p.pos.z += (p.tz - p.pos.z) * k; p.pos.y += (p.ty - p.pos.y) * k; }
     p.heading = angLerp(p.heading, p.th, k);
     const sp = Math.hypot(p.pos.x - px, p.pos.z - pz) / Math.max(dt, 1e-3), walk = p.kind === 'walk';
-    p.rig.root.visible = walk; p.rig.root.rotation.y = p.heading; p.rig.root.rotation.x = p.lying ? -Math.PI / 2 : 0; p.rig.carry = p.carry;
-    if (walk) animPerson(p.rig, sp, dt);
-    for (const kk of ['van', 'sweeper']) if (p.veh[kk]) p.veh[kk].g.visible = !walk && kk === p.kind;
+    const here = p.sp === curRoom;
+    p.rig.root.visible = walk && here; p.rig.root.rotation.y = p.heading; p.rig.carry = p.carry;
+    if (walk) animPerson(p.rig, p.flying ? 0 : sp, dt);
+    if (p.flying) flyPose(p.rig, T); else { p.rig.root.rotation.x = p.lying ? -Math.PI / 2 : 0; p.rig.root.rotation.z = 0; if (p.wasFly) resetPose(p.rig); }
+    p.wasFly = p.flying;
+    for (const kk of ['van', 'sweeper']) if (p.veh[kk]) p.veh[kk].g.visible = here && !walk && kk === p.kind;
     if (!walk) {
       let v = p.veh[p.kind]; if (!v) v = p.veh[p.kind] = p.kind === 'van' ? makeVan() : makeSweeper();
       v.g.position.copy(p.pos); v.g.rotation.y = p.heading; v.wheels.forEach((w) => (w.rotation.x += (sp * dt) / 0.42)); p.vehObj = v.g;
@@ -2613,8 +2934,8 @@ function updatePeers(dt) {
   }
 }
 function copyInvite() {
-  const url = `${location.origin}${location.pathname}?room=${encodeURIComponent(ROOM)}`;
-  const done = () => toast(`방 링크를 복사했어요. 같은 링크로 들어온 사람끼리 만나요.<br><small>${esc(url)}</small>`, 4500);
+  const url = `${location.origin}${location.pathname}?room=${encodeURIComponent(ROOM)}${curRoom !== 'lobby' && curRoom !== 'sky' ? `&at=${curRoom}` : ''}`;
+  const done = () => toast(`${ROOMS[curRoom].short} 링크를 복사했어요. 같은 링크로 들어오면 여기서 만나요.<br><small>${esc(url)}</small>`, 4500);
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, () => toast(esc(url), 6000));
   else toast(esc(url), 6000);
 }
@@ -2656,16 +2977,83 @@ function sendChat(text) {
   lastChatT = T;
   if (selfBubble) showBubble(selfBubble, msg);
   addChatLog(state.name, msg); SFX.blip();
-  if (net.connected) pub('c', { id: myId, n: state.name, m: msg });
+  if (net.connected) pub('c', { id: myId, n: state.name, m: msg, sp: curRoom });
   else sysChat(mpOn ? '아직 연결되지 않아 다른 사람에게는 보이지 않아요.' : '혼자 체험 중이라 다른 사람에게는 보이지 않아요. 메뉴에서 여럿이 함께를 켤 수 있어요.');
 }
 function onChat(m) {
   const msg = cleanMsg(m.m); if (!msg) return;
-  const p = net.peers.get(m.id);
-  if (p) { if (T - p.lastChat < 0.8) return; p.lastChat = T; showBubble(p.bub, msg); }
-  addChatLog(p ? p.name : cleanName(m.n), msg); SFX.pop();
+  const p = net.peers.get(m.id), sp = ROOM_IDS.includes(m.sp) ? m.sp : (p ? p.sp : curRoom), here = sp === curRoom;
+  if (p) { if (T - p.lastChat < 0.8) return; p.lastChat = T; if (here) showBubble(p.bub, msg); }
+  addChatLog(`${here ? '' : `[${ROOMS[sp].short}] `}${p ? p.name : cleanName(m.n)}`, msg); SFX.pop();
   if (!chatOpen) { net.unread++; updateBadge(); }
 }
+
+/* =========================================================
+   룸 이동
+   ========================================================= */
+const fadeEl = $('#fade'), roomCard = $('#roomCard');
+let moving = false;
+GATES.forEach((g) => addI({ pos: g.pos, r: 2.5, dy: 3.4, ring: 1.4, label: () => (g.from === curRoom ? (g.to === 'lobby' ? '로비로 나가기' : `${ROOMS[g.to].short}${g.to === 'sky' ? '' : ' 미션룸'}으로 들어가기`) : null), act: () => moveRoom(g.to) }));
+function setRoom(id) {
+  curRoom = id; showZones(id);
+  $('#roomName').textContent = ROOMS[id].name; $('#roomDot').style.background = ROOMS[id].color;
+  if (started) { sizeMinimap(); setNet(net.st); }
+}
+function snapCamera() {
+  const p = ctrl.pos, z = zoomBase * zoomUser, shift = innerWidth < innerHeight ? -3.5 * z : 0;
+  lead.set(0, 0, 0);
+  camera.position.set(p.x + CAM_OFF.x * z, p.y + CAM_OFF.y * z, p.z + shift + CAM_OFF.z * z);
+  camLook.set(p.x, p.y + 1, p.z + shift); camera.lookAt(camLook);
+}
+function showRoomCard(id) {
+  const R = ROOMS[id];
+  $('.rc-k', roomCard).textContent = id === 'lobby' ? '로비' : id === 'sky' ? '쉼터' : '미션룸';
+  $('h2', roomCard).textContent = R.name; $('.rc-d', roomCard).textContent = R.desc;
+  roomCard.hidden = false; roomCard.style.animation = 'none'; void roomCard.offsetWidth; roomCard.style.animation = '';
+  clearTimeout(roomCard._t); roomCard._t = setTimeout(() => (roomCard.hidden = true), 2700);
+}
+function moveRoom(id, after) {
+  if (moving || !ROOMS[id] || !started) return;
+  if (fly.on) endFly(true);
+  if (M.active) {
+    talk('안내', [`지금 하던 <b>${INFO(M.active).task}</b> 체험을 그만두고 ${ROOMS[id].name}(으)로 갈까요?`], [{ label: '계속 체험하기' }, { label: '그만두고 이동', primary: true, onClick: () => { abortMission(); moveRoom(id, after); } }]);
+    return;
+  }
+  if (skyM.on) exitSky(true);
+  if (dialogOpen) closeDialog(); if (modalOpen) closeModal(); if (chatOpen) closeChat();
+  const from = curRoom;
+  moving = true; SFX.whoosh(); buzz(20); fadeEl.classList.add('on');
+  setTimeout(() => {
+    setRoom(id); setCtrl(player); mode = 'walk';
+    const back = id === 'lobby' ? gateTo('lobby', from) : null, R = ROOMS[id];
+    if (back) { player.pos.set(back.pos.x * 0.8, 0, back.pos.z * 0.8); player.heading = back.face + Math.PI; }
+    else { player.pos.set(R.spawn[0], 0, R.spawn[1]); player.heading = R.face; }
+    player.vel.set(0, 0, 0); player.obj.rotation.y = player.heading;
+    if (id !== 'sky') { state.space = id; save(); }
+    snapCamera(); net.lastKey = ''; sendState(true);
+    showRoomCard(id); SFX.chime();
+    setTimeout(() => { fadeEl.classList.remove('on'); moving = false; after && after(); }, 140);
+  }, 320);
+}
+function openRooms() {
+  if (!started || modalOpen) return;
+  const count = (id) => [...net.peers.values()].filter((p) => p.sp === id).length + (id === curRoom ? 1 : 0);
+  const badge = (id) => {
+    const out = [];
+    if (id === curRoom) out.push('<span class="me">지금 여기</span>');
+    if (DEPT[id]) out.push(state.done[id] ? '<span class="on">스탬프 ✓</span>' : '<span>스탬프 전</span>');
+    if (XBY[id] && state.extra[XBY[id]]) out.push('<span class="on">추가 ★</span>');
+    const n = count(id); if (n) out.push(`<span>${n}명</span>`);
+    return out.join('');
+  };
+  openModal(`<p class="m-k">룸 이동</p><h2>어디로 갈까요?</h2>
+    <div class="rooms">${ROOM_IDS.map((id) => `<button class="roomc ${id === curRoom ? 'here' : ''}" data-r="${id}" style="--c:${ROOMS[id].color}"><span class="rn">${ROOMS[id].name}</span><span class="rd">${ROOMS[id].desc}</span><span class="rm">${badge(id)}</span></button>`).join('')}</div>
+    <p class="fine">로비 광장 가장자리의 색깔 문으로 걸어 들어가도 돼요. 단축키 <kbd>R</kbd></p>
+    <div class="m-btns"><button class="btn" data-x>닫기</button></div>`);
+  mcard.querySelectorAll('.roomc').forEach((b) => b.onclick = () => { const id = b.dataset.r; if (id === curRoom) return; closeModal(); if (id === 'sky') enterSky(); else moveRoom(id); });
+  $('[data-x]', mcard).onclick = closeModal;
+}
+$('#roomBtn').onclick = () => openRooms();
 
 /* =========================================================
    start screen
@@ -2690,11 +3078,16 @@ function enterGame(skyOnly) {
   state.name = cleanName($('#nameIn').value || state.name); save();
   if (!player.rig) { createPlayer(); selfBubble = makeBubble((v) => v.copy(ctrl.pos), () => (ctrl.kind === 'walk' ? (skyM.on ? 1.6 : 3.25) : 4.6)); }
   else { meTag.el.textContent = state.name; }
+  // 시작 룸: 링크의 ?at= → 지난번 룸 → 로비 (처음 온 사람은 로비에서 안내부터)
+  const at = new URLSearchParams(location.search).get('at');
+  let first = state.metGuide && ROOM_IDS.includes(at) ? at : state.metGuide && ROOM_IDS.includes(state.space) ? state.space : 'lobby';
+  if (first === 'sky') first = 'lobby';
+  setRoom(first); const R = ROOMS[first]; player.pos.set(R.spawn[0], 0, R.spawn[1]); player.heading = R.face;
   $('#start').hidden = true; $('#hud').hidden = false; started = true;
   sizeMinimap(); refreshAll(); refreshMenu(); canvas.focus({ preventScroll: true }); SFX.ok();
-  if (skyOnly) { enterSky(); if (!state.metGuide) { state.metGuide = true; save(); refreshAll(); } }
+  if (skyOnly) { if (!state.metGuide) { state.metGuide = true; save(); refreshAll(); } enterSky(); }
   else if (!state.metGuide) setTimeout(() => talkTo(guide), 900);
-  else toast(`다시 오신 걸 환영해요, ${esc(state.name)} 님!`);
+  else { toast(`다시 오신 걸 환영해요, ${esc(state.name)} 님!`); showRoomCard(first); }
   netStart();
 }
 
@@ -2709,11 +3102,14 @@ hiRing.rotation.x = -Math.PI / 2; hiRing.visible = false; scene.add(hiRing);
 const wpEl = $('#wp'), wpTxt = $('#wp span'), wpSvg = $('#wp svg');
 const perf = { acc: 0, n: 0, lvl: 0 };
 let orbitA = 0.6, lastActLbl, lastCur = null;
+const HEMI_WARM = new THREE.Color('#fff8ec'), HEMI_COOL = new THREE.Color('#e4efff');
 function applySky(l) {
   const H = SKY.hazy, C = SKY.clear, add = !started ? 38 : skyM.on ? 120 : Math.max(0, camera.position.distanceTo(camLook) - CAM_D) + 4;
   scene.fog.color.copy(H.fog).lerp(C.fog, l); scene.background.copy(scene.fog.color);
   scene.fog.near = lerp(H.near, C.near, l) + add; scene.fog.far = lerp(H.far, C.far, l) + add * 1.6;
   sun.intensity = lerp(H.sun, C.sun, l); hemi.intensity = lerp(H.hemi, C.hemi, l);
+  hemi.color.copy(HEMI_WARM).lerp(HEMI_COOL, l); // 맑을수록 푸르스름한 하늘빛
+  if (skyM.on || fly.on) { scene.fog.near = 90; scene.fog.far = 420; }
   moteMat.opacity = lerp(H.mote, C.mote, l); motes.visible = moteMat.opacity > 0.01 && perf.lvl < 3 && !skyM.on;
   smokeFactor = lerp(H.smoke, C.smoke, l);
 }
@@ -2724,6 +3120,13 @@ function updateCamera(dt) {
     sun.position.set(18, 40, 12); sun.target.position.set(0, 0, 0); return;
   }
   if (skyM.on) { sun.position.set(REST.x + 18, 40, REST.z + 12); sun.target.position.copy(REST); return; }
+  if (fly.on || (mode === 'cutscene' && curRoom === 'sky' && player.pos.y > 0.5)) { // 하늘 날기: 뒤에서 따라가는 카메라
+    const p = player.pos, fx = Math.sin(player.heading), fz = Math.cos(player.heading);
+    _want.set(p.x - fx * 10, p.y + 4.2, p.z - fz * 10);
+    camera.position.lerp(_want, 1 - Math.exp(-dt * 2.6));
+    camLook.lerp(_look.set(p.x + fx * 6, p.y + 0.5, p.z + fz * 6), 1 - Math.exp(-dt * 4)); camera.lookAt(camLook);
+    sun.position.set(p.x + 18, p.y + 40, p.z + 12); sun.target.position.set(p.x, p.y, p.z); return;
+  }
   const p = ctrl.pos, veh = ctrl.kind !== 'walk';
   const spK = veh ? clamp(Math.abs(ctrl.fwd || 0) / ctrl.speed, 0, 1.3) : 0;
   const z = zoomBase * zoomUser * (veh ? 1.25 + spK * 0.16 : 1);
@@ -2741,6 +3144,7 @@ function updateLabels() {
   for (const L of labels) {
     if ((L.show && !L.show()) || (L.obj && !L.obj.visible)) { if (L.vis !== false) { L.el.style.display = 'none'; L.vis = false; } continue; }
     if (L.obj) L.obj.getWorldPosition(_v); else L.getPos(_v);
+    if (started && zoneOf(_v.x, _v.z) !== curRoom) { if (L.vis !== false) { L.el.style.display = 'none'; L.vis = false; } continue; }
     _v.y += typeof L.dy === 'function' ? L.dy() : L.dy;
     _v.project(camera);
     if (_v.z > 1 || Math.abs(_v.x) > 1.15 || Math.abs(_v.y) > 1.15) { if (L.vis !== false) { L.el.style.display = 'none'; L.vis = false; } continue; }
@@ -2748,7 +3152,13 @@ function updateLabels() {
     L.el.style.transform = `translate3d(${((_v.x * 0.5 + 0.5) * w).toFixed(1)}px,${((-_v.y * 0.5 + 0.5) * h).toFixed(1)}px,0) translate(-50%,-100%)`;
   }
 }
-function objTarget() { // 지금 가야 할 곳 (화면 밖이면 가장자리에 화살표)
+function objTarget() { // 목표가 다른 룸에 있으면 그 룸으로 가는 문을 가리킴
+  const tp = objTargetRaw(); if (!tp) return null;
+  const zt = zoneOf(tp.x, tp.z); if (zt === curRoom) return tp;
+  const g = curRoom === 'lobby' ? gateTo('lobby', zt) : gateTo(curRoom, 'lobby');
+  return g ? g.pos : null;
+}
+function objTargetRaw() { // 지금 가야 할 곳 (화면 밖이면 가장자리에 화살표)
   const near = (list) => { let b = null, bd = 1e9; for (const q of list) { const d = flatDist(q, ctrl.pos); if (d < bd) { bd = d; b = q; } } return b; };
   if (!state.metGuide) return guide.pos;
   if (M.active === 'plan') return null;
@@ -2782,9 +3192,10 @@ function updateBirds(dt, t) {
   birdGroup.visible = skyLevel > (skyM.on ? 0.25 : 0.45);
   if (!birdGroup.visible) return;
   flock.a += dt * 0.18;
-  const base = skyM.on ? REST : ctrl.pos; flock.c.lerp(base, 1 - Math.exp(-dt * 0.4));
-  const R = skyM.on ? 16 : 22, cx = flock.c.x + Math.cos(flock.a) * R, cz = flock.c.z - 20 * (skyM.on ? 1 : 0) + Math.sin(flock.a * 1.3) * R * 0.75;
-  birdGroup.position.set(cx, (skyM.on ? 24 : 12) + Math.sin(t * 0.5) * 1.5, cz);
+  const base = skyM.on ? REST : ctrl.pos; flock.c.lerp(base, 1 - Math.exp(-dt * (fly.on ? 1.5 : 0.4)));
+  const R = skyM.on ? 26 : 22, cx = flock.c.x + Math.cos(flock.a) * R, cz = flock.c.z - 38 * (skyM.on ? 1 : 0) + Math.sin(flock.a * 1.3) * R * 0.75;
+  birdGroup.position.set(cx, (skyM.on ? 46 : fly.on ? player.pos.y + 3 : 15) + Math.sin(t * 0.5) * 1.5, cz);
+  birdGroup.scale.setScalar(skyM.on || fly.on ? 1 : 0.6);
   birdGroup.rotation.y = Math.atan2(-Math.sin(flock.a) * R, Math.cos(flock.a * 1.3) * 1.3 * R * 0.75);
   birds.forEach((q) => { q.b.position.set(q.ox, Math.sin(t * 2 + q.ph) * 0.3, q.oz); const f = Math.sin(t * 13 + q.ph) * 0.7; q.wl.rotation.z = f; q.wr.rotation.z = -f; });
   chirpT -= dt; if (chirpT < 0) { chirpT = rand(2.5, 7); if (skyLevel > 0.55) SFX.chirp(); }
@@ -2793,14 +3204,16 @@ function update(dt, t) {
   T = t;
   updateTweens(dt);
   let speed = 0;
-  if (started && !uiBlocked() && (mode === 'walk' || mode === 'van' || mode === 'sweeper')) speed = moveCtrl(dt);
+  if (started && !uiBlocked() && mode === 'fly') speed = flyCtrl(dt);
+  else if (started && !uiBlocked() && (mode === 'walk' || mode === 'van' || mode === 'sweeper')) speed = moveCtrl(dt);
   else { ctrl.vel.multiplyScalar(0.8); ctrl.moved = 0; if (ctrl.fwd) ctrl.fwd *= 0.85; player.running = false; }
   if (ctrl.obj) ctrl.obj.rotation.y = ctrl.heading;
   if (player.rig) {
     const sp = player.animSpeed ?? (ctrl === player ? speed : 0);
     if (ctrl === player && mode === 'walk' && sp < 0.3) player.idle += dt; else player.idle = 0;
     player.rig.look = player.idle > 4 ? Math.sin((player.idle - 4) * 0.9) * 0.75 : 0;
-    if (animPerson(player.rig, sp, dt) && ctrl === player && started && !skyM.on) { SFX.step(player.running); if (player.running && player.pos.y < 0.1) burst(player.pos.x, 0.15, player.pos.z, '#d8cfba', 1, 0.4); }
+    if (animPerson(player.rig, fly.on ? 0 : sp, dt) && ctrl === player && started && !skyM.on && !fly.on) { SFX.step(player.running); if (player.running && player.pos.y < 0.1) burst(player.pos.x, 0.15, player.pos.z, '#d8cfba', 1, 0.4); }
+    if (fly.on) flyPose(player.rig, t, fly.bank);
   }
   if (ctrl.wheels) ctrl.wheels.forEach((w) => (w.rotation.x += ctrl.moved / 0.42));
   const veh = ctrl.kind !== 'walk';
@@ -2827,9 +3240,9 @@ function update(dt, t) {
   if (pendingAct) { if (!pendingAct.modes.includes(mode) || !pendingAct.label()) pendingAct = null; else if (cur === pendingAct && !cur.hold) { const a = pendingAct; pendingAct = null; moveTarget = null; a.act(); } }
   if (cur !== lastCur) { if (cur && started) { SFX.tick(); promptEl.classList.remove('pop'); void promptEl.offsetWidth; promptEl.classList.add('pop'); } lastCur = cur; }
   const lbl = cur ? cur._lbl : null;
-  if (lbl !== lastActLbl) {
-    lastActLbl = lbl; actBtn.disabled = !lbl; actBtn.classList.toggle('ready', !!lbl);
-    actLabel.textContent = lbl || (mode === 'van' || mode === 'sweeper' ? '운전 중' : '가까이 가세요');
+  if (`${lbl}|${mode}` !== lastActLbl) {
+    lastActLbl = `${lbl}|${mode}`; actBtn.disabled = !lbl && mode !== 'fly'; actBtn.classList.toggle('ready', !!lbl);
+    actLabel.textContent = lbl || (mode === 'fly' ? '누르고 있으면 위로' : mode === 'van' || mode === 'sweeper' ? '운전 중' : '가까이 가세요');
     promptEl.innerHTML = lbl ? `${isTouch ? '' : '<kbd>E</kbd>'}${esc(lbl)}` : '';
   }
   const hr = cur && cur.ring !== 0 ? cur : null;
@@ -2867,6 +3280,7 @@ function update(dt, t) {
   checkpoints.forEach((c) => { if (c.ring.visible) { const s = 1 + Math.sin(t * 4 + c.i) * 0.08; c.ring.scale.set(s, s, s); } });
   patches.forEach((p) => p.alive && p.puffs.forEach((q) => { const k = (t * 0.6 + q.ph) % 1; q.s.position.set(Math.sin(q.ph) * 0.6, 0.3 + k * 1.4, Math.cos(q.ph) * 0.6); q.s.material.opacity = Math.sin(Math.PI * k) * 0.45; }));
   fuelCans.forEach((c, i) => { if (c.g.visible) c.g.rotation.y = Math.sin(t * 1.5 + i) * 0.2; });
+  GATES.forEach((g, i) => (g.glow.material.opacity = 0.22 + Math.sin(t * 2.2 + i) * 0.09));
   if (tapMarker.material.opacity > 0) { tapMarker.material.opacity = Math.max(0, tapMarker.material.opacity - dt * 1.5); const s = 1 + (0.9 - tapMarker.material.opacity); tapMarker.scale.set(s, s, s); }
   updateCars(dt); updateShadowClouds(dt, ctrl.pos.x, ctrl.pos.z); updateBirds(dt, t); updateFlies(t);
   updateEmitters(dt); updateBursts(dt);
@@ -2875,6 +3289,7 @@ function update(dt, t) {
   applySky(skyLevel);
   updateCamera(dt);
   if (skyM.on) updateSky(dt, t);
+  else if (fly.on || skyDome.visible) skyEnv(dt, -38);
   updateLabels();
   if (started) {
     drawMinimap(t);
@@ -2911,11 +3326,12 @@ function onResize() {
 }
 addEventListener('resize', onResize);
 onResize();
+showZones('all');
 refreshAll();
 applySky(skyLevel);
 requestAnimationFrame(frame);
 window.__worldReady = true;
-if (location.hash === '#debug') window.__w = { state, player, van, sweeper, M, plan, lab, car, checkpoints, factories, fuelCans, cars, net, skyM, npcByKey, talkTo, checkFactory, startExtra, enterSky, exitSky, openCustomizer, sendChat, camera, interacts, renderer, scene, get ctrl() { return ctrl; }, get mode() { return mode; }, get cur() { return cur; }, get perf() { return perf; }, keys, joy,
+if (location.hash === '#debug') window.__w = { state, player, van, sweeper, M, plan, lab, car, checkpoints, factories, fuelCans, cars, net, skyM, npcByKey, talkTo, checkFactory, startExtra, enterSky, exitSky, openCustomizer, sendChat, camera, interacts, renderer, scene, moveRoom, openRooms, GATES, zoneGroups, get curRoom() { return curRoom; }, get ctrl() { return ctrl; }, get mode() { return mode; }, get cur() { return cur; }, get perf() { return perf; }, keys, joy,
   step(n = 30, dt = 1 / 30) { for (let i = 0; i < n; i++) { last += dt * 1000; update(dt, last / 1000); } renderer.render(scene, camera); },
   act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); } };
 </script>
