@@ -482,6 +482,11 @@ input{-webkit-user-select:text;user-select:text}
 .org-d em{font-style:normal;font-size:11px;font-weight:800;color:var(--muted)}
 .org-d:hover{background:var(--soft)}
 .org-d:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.photo-img{display:block;width:100%;max-width:420px;height:auto;margin:8px auto 4px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.cam-flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:44}
+.cam-flash.on{animation:camflash .5s ease-out}
+@keyframes camflash{0%{opacity:.95}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.cam-flash.on{animation:none}}
 .org-link{margin-top:12px!important}
 .org-link a{color:var(--accent);font-weight:700}
 @media (max-width:420px){.org-depts{grid-template-columns:1fr}}
@@ -909,6 +914,7 @@ const SFX = (() => {
     init() { const first = !ctx; init(); if (first && ctx) bgmStart(); },
     rain, water, fire,
     puff(c = 1) { const f = 480 + Math.min(c, 12) * 55; tone(f, { f2: f * 1.6, dur: 0.08, vol: 0.05, type: 'triangle' }); noise({ dur: 0.09, vol: 0.06, f: 1600, f2: 300, q: 0.8 }); },
+    shutter() { noise({ dur: 0.045, vol: 0.09, f: 3200, f2: 1500, q: 0.7 }); noise({ dur: 0.07, vol: 0.07, f: 2400, f2: 900, q: 0.7, delay: 0.07 }); tone(1800, { f2: 1400, dur: 0.03, vol: 0.02, type: 'square', delay: 0.01 }); },
     splash() { noise({ dur: 0.35, vol: 0.06, f: 2600, f2: 900, q: 0.6 }); [0.05, 0.12, 0.2].forEach((d) => tone(rand(1200, 1800), { f2: rand(600, 900), dur: 0.06, vol: 0.012, delay: d })); },
     crackle() { noise({ dur: rand(0.015, 0.05), vol: rand(0.02, 0.075), f: rand(1400, 4200), f2: rand(900, 2000), q: 1.4 }); if (Math.random() < 0.18) tone(rand(180, 320), { f2: 90, type: 'triangle', dur: 0.05, vol: 0.03 }); },
     orb() { [1046.5, 1318.5, 1568, 2093].forEach((f, i) => tone(f, { dur: 0.42 - i * 0.05, vol: 0.05, delay: i * 0.055, attack: 0.004 })); noise({ dur: 0.12, vol: 0.02, f: 5000, q: 1.5 }); },
@@ -1821,7 +1827,7 @@ makeGate(IN_C.x + 11.3, 5.0, -Math.PI / 2, 'lobby', 'inside');
 makeGate(IN_C.x - 11.3, -3.3, Math.PI / 2, 'office', 'inside', '청장실로 들어가기'); // 라운지 서쪽 벽 (책장과 창가 벤치 사이)
 makeGate(OFF_C.x + 8.3, OFF_C.z + 3.0, -Math.PI / 2, 'inside', 'office', '라운지로 나가기');
 // 옆벽 문은 카메라에서 옆모습만 보이므로, 벽에서 튀어나온 문패를 달아 정면에서 읽히게
-[[IN_C.x - 11.8, -1.45, 1, '청장실', ROOMS.office.color], [OFF_C.x + 8.8, OFF_C.z + 4.65, -1, '라운지로', ROOMS.inside.color]].forEach(([wx, z, dir, text, color]) => {
+[[IN_C.x - 11.8, -1.45, 1, '청장실', ROOMS.office.color], [OFF_C.x + 8.8, OFF_C.z + 4.65, -1, '라운지로', ROOMS.inside.color], [IN_C.x + 11.8, 6.65, -1, '로비로', ROOMS.lobby.color]].forEach(([wx, z, dir, text, color]) => {
   box(1.5, 0.06, 0.06, '#c9a24a', wx + dir * 0.75, 3.62, z, scene, false);
   const s = textPlane(text, { w: 1.4, h: 0.5, bg: color, size: 0.6 }); s.position.set(wx + dir * 0.8, 3.3, z); scene.add(s);
   const b = s.clone(); b.rotation.y = Math.PI; b.position.z -= 0.01; scene.add(b);
@@ -3034,18 +3040,18 @@ function talkGuide() {
       `어서 오세요, <b>${esc(state.name)}</b> 님! 수도권대기환경청 업무체험관이에요.`,
       '지금 하늘이 좀 뿌옇죠? 네 개 과의 업무를 하나씩 체험할 때마다 하늘이 조금씩 맑아져요.',
       `광장 가장자리의 <b>색깔 문</b>으로 들어가면 과마다 따로 마련된 <b>미션룸</b>이 나와요. 미션룸 안에서 <span class="ib">!</span> 표시 직원에게 말을 걸면 체험이 시작돼요.<span class="sub">${isTouch ? '왼쪽 조이스틱으로 움직이고, 오른쪽 버튼으로 대화해요.' : 'WASD·방향키로 움직이고, E나 스페이스로 대화해요. 땅을 클릭해도 걸어가요.'} 오른쪽 위 지도는 위쪽이 북쪽이에요.</span>`,
-      `길이 헷갈리면 오른쪽 아래 노란 <b>바로 가기</b> 버튼을 누르세요${isTouch ? '' : ' (<kbd>G</kbd>)'}. 가고 싶은 과를 고르면 내 캐릭터가 <b>알아서 걸어가요</b>. 미션 중에 누르면 다음 목적지로 데려다줘요.`,
+      `길이 헷갈리면 오른쪽 아래 노란 <b>바로 가기</b> 버튼을 누르세요${isTouch ? '' : ' (<kbd>G</kbd>)'}. 가고 싶은 과를 고르면 내 캐릭터가 <b>알아서 걸어가요</b>. 미션 중에 누르면 다음 목적지로 데려다줘요. 청사 안 <b>청장실</b>에 가면 청장님이 우리 청을 소개해 줘요.`,
     ], [{ label: '혼자 둘러볼게요', onClick: () => { state.metGuide = true; save(); refreshAll(); } }, { label: '과 골라서 바로 가기', primary: true, onClick: () => { state.metGuide = true; save(); refreshAll(); setTimeout(openNavPicker, 120); } }]);
   }
   if (n === 4) return talk('안내 직원', [`네 과의 대표 업무를 모두 체험하셨네요! 하늘이 이렇게 맑아졌어요. 지금까지 <b>${doneAll()}/16</b>가지 업무를 해 봤어요. 작은 기념장을 드릴게요.`], [{ label: '기념장 받기', primary: true, onClick: showCert }]);
   const left = Object.keys(DEPT).filter((k) => !state.done[k]).map((k) => DEPT[k].name).join(', ');
-  talk('안내 직원', [`지금까지 <b>${doneAll()}/16</b>가지 업무를 체험했어요. 대표 업무가 남은 곳은 ${left}예요. <b>바로 가기</b>로 고르면 알아서 걸어가요.`], [{ label: '닫기' }, { label: '바로 가기', primary: true, onClick: () => setTimeout(openNavPicker, 120) }]);
+  talk('안내 직원', [`지금까지 <b>${doneAll()}/16</b>가지 업무를 체험했어요. 대표 업무가 남은 곳은 ${left}예요. <b>바로 가기</b>로 고르면 알아서 걸어가요.${state.metChief ? '' : ' 청사 안 <b>청장실</b>에도 들러 보세요. 청장님이 우리 청을 소개해 줘요.'}`], [{ label: '닫기' }, { label: '바로 가기', primary: true, onClick: () => setTimeout(openNavPicker, 120) }]);
 }
 // ---- 청장님: 기관 소개 (청장실) ----
 function chiefDone() { if (!state.metChief) { state.metChief = true; save(); award('chief'); refreshAll(); } }
 function talkChief() {
   const n = chief, did = doneAll(); n.rig.wave = 1.4;
-  const btns = [{ label: '고맙습니다', onClick: chiefDone }, { label: state.metChief ? '기관 소개 다시 보기' : '기관 소개 자세히 보기', primary: true, onClick: () => { chiefDone(); setTimeout(openOrgIntro, 120); } }];
+  const btns = [{ label: '고맙습니다', onClick: chiefDone }, ...(MODE === 'kiosk' ? [] : [{ label: '기념사진 찍기', onClick: () => { chiefDone(); setTimeout(takeChiefPhoto, 150); } }]), { label: state.metChief ? '기관 소개 다시 보기' : '기관 소개 자세히 보기', primary: true, onClick: () => { chiefDone(); setTimeout(openOrgIntro, 120); } }];
   if (!state.metChief) return talk(n.name, [
     `어서 오세요, <b>${esc(state.name)}</b> 님! 청장실에 오신 걸 환영해요.${did ? ` 벌써 업무를 <b>${did}가지</b>나 체험하셨네요.` : ''} 우리 청을 잠깐 소개해 드릴게요.`,
     '수도권대기환경청은 서울·인천·경기, <b>수도권의 공기를 맑게</b> 하려고 <b>2005년</b>에 문을 연 <b>기후에너지환경부 소속 기관</b>이에요.',
@@ -3077,12 +3083,76 @@ function openOrgIntro() {
     <div class="org-chart"><div class="org-top">청장</div>
       <div class="org-depts">${Object.keys(DEPT).map((k) => `<button type="button" class="org-d" data-go="${k}" style="--c:${ROOMS[k].color}"><b>${DEPT[k].name}</b><span>${ORG_DEPT[k]}</span><em>체험한 업무 ${DEPT_MS[k].filter(msDone).length}/4</em></button>`).join('')}</div></div>
     <p class="fine org-link">우리 청 소식은 <a href="https://www.me.go.kr/mamo/" target="_blank" rel="noopener">수도권대기환경청 누리집 ↗</a>에서 볼 수 있어요.</p>
-    <div class="m-btns"><button class="btn primary" data-x>고맙습니다</button></div>`);
+    <div class="m-btns">${MODE === 'kiosk' || curRoom !== 'office' ? '' : '<button class="btn" data-photo>청장님과 기념사진</button>'}<button class="btn primary" data-x>고맙습니다</button></div>`);
+  const ph = $('[data-photo]', mcard); if (ph) ph.onclick = () => { closeModal(); setTimeout(takeChiefPhoto, 120); };
   mcard.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => {
     const d = navDests().find((x) => x.name === DEPT[b.dataset.go].name); closeModal();
     if (d && navTo(d)) { SFX.ok(); toast(`<b>${d.name} 주무관</b>에게 걸어가요. 노란 점을 따라가요!`); }
   }));
   $('[data-x]', mcard).onclick = closeModal;
+}
+// ---- 청장님과 기념사진: 책상·태극기·표어 액자를 배경으로 한 장 찍어 저장·공유 (사진은 이 기기 안에서만 만듦) ----
+let photoUrl = '', flashEl = null;
+function takeChiefPhoto() {
+  if (!started || curRoom !== 'office' || !player.rig) return;
+  if (dialogOpen) closeDialog(); if (modalOpen) closeModal(); if (chatOpen) closeChat(); navStop();
+  const cx = OFF_C.x, cz = OFF_C.z, home = chief.pos.clone();
+  // 자리 잡기: 가운데 청장님과 나, 양옆에 푸르미·맑음이, 모두 앞을 봄
+  chief.pos.set(cx + 0.55, 0, cz - 1.05); chief.rig.root.rotation.y = 0; chief.heading = 0;
+  player.pos.set(cx - 0.55, 0, cz - 1.05); player.heading = 0; player.vel.set(0, 0, 0); player.obj.position.copy(player.pos); player.obj.rotation.y = 0;
+  [[cx - 1.45, cz - 0.6], [cx + 1.45, cz - 0.6]].forEach(([x, z], i) => { const m = mascots[i]; if (!m) return; m.pos.set(x, 0, z); m.heading = 0; m.root.rotation.set(0, 0, 0); m.moving = false; m.wait = 2.5; });
+  const pr = player.rig; pr.body.position.y = 0; pr.body.scale.set(1, 1, 1); pr.armL.rotation.set(-2.7, 0, -0.35); pr.armR.rotation.set(0, 0, 0.15); // 바깥쪽 손을 흔들며 찰칵 (책상 명패를 가리지 않게)
+  chief.rig.armR.rotation.set(-0.45, 0, 0.18);
+  const tmp = [hiRing, pathDots, tapMarker].filter((o) => o.visible); tmp.forEach((o) => (o.visible = false));
+  // 화면 왼쪽 아래 정사각 영역에 사진용 카메라로 그린 뒤 같은 순간에 옮겨 담고, 바로 원래 화면을 다시 그림 (사용자에겐 안 보임)
+  const cam = new THREE.PerspectiveCamera(40, 1, 0.1, 300); cam.position.set(cx, 1.9, cz + 4.5); cam.lookAt(cx, 1.58, cz - 2.4);
+  const size = new THREE.Vector2(); renderer.getSize(size);
+  const side = Math.floor(Math.min(size.x, size.y)), dev = Math.floor(side * renderer.getPixelRatio()), cv = renderer.domElement;
+  const out = document.createElement('canvas'); out.width = 1080; out.height = 1350; const g = out.getContext('2d');
+  g.fillStyle = '#f7f2e8'; g.fillRect(0, 0, 1080, 1350);
+  try {
+    scene.updateMatrixWorld(true);
+    renderer.setScissorTest(true); renderer.setViewport(0, 0, side, side); renderer.setScissor(0, 0, side, side);
+    renderer.render(scene, cam);
+    g.drawImage(cv, 0, cv.height - dev, dev, dev, 40, 40, 1000, 1000);
+  } finally {
+    renderer.setScissorTest(false); renderer.setViewport(0, 0, size.x, size.y); renderer.render(scene, camera);
+    tmp.forEach((o) => (o.visible = true)); chief.pos.copy(home);
+  }
+  // 액자: 금색 테두리 + 아래 띠(제목·이름·날짜·주소·QR)
+  g.strokeStyle = '#c9a24a'; g.lineWidth = 6; g.strokeRect(40, 40, 1000, 1000);
+  g.fillStyle = '#1f3a5f'; g.fillRect(40, 1066, 1000, 244); g.fillStyle = '#c9a24a'; g.fillRect(40, 1066, 1000, 6);
+  g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+  g.fillStyle = '#ffffff'; g.font = `900 44px ${FONT}`; g.fillText('수도권대기환경청 청장실 방문 기념', 78, 1140);
+  const d = new Date(); g.fillStyle = '#f2c94c'; g.font = `800 34px ${FONT}`; g.fillText(`${safeName(state.name)} 님 · ${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}.`, 78, 1198);
+  g.fillStyle = 'rgba(255,255,255,.85)'; g.font = `600 26px ${FONT}`; g.fillText('푸른하늘 업무체험관 · mamo-ex2.vercel.app', 78, 1258);
+  const q = document.createElement('canvas'); drawQR(q); g.fillStyle = '#ffffff'; g.fillRect(846, 1088, 170, 170); g.imageSmoothingEnabled = false; g.drawImage(q, 850, 1092, 162, 162); g.imageSmoothingEnabled = true;
+  photoUrl = out.toDataURL('image/jpeg', 0.92);
+  SFX.shutter(); buzz(25);
+  if (!flashEl) { flashEl = document.createElement('div'); flashEl.className = 'cam-flash'; document.body.appendChild(flashEl); }
+  flashEl.classList.remove('on'); void flashEl.offsetWidth; flashEl.classList.add('on');
+  setTimeout(() => {
+    openModal(`<p class="m-k">청장실 · 기념사진</p><h2>찰칵! 기념사진이 나왔어요</h2>
+      <img class="photo-img" src="${photoUrl}" alt="청장님, 푸르미·맑음이와 함께 찍은 청장실 기념사진">
+      <p class="fine">사진은 이 기기 안에서만 만들어지고 어디로도 보내지지 않아요. 저장하거나 카톡·SNS로 공유해 보세요.</p>
+      <div class="m-btns"><button class="btn" data-x>닫기</button><button class="btn" data-save>사진 저장</button><button class="btn primary" data-share>공유하기</button></div>`);
+    $('[data-x]', mcard).onclick = closeModal;
+    $('[data-save]', mcard).onclick = savePhoto;
+    $('[data-share]', mcard).onclick = sharePhoto;
+  }, 380);
+}
+function savePhoto() {
+  if (!photoUrl) return;
+  const a = document.createElement('a'); a.href = photoUrl; a.download = `청장실-기념사진-${todayStr()}.jpg`; document.body.appendChild(a); a.click(); a.remove();
+  toast('사진을 저장했어요.');
+}
+async function sharePhoto() {
+  if (!photoUrl) return;
+  try {
+    const blob = await (await fetch(photoUrl)).blob(), file = new File([blob], '청장실-기념사진.jpg', { type: 'image/jpeg' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: '푸른하늘 업무체험관', text: `수도권대기환경청 청장실에서 기념사진 찰칵! ${SITE_URL}` }); return; }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  savePhoto(); toast('이 기기에서는 사진 공유가 안 돼서 저장했어요. 저장한 사진을 카톡·SNS에 올려 주세요.', 4200);
 }
 function showCert() {
   const d = new Date(), ds = `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
@@ -4814,7 +4884,7 @@ function finishDust() {
 // 로비 게임기: 다가가면 '미세먼지 잡기' 시작
 const ARCADE = new THREE.Vector3(3.0, 0, 4.4);
 {
-  const cab = new THREE.Group(); cab.position.copy(ARCADE); zg('lobby').add(cab);
+  const cab = new THREE.Group(); cab.position.copy(ARCADE); cab.scale.setScalar(1.2); zg('lobby').add(cab); // 사람들 사이에서도 눈에 띄게 조금 크게
   const part = (w, h, d, c, x, y, z, rx = 0) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)); m.position.set(x, y, z); m.rotation.x = rx; m.castShadow = true; m.receiveShadow = true; cab.add(m); return m; };
   part(1.15, 1.2, 0.8, '#3a8fd1', 0, 0.6, 0); part(1.15, 1.0, 0.55, '#3a8fd1', 0, 1.7, -0.12); part(1.25, 0.32, 0.64, '#ffd45c', 0, 2.36, -0.1);
   part(1.15, 0.12, 0.52, '#2f6fb5', 0, 1.27, 0.2, -0.35);
@@ -4826,7 +4896,7 @@ const ARCADE = new THREE.Vector3(3.0, 0, 4.4);
   const tx = new THREE.CanvasTexture(sc); tx.colorSpace = THREE.SRGBColorSpace;
   const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.7), new THREE.MeshBasicMaterial({ map: tx })); scr.position.set(0, 1.74, 0.166); cab.add(scr);
   const mq = textPlane('미세먼지 잡기', { w: 1.15, h: 0.26, bg: '#ffd45c', fg: '#3a2a00', size: 0.62 }); mq.position.set(0, 2.36, 0.225); cab.add(mq);
-  addRect(ARCADE.x, ARCADE.z, 1.25, 0.9);
+  addRect(ARCADE.x, ARCADE.z, 1.5, 1.1);
 }
 const arcadeI = addI({ pos: new THREE.Vector3(ARCADE.x, 0, ARCADE.z + 1.25), r: 2.0, dy: 3.0, label: () => (M.active ? null : '미세먼지 잡기 (30초)'), act: () => startDust('arcade') });
 
@@ -5046,6 +5116,10 @@ function refreshAll() {
   checkBadges();
 }
 function objective() {
+  if (curRoom === 'office' && !M.active) { // 청장실에서는 (키오스크로 바로 왔더라도) 청장실 안내부터
+    if (!state.metChief) return '<span class="ib">!</span> <b>청장님</b>께 인사하고 우리 청 소개를 들어 보세요.';
+    return state.metGuide ? '청장님께 다시 말을 걸면 <b>기관 소개</b>를 또 볼 수 있어요. 과를 누르면 그 과로 바로 가요.' : '이제 <b>로비</b>로 나가 청사 앞 <b>안내 직원</b>에게 말을 걸어 보세요.';
+  }
   if (!state.metGuide) return '청사 앞 <b>안내 직원</b>에게 말을 걸어 보세요.';
   if (M.active === 'plan') return '산업단지를 돌며 <b>VOC 농도가 가장 높은 공장</b>을 찾으세요.';
   if (M.active === 'total') return `설비 6곳을 점검하세요 (<b>${total.checked}/6</b>).`;
@@ -5065,7 +5139,6 @@ function objective() {
     return '오늘 해 볼 업무를 모두 마쳤어요! 왼쪽 <b>체험 끝내기</b>를 눌러 주세요.';
   }
   if (curRoom === 'inside') return '<b>창가 벤치</b>나 <b>연못 앞 벤치</b>에 앉아 멍때려 보세요. 서쪽 문으로 가면 <b>청장실</b>이에요.';
-  if (curRoom === 'office') return state.metChief ? '청장님께 다시 말을 걸면 <b>기관 소개</b>를 또 볼 수 있어요. 과를 누르면 그 과로 바로 가요.' : '<span class="ib">!</span> <b>청장님</b>께 인사하고 우리 청 소개를 들어 보세요.';
   const n = doneCount();
   if (n === 4) return '모든 업무 완료! 청사 앞 <b>안내 직원</b>에게 가 보세요.';
   const left = Object.keys(DEPT).filter((k) => !state.done[k]);
@@ -5301,6 +5374,7 @@ $('#menu').addEventListener('click', (e) => {
   if (m === 'dress') openDress(0);
   if (m === 'garden') openGarden();
   if (m === 'kioskhome') kioskReset();
+  if (m === 'share') shareSite('수도권대기환경청 푸른하늘 업무체험관에 놀러 오세요! 내 캐릭터로 4개 과 16가지 업무를 체험하고, 미세먼지 잡기·꽃밭 가꾸기·멍때리기도 할 수 있어요 🌤');
   if (m === 'bgm') { SFX.init(); SFX.setBgm(!SFX.bgmOn); refreshMenu(); toast(SFX.bgmOn ? (SFX.muted ? '배경음악을 켰어요. 소리 버튼이 꺼져 있으면 들리지 않아요.' : '배경음악을 켰어요.') : '배경음악을 껐어요. 효과음은 그대로 나요.'); }
 });
 function refreshMenu() {
@@ -5310,6 +5384,7 @@ function refreshMenu() {
 { // 메뉴에 꾸미기·하늘멍 추가
   const menu = $('#menu'), first = menu.firstElementChild;
   [...(MODE === 'kiosk' ? [['kioskhome', '처음 화면으로']] : []), ['rooms', '룸 이동'], ['dust', '미세먼지 잡기 (30초)'], ['avatar', '내 캐릭터 꾸미기'], ['dress', '푸르미·맑음이 꾸미기'], ['garden', '나만의 꽃밭'], ['sky', '하늘멍 하기'], ['fly', '하늘 날기']].forEach(([k, t]) => { const b = document.createElement('button'); b.dataset.m = k; b.textContent = t; menu.insertBefore(b, first); });
+  if (MODE !== 'kiosk' && MODE !== 'eval') { const b = document.createElement('button'); b.dataset.m = 'share'; b.textContent = '체험관 알리기 (공유)'; menu.insertBefore(b, $('[data-m="help"]', menu)); } // 친구·가족에게 링크 보내기
 }
 const muteBtn = $('#muteBtn');
 function syncMute() { muteBtn.setAttribute('aria-pressed', String(SFX.muted)); muteBtn.setAttribute('aria-label', SFX.muted ? '소리 켜기' : '소리 끄기'); }
@@ -5810,7 +5885,7 @@ function renderKioskPanel() {
     <button class="btn primary big" type="button" data-k="dust">30초 도전 시작</button>
     <div data-kboard></div>
     <div class="kp-qr"><canvas data-qr role="img" aria-label="체험관 주소 QR 코드"></canvas><p>집에서도 해 보세요!<br><b>mamo-ex2.vercel.app</b><br><span class="fine">휴대폰 카메라로 비추면 열려요</span></p></div>
-    <div class="kp-row"><button class="btn" type="button" data-k="enter">체험관 둘러보기</button><button class="btn" type="button" data-k="fs">전체 화면</button></div></div>`;
+    <div class="kp-row"><button class="btn" type="button" data-k="enter">체험관 둘러보기</button><button class="btn" type="button" data-k="intro">청장님 기관 소개</button><button class="btn" type="button" data-k="fs">전체 화면</button></div></div>`;
   $('[data-kname]', p).appendChild($('#nameIn').closest('.field')); // 별명 칸을 도전 버튼 바로 위로
   renderKioskBoard(); drawQR($('[data-qr]', p));
 }
@@ -5842,6 +5917,7 @@ if (MODE === 'kiosk') {
     const b = e.target.closest('[data-k]'); if (!b) return;
     if (b.dataset.k === 'dust') kioskDust();
     if (b.dataset.k === 'enter') enterGame();
+    if (b.dataset.k === 'intro') enterGame(false, () => moveRoom('office', () => setTimeout(talkChief, 350))); // 들어가자마자 청장실에서 기관 소개
     if (b.dataset.k === 'fs') kioskFull();
   });
   let lp = 0;
@@ -6194,6 +6270,7 @@ function objTarget() { // 목표가 다른 룸에 있으면 그 룸으로 가는
 }
 function objTargetRaw() { // 지금 가야 할 곳 (화면 밖이면 가장자리에 화살표)
   const near = (list) => { let b = null, bd = 1e9; for (const q of list) { const d = flatDist(q, ctrl.pos); if (d < bd) { bd = d; b = q; } } return b; };
+  if (curRoom === 'office' && !M.active && !state.metChief) return chief.pos; // 청장실에선 청장님부터
   if (!state.metGuide) return guide.pos;
   if (M.active === 'plan' || M.active === 'seek') return null;
   if (M.active === 'fly') return rings.active && rings.next ? rings.next.pos : null;
@@ -6390,7 +6467,7 @@ requestAnimationFrame(frame);
 window.__worldReady = true;
 if (location.hash === '#debug') window.__w = { state, player, van, sweeper, M, plan, lab, car, checkpoints, factories, fuelCans, cars, net, skyM, npcByKey, talkTo, checkFactory, startExtra, enterSky, exitSky, openCustomizer, sendChat, camera, interacts, renderer, scene, moveRoom, openRooms, GATES, zoneGroups, get curRoom() { return curRoom; }, get ctrl() { return ctrl; }, get mode() { return mode; }, get cur() { return cur; }, get perf() { return perf; }, keys, joy,
   step(n = 30, dt = 1 / 30) { for (let i = 0; i < n; i++) { last += dt * 1000; update(dt, last / 1000); } renderer.render(scene, camera); },
-  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, orbs, ORBS, collectOrb, rings, RINGS, ringsReset, seek, startSeek, endSeek, lanterns, launchLantern, openWish, award, BADGES, openBadges, FIRE, FIRE_SEAT, fireflies, checkBadges, showExtraDone, evalData, get evalSess() { return evalSess; }, SAVE_KEY, MODE, ROOM, get mpOn() { return mpOn; }, chief, talkChief, openOrgIntro, nextGate, OFF_C, dust, startDust, stopDust, finishDust, hitMon, boardGet, boardAdd, BOARD_KEY, arcadeI, gardenI, GARDEN_FRONT, openGarden, growPlot, gardenSun, gplants, feedFish, pellets, lounge, openDress, applyAcc, mascots, sendEmo, floatEmoji, isRude, hasPrivate, softText, safeName, kioskReset, renderKioskPanel, drawQR, get kioskT() { return kioskT; }, set kioskT(v) { kioskT = v; }, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
+  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, orbs, ORBS, collectOrb, rings, RINGS, ringsReset, seek, startSeek, endSeek, lanterns, launchLantern, openWish, award, BADGES, openBadges, FIRE, FIRE_SEAT, fireflies, checkBadges, showExtraDone, evalData, get evalSess() { return evalSess; }, SAVE_KEY, MODE, ROOM, get mpOn() { return mpOn; }, chief, talkChief, openOrgIntro, takeChiefPhoto, get photoUrl() { return photoUrl; }, nextGate, OFF_C, dust, startDust, stopDust, finishDust, hitMon, boardGet, boardAdd, BOARD_KEY, arcadeI, gardenI, GARDEN_FRONT, openGarden, growPlot, gardenSun, gplants, feedFish, pellets, lounge, openDress, applyAcc, mascots, sendEmo, floatEmoji, isRude, hasPrivate, softText, safeName, kioskReset, renderKioskPanel, drawQR, get kioskT() { return kioskT; }, set kioskT(v) { kioskT = v; }, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
   look(px, py, pz, tx, ty, tz) { camHold = true; camera.position.set(px, py, pz); camera.lookAt(tx, ty, tz); renderer.render(scene, camera); }, unlook() { camHold = false; } };
 </script>
 </body>
