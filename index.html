@@ -299,6 +299,7 @@ input{-webkit-user-select:text;user-select:text}
   .start-info>*{order:3;margin-top:0;margin-bottom:0}
   .start-info>.emblem,.start-info>.eyebrow,.start-info>h1,.start-info>.lead{order:1}
   .start-info>.linkish{order:3;margin:6px auto 0}
+  .start-info>.mode-note{order:1}
   .start-cz{order:2;padding:10px}
   .dept-chips{display:none!important}
   .btn.ghost{margin-top:0}
@@ -399,6 +400,46 @@ input{-webkit-user-select:text;user-select:text}
   .stamps-head{justify-content:flex-end}
   #toast{top:32%;bottom:auto}
 }
+/* 시연·측정 모드 */
+.mode-note{margin:-2px 0 12px;padding:9px 12px;border-radius:10px;background:#fff4d6;color:#5a4300;font-size:13px;font-weight:700;line-height:1.55}
+.mode-note b{color:#8a5a00}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .mode-note{background:#3a3218;color:#f5e2a8}:root:not([data-theme="light"]) .mode-note b{color:#ffd45c}}
+.mode-pill{margin-left:auto;padding:1px 7px;border-radius:99px;background:#ffd45c;color:#3a2a00;font-size:10px;font-weight:800}
+.evp{display:grid;gap:10px;margin:0 0 14px;padding:14px;border-radius:14px;border:1.5px solid var(--accent);background:var(--soft)}
+.evp h3{margin:0;font-size:15px}
+.evp .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.evp input[type=text]{width:7.5em;font:inherit;font-size:16px;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--text)}
+.evp .chip{font-size:12px;padding:6px 10px;min-height:32px}
+.evp .btn{min-height:40px;padding:8px 14px}
+.evp .muted,.evp .fine{margin:0;font-size:12px}
+.eq{margin:12px 0;padding:12px;border-radius:12px;background:var(--soft)}
+.eq p{margin:0 0 8px!important;font-weight:700;font-size:14.5px!important;line-height:1.55}
+.eq textarea{width:100%;min-height:70px;font:inherit;font-size:16px;padding:10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--text);resize:vertical}
+.eq textarea:focus{outline:none;border-color:var(--accent)}
+.eq label{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;color:var(--muted);cursor:pointer}
+.evalc{padding:9px 11px;font-size:12.5px}
+.evalc .eh{display:flex;align-items:center;gap:6px;font-weight:800}
+.evalc .eh .t{margin-left:auto;font-variant-numeric:tabular-nums}
+.evalc .em{margin:5px 0 7px;color:var(--muted);font-size:12px;line-height:1.5}
+.evalc .em b{color:var(--text)}
+.evalc .em .ok{color:#2f9e6e}
+.evalc .eb{display:flex;gap:6px}
+.evalc .eb .mini-btn{margin:0;flex:1}
+.evalc .eb .mini-btn.hl{background:#ffd45c;border-color:#ffd45c;color:#3a2a00}
+.ev-rec{border-top:1px solid var(--line);padding:10px 0}
+.ev-rec summary{cursor:pointer;font-size:13.5px;font-weight:700;list-style-position:outside}
+.ev-rec .tagp{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;font-size:11px;background:var(--soft)}
+.ev-rec .tagp.ok{background:#2f9e6e;color:#fff}.ev-rec .tagp.stop{background:#e5484d;color:#fff}.ev-rec .tagp.run{background:#ffd45c;color:#3a2a00}
+.ev-qa{display:grid;gap:8px;margin:8px 0}
+.ev-qa .qq{font-size:12.5px;font-weight:800;color:var(--accent)}
+.ev-qa .aa{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ev-qa .aa>div{padding:8px;border-radius:9px;background:var(--soft);font-size:12.5px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.ev-qa .aa small{display:block;font-weight:800;color:var(--muted);margin-bottom:3px}
+.sc{display:flex;gap:4px;margin-top:6px}
+.sc button{min-width:30px;min-height:28px;border-radius:8px;border:1.5px solid var(--line);background:var(--panel-solid);font-weight:800;font-size:12px;cursor:pointer}
+.sc button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.ev-sum{padding:12px;border-radius:12px;background:var(--soft);font-size:13px;line-height:1.75;white-space:pre-wrap}
+@media (max-width:560px){.ev-qa .aa{grid-template-columns:1fr}}
 /* 배지·구슬·숨바꼭질 */
 .xrow.orbs b{color:#3a8fd1}
 .xbar.blue i{background:linear-gradient(90deg,#9fd8ff,#3a8fd1)}
@@ -478,6 +519,7 @@ input{-webkit-user-select:text;user-select:text}
       <div id="objText"></div>
     </section>
     <section class="card mission" id="mission" hidden></section>
+    <section class="card evalc" id="evalCard" hidden aria-live="off"></section>
   </div>
   <div class="hud-right">
     <section class="card stamps">
@@ -545,6 +587,8 @@ input{-webkit-user-select:text;user-select:text}
         <svg class="emblem" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#217569"/><circle cx="30" cy="17" r="6" fill="#f2c94c"/><path d="M13 35h21a6 6 0 0 0 .5-12A8.5 8.5 0 0 0 18.4 21 7 7 0 0 0 13 35z" fill="#fff"/></svg>
         <p class="eyebrow">수도권대기환경청</p>
         <h1>푸른하늘 업무체험관</h1>
+        <p class="mode-note" id="modeNote" hidden></p>
+        <div id="evalPanel" hidden></div>
         <p class="lead">내 캐릭터로 청사와 과별 미션룸을 돌아다니며 <b>4개 과 16가지 업무</b>를 직접 해 보세요. 체험을 마칠 때마다 뿌연 하늘이 맑아져요.</p>
         <ul class="dept-chips">
           <li><b>기획과</b>이동측정 · 교육 · 기후에너지 · 오존 대책</li>
@@ -570,15 +614,26 @@ input{-webkit-user-select:text;user-select:text}
 <noscript><div style="position:fixed;inset:0;display:grid;place-items:center;background:#f5f8f3">자바스크립트를 켜야 체험관을 열 수 있어요.</div></noscript>
 
 <script>
-  setTimeout(function () {
-    if (!window.__worldReady) {
-      var n = document.getElementById('nogl');
-      n.textContent = '3D 엔진을 불러오지 못했어요. 인터넷 연결을 확인한 뒤 새로고침해 주세요.';
-      n.hidden = false;
-    }
-  }, 12000);
+  // 3D 엔진(three.js)과 여럿이 함께 통신 라이브러리(mqtt)는 이 사이트 안 vendor/ 폴더에서 불러와요 (외부 CDN이 막힌 기관망에서도 동작).
+  // index.html을 파일로 바로 열면(file://) 브라우저가 로컬 모듈을 막으므로 그때만 인터넷(jsDelivr)에서 같은 버전을 불러와요.
+  (function () {
+    var local = location.protocol !== 'file:';
+    var cdn = 'https://cdn.jsdelivr.net/npm/';
+    var map = { imports: local
+      ? { three: './vendor/three/three.module.min.js', 'three/addons/': './vendor/three/addons/' }
+      : { three: cdn + 'three@0.160.0/build/three.module.min.js', 'three/addons/': cdn + 'three@0.160.0/examples/jsm/' } };
+    var s = document.createElement('script'); s.type = 'importmap'; s.textContent = JSON.stringify(map);
+    document.currentScript.after(s);
+    window.__mqttURLs = local ? ['./vendor/mqtt/mqtt.esm.js', cdn + 'mqtt@5.15.2/dist/mqtt.esm.js'] : [cdn + 'mqtt@5.15.2/dist/mqtt.esm.js'];
+    setTimeout(function () {
+      if (!window.__worldReady) {
+        var n = document.getElementById('nogl');
+        n.textContent = local ? '화면을 불러오지 못했어요. 새로고침해 주세요. 계속 안 되면 최신 크롬·엣지·사파리에서 열어 주세요.' : '파일을 바로 열면 인터넷에서 3D 엔진을 받아야 해요. 인터넷 연결을 확인하거나, 웹 주소(https://mamo-ex2.vercel.app)로 열어 주세요.';
+        n.hidden = false;
+      }
+    }, 12000);
+  })();
 </script>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script type="module">
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
@@ -798,7 +853,27 @@ document.addEventListener('visibilitychange', () => (document.hidden ? SFX.suspe
 /* =========================================================
    save
    ========================================================= */
-const SAVE_KEY = 'mamo-world-v1';
+// 주소에 따라 기록을 따로 씀: ?demo = 시연용 기록(원래 기록은 그대로), ?eval = 체험 효과 측정(참여자마다 새로 시작)
+const QS = new URLSearchParams(location.search);
+const MODE = QS.has('eval') ? 'eval' : QS.has('demo') ? 'demo' : '';
+const DEMO_SLOT = (QS.get('demo') || '').replace(/[^\w-]/g, '').slice(0, 16);
+const SAVE_KEY = MODE === 'eval' ? 'mamo-world-eval-play' : MODE === 'demo' ? `mamo-world-demo${DEMO_SLOT && DEMO_SLOT !== '1' ? `-${DEMO_SLOT}` : ''}` : 'mamo-world-v1';
+const EVAL_KEY = 'mamo-world-eval';
+const EVAL_QS = [ // 05_체험효과_검증계획의 이해도 문항 초안 (담당부서 검토 뒤 진행자가 고칠 수 있음)
+  '공장 주변의 휘발성유기화합물(VOC) 배출원 후보를 이동측정장비로 찾는 일은 어떤 목적과 연결될까요?',
+  '대기 시료를 채취·분석하고 대기 측정자료를 점검하는 일은 왜 필요할까요?',
+  '도로 재비산먼지를 줄이는 활동과 자동차 배출가스 관리는 대기환경과 어떤 관계가 있을까요?',
+];
+const evalData = (() => { // 측정 기록: 이 기기 브라우저에만 저장
+  let d = null; try { d = JSON.parse(localStorage.getItem(EVAL_KEY) || 'null'); } catch (e) { /* ignore */ }
+  d = d && typeof d === 'object' ? d : {};
+  return { qs: Array.isArray(d.qs) && d.qs.length === 3 ? d.qs : EVAL_QS.slice(), missions: Array.isArray(d.missions) && d.missions.length ? d.missions : ['plan', 'lab', 'car'], records: Array.isArray(d.records) ? d.records : [] };
+})();
+const saveEval = () => { try { localStorage.setItem(EVAL_KEY, JSON.stringify(evalData)); } catch (e) { /* ignore */ } };
+if (MODE === 'eval') { // 진행 중인 참여자가 없거나 사전 문항 단계면 게임 기록을 비우고 새로 시작
+  const open = evalData.records.find((r) => r.status !== 'saved');
+  if (!open || open.status === 'pre') { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ } }
+}
 const state = { name: '', color: '#3b82c4', done: { plan: false, total: false, lab: false, car: false }, extra: { edu: false, quota: false, net: false, fuel: false }, metGuide: false, avatar: null };
 let hadSave = false;
 try {
@@ -2574,6 +2649,7 @@ function abortMission() {
   const k = M.active; if (!k || modalOpen) return;
   if (k === 'fly') { endFly(); return; }
   if (k === 'seek') { endSeek(false); return; }
+  if (evalSess && evalSess.status === 'play') { evalSess.aborts++; saveEval(); }
   tweens.length = 0; player.animSpeed = null; actionHeld = false; setRing(0);
   if (k === 'plan') endPlan();
   if (k === 'total') checkpoints.forEach((c) => { c.ring.visible = false; c.tag.visible = false; c.checked = false; });
@@ -2591,6 +2667,7 @@ function abortMission() {
 }
 function showComplete(key, { title, body, steps }, after) {
   const first = !state.done[key];
+  evalDone(key); // 체험 효과 측정: 미션 완료 시각
   openModal(`<div class="done-head"><div class="stamp-big">${DEPT[key].short}<small>체험 완료</small></div></div>
     <h2 class="center">${title}</h2><p>${body}</p>
     <ol class="flow">${steps.map((s) => `<li>${s}</li>`).join('')}</ol>
@@ -2765,6 +2842,7 @@ function celebrate() { // 미션을 마치면 내 캐릭터와 마스코트가 �
 }
 function showExtraDone(key, title, body) {
   const first = !state.extra[key];
+  evalDone(key);
   openModal(`<div class="done-head"><div class="stamp-big star">★<small>업무 체험</small></div></div>
     <h2 class="center">${title}</h2><p>${body}</p>
     <div class="m-btns"><button class="btn primary" data-ok>${first ? '별 받기' : '확인'}</button></div>`);
@@ -4236,6 +4314,11 @@ function objective() {
   if (M.active === 'seek') return `숨은 <b>푸르미·맑음이</b>를 찾으세요 (<b>${seek.found}/2</b>) · 지금 ${seek.hint || '…'}`;
   if (skyM.on) return { sky: '하늘멍 중…', window: '창가멍 중…', pond: '물멍 중…', fire: '불멍 중…' }[skyM.kind] || '쉬는 중…';
   if (M.active === 'fly') return rings.active ? `<b>구름 링</b>을 차례로 지나가세요 (<b>${rings.hit}/${RINGS.length}</b>). 화살표가 다음 링을 가리켜요.` : '링을 다 지났어요! 하늘을 자유롭게 날아 보세요.';
+  if (evalSess && evalSess.status === 'play' && state.metGuide) { // 측정 중엔 지정 미션을 차례로 안내
+    const next = evalSess.missions.find((id) => !evalDoneOf(evalSess, id));
+    if (next) return `오늘 해 볼 업무: <b>${esc(msName(next))}</b> (${evalSess.missions.filter((id) => evalDoneOf(evalSess, id)).length}/${evalSess.missions.length}). <b>바로 가기</b>로 갈 수 있어요.`;
+    return '오늘 해 볼 업무를 모두 마쳤어요! 왼쪽 <b>체험 끝내기</b>를 눌러 주세요.';
+  }
   if (curRoom === 'inside') return '<b>창가 벤치</b>나 <b>연못 앞 벤치</b>에 앉아 멍때려 보세요. 고양이도 쓰다듬어 보고요.';
   const n = doneCount();
   if (n === 4) return '모든 업무 완료! 청사 앞 <b>안내 직원</b>에게 가 보세요.';
@@ -4458,7 +4541,7 @@ $('#menu').addEventListener('click', (e) => {
   if (m === 'invite') copyInvite();
   if (m === 'newroom') { const r = Math.random().toString(36).slice(2, 8); location.href = `${location.pathname}?room=${r}`; }
   if (m === 'mp') {
-    mpOn = !mpOn; try { localStorage.setItem('mamo-world-mp', mpOn ? '1' : '0'); } catch (err) { /* ignore */ }
+    mpOn = !mpOn; if (!MODE) { try { localStorage.setItem('mamo-world-mp', mpOn ? '1' : '0'); } catch (err) { /* ignore */ } } // 시연·측정 모드의 설정은 이 창에서만
     if (mpOn) netStart(); else netStop();
     refreshMenu(); toast(mpOn ? '여럿이 함께 모드를 켰어요.' : '혼자 체험 모드로 바꿨어요.');
   }
@@ -4492,12 +4575,13 @@ syncMute();
    공개 MQTT 브로커(WebSocket)를 중계로 씀: 서버·계정 없이 시연용
    ========================================================= */
 const BROKERS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt'];
-const MQTT_URL = 'https://cdn.jsdelivr.net/npm/mqtt@5.15.2/dist/mqtt.esm.js';
-const ROOM = (new URLSearchParams(location.search).get('room') || 'lobby').replace(/[^\w-]/g, '').slice(0, 24) || 'lobby';
+const MQTT_URLS = window.__mqttURLs || ['./vendor/mqtt/mqtt.esm.js']; // 사이트 안 사본 먼저, 안 되면 CDN
+// 시연·측정 모드에서는 남의 닉네임·채팅이 섞이지 않게: 기본은 혼자, 켜도 이 창만의 임시 방
+const ROOM = (QS.get('room') || (MODE ? `${MODE}-${Math.random().toString(36).slice(2, 6)}` : 'lobby')).replace(/[^\w-]/g, '').slice(0, 24) || 'lobby';
 const TOPIC = `mamo-world/v1/${ROOM}`;
 const myId = Math.random().toString(36).slice(2, 10);
 let mpOn = true;
-try { mpOn = localStorage.getItem('mamo-world-mp') !== '0'; } catch (e) { /* ignore */ }
+try { mpOn = MODE ? false : localStorage.getItem('mamo-world-mp') !== '0'; } catch (e) { /* ignore */ }
 const net = { lib: null, client: null, connected: false, bi: 0, fails: 0, sendT: 0, lastKey: '', beat: -9, peers: new Map(), unread: 0, st: 'off' };
 const cleanName = (s) => String(s ?? '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 10) || '방문자';
 const cleanMsg = (s) => String(s ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
@@ -4513,8 +4597,8 @@ async function netStart() {
   if (!mpOn || net.client || !started) return;
   if (!net.lib) {
     setNet('wait');
-    try { const mod = await import(MQTT_URL); const d = mod.default || mod; net.lib = typeof d.connect === 'function' ? d : d.default; }
-    catch (e) { setNet('off'); sysChat('다른 사람과 연결하지 못했어요. 혼자 체험은 그대로 할 수 있어요.'); return; }
+    for (const u of MQTT_URLS) { try { const mod = await import(u); const d = mod.default || mod; net.lib = typeof d.connect === 'function' ? d : d.default; if (net.lib) break; } catch (e) { /* 다음 주소로 */ } }
+    if (!net.lib) { setNet('off'); sysChat('다른 사람과 연결하지 못했어요. 혼자 체험은 그대로 할 수 있어요.'); return; }
   }
   if (mpOn && !net.client) connectBroker();
 }
@@ -4902,7 +4986,7 @@ function openNavPicker() {
     <div class="rooms">${D.map((d, i) => `<button class="roomc" data-i="${i}" style="--c:${d.color}"><span class="rn">${d.name}</span><span class="rd">${d.sub}</span><span class="rm">${d.pos === rec ? '<span class="me">추천</span>' : ''}${d.badge || ''}${zoneOf(d.pos.x, d.pos.z) === curRoom ? '<span>이 룸</span>' : ''}</span></button>`).join('')}</div>
     <div class="m-btns"><button class="btn" data-x>닫기</button></div>`);
   const ro = (s) => { const c = s.charCodeAt(s.length - 1) - 0xac00; if (c < 0 || c > 11171) return '로'; const j = c % 28; return j && j !== 8 ? '으로' : '로'; }; // 받침에 맞춘 조사
-  mcard.querySelectorAll('[data-i]').forEach((b) => (b.onclick = () => { const d = D[Number(b.dataset.i)]; closeModal(); if (navTo(d)) { SFX.ok(); toast(`<b>${d.name}</b>${ro(d.name)} 걸어가요. 노란 점을 따라가요!`); } }));
+  mcard.querySelectorAll('[data-i]').forEach((b) => (b.onclick = () => { const d = D[Number(b.dataset.i)]; closeModal(); if (navTo(d)) { SFX.ok(); toast(`<b>${d.name}</b>${ro(d.name)} 걸어가요. 노란 점을 따라가요!`); if (evalSess) { evalSess.nav++; saveEval(); } } }));
   $('[data-x]', mcard).onclick = closeModal;
 }
 function onNavBtn() {
@@ -4913,7 +4997,7 @@ function onNavBtn() {
     const tp = objTargetRaw();
     if (!tp) { toast(M.active === 'plan' ? '이동측정은 직접 운전하며 농도가 높은 쪽을 찾아야 해요!' : M.active === 'seek' ? '숨바꼭질은 직접 찾아야 해요! 뜨거워·차가워 힌트를 보세요.' : '지금 단계는 미션 창 안내를 따라 해 보세요.'); return; }
     const it = interacts.find((i) => (i.pos === tp || flatDist(i.pos, tp) < 0.3) && i.modes.includes(mode)) || null;
-    if (navTo({ pos: tp, it, name: '' })) { SFX.ok(); toast('목적지까지 알아서 가요. 노란 점을 따라가요!'); }
+    if (navTo({ pos: tp, it, name: '' })) { SFX.ok(); toast('목적지까지 알아서 가요. 노란 점을 따라가요!'); if (evalSess) { evalSess.nav++; saveEval(); } }
     return;
   }
   openNavPicker();
@@ -4931,6 +5015,253 @@ $('#resetBtn').onclick = () => { try { localStorage.removeItem(SAVE_KEY); } catc
 $('#nameIn').addEventListener('keydown', (e) => { if (e.key === 'Enter') enterGame(); });
 $('#enterBtn').onclick = () => enterGame();
 $('#skyOnlyBtn').onclick = () => enterGame(true);
+// 시연·측정 모드 표시
+if (MODE) {
+  const pill = document.createElement('span'); pill.className = 'mode-pill'; pill.textContent = MODE === 'demo' ? '시연' : '측정';
+  $('.room-row').insertBefore(pill, $('#roomBtn'));
+  ['newroom', 'invite', ...(MODE === 'eval' ? ['reset', 'mp'] : [])].forEach((k) => { const b = $(`#menu [data-m="${k}"]`); if (b) b.hidden = true; });
+}
+if (MODE === 'demo') {
+  const n = $('#modeNote'); n.hidden = false;
+  n.innerHTML = `<b>시연 모드</b> · 원래 기록과 따로 저장돼요${DEMO_SLOT && DEMO_SLOT !== '1' ? ` (시연 기록: ${esc(DEMO_SLOT)})` : ''}. 여럿이 함께는 꺼진 채로 시작해요. 주소에서 <b>?demo</b>를 빼면 원래 기록으로 돌아가요.`;
+  $('#resetBtn').textContent = '시연 기록 지우고 처음부터 하기';
+}
+
+/* =========================================================
+   체험 효과 측정 (?eval) — 사전 3문항 → 지정 미션 → 사후 3문항 → 한 줄 의견
+   이름 대신 참여번호, 기록은 이 기기 브라우저에만 저장, 진행자가 CSV로 내려받음
+   ========================================================= */
+let evalSess = null, evalPrevActive = null, evalTT = 0;
+const EVAL_MAIN = Object.keys(DEPT), EVAL_EXTRA = Object.values(DEPT_MS).flat().filter((id) => !DEPT[id]);
+const msName = (id) => `${DEPT[XD[id] ? XD[id].dept : id].name} · ${msTask(id)}`;
+const evalOpenRec = () => evalData.records.find((r) => r.status !== 'saved') || null;
+const evalSecs = () => (evalSess ? Math.max(0, Math.round((Date.now() - evalSess.startedAt) / 1000)) : 0);
+const evalDoneOf = (r, id) => !!(r.ms && r.ms[id] && r.ms[id].d != null);
+function evalNextNo() { let n = 0; for (const r of evalData.records) { const m = /^P(\d+)$/.exec(r.no); if (m) n = Math.max(n, Number(m[1])); } return `P${String(n + 1).padStart(2, '0')}`; }
+function renderEvalPanel() {
+  const p = $('#evalPanel'); p.hidden = false;
+  const open = evalOpenRec(), saved = evalData.records.filter((r) => r.status === 'saved').length;
+  const tools = `<div class="row"><button class="mini-btn" data-ev="records">기록 보기·채점 (${saved}명)</button><button class="mini-btn" data-ev="qs">문항 고치기</button></div>`;
+  if (open) {
+    const where = { pre: '사전 질문', play: '체험', post: '사후 질문' }[open.status] || '체험';
+    p.innerHTML = `<div class="evp"><h3>체험 효과 측정 · 진행자용</h3><p class="muted"><b>${esc(open.no)}</b> 참여자가 ${where} 중이었어요.</p>
+      <div class="row"><button class="btn primary" data-ev="resume">${esc(open.no)} 이어서 하기</button><button class="btn" data-ev="drop">중단으로 저장하고 새 참여자</button></div>${tools}</div>`;
+    return;
+  }
+  const chips = (ids) => ids.map((id) => `<button type="button" class="chip" data-ms="${id}" aria-pressed="${evalData.missions.includes(id)}">${esc(msName(id))}</button>`).join('');
+  p.innerHTML = `<div class="evp"><h3>체험 효과 측정 · 진행자용</h3>
+    <p class="muted">사전 질문 3개 → 지정 미션 → 사후 질문 3개 → 한 줄 의견 순서예요. 이름 대신 <b>참여번호</b>만 쓰고, 기록은 <b>이 기기에만</b> 저장돼요.</p>
+    <div class="row"><span class="fine">참여번호</span><input type="text" id="evNo" maxlength="10" value="${evalNextNo()}" aria-label="참여번호"></div>
+    <div><p class="fine" style="margin-bottom:6px">지정 미션 (참여자가 해 볼 업무)</p><div class="mopts">${chips(EVAL_MAIN)}</div>
+      <details style="margin-top:6px"><summary class="fine" style="cursor:pointer">추가 업무 12가지에서 고르기</summary><div class="mopts" style="margin-top:6px">${chips(EVAL_EXTRA)}</div></details></div>
+    <div class="row"><button class="btn primary" data-ev="start">캐릭터를 고른 뒤 · 사전 질문 시작</button></div>${tools}</div>`;
+}
+function evalNewRecord(no) {
+  const r = { no, status: 'pre', created: Date.now(), device: isTouch ? '모바일' : 'PC', missions: evalData.missions.slice(), qs: evalData.qs.slice(), pre: null, post: null, opinion: '', issues: '', help: 0, nav: 0, aborts: 0, ms: {}, startedAt: 0, endedAt: 0, mins: null, done: false, stopped: false, reason: '', scorePre: [null, null, null], scorePost: [null, null, null] };
+  evalData.records.push(r); saveEval(); return r;
+}
+function evalQsHtml(r) {
+  return r.qs.map((q, i) => `<div class="eq"><p>${i + 1}. ${esc(q)}</p><textarea data-a="${i}" maxlength="300" aria-label="${i + 1}번 답"></textarea><label><input type="checkbox" data-dk="${i}"> 잘 모르겠어요</label></div>`).join('');
+}
+const evalRead = () => [0, 1, 2].map((i) => { const dk = $(`[data-dk="${i}"]`, mcard), t = $(`[data-a="${i}"]`, mcard).value.trim().slice(0, 300); return dk && dk.checked ? (t ? `(모름) ${t}` : '(모름)') : t || '(무응답)'; });
+function evalAskPre(r) {
+  openModal(`<p class="m-k">체험 전 질문 · ${esc(r.no)}</p><h2>먼저 질문 3개에 답해 주세요</h2>
+    <p class="muted">맞고 틀리고는 없어요. 아는 만큼만 짧게 적어 주세요. 모르면 <b>잘 모르겠어요</b>에 표시해도 돼요.</p>
+    ${evalQsHtml(r)}
+    <div class="m-btns"><button class="btn" data-x>취소</button><button class="btn primary" data-go>답 저장하고 체험 시작</button></div>`);
+  $('[data-x]', mcard).onclick = () => { closeModal(); if (r.status === 'pre' && !r.pre) { evalData.records.splice(evalData.records.indexOf(r), 1); saveEval(); } renderEvalPanel(); };
+  $('[data-go]', mcard).onclick = () => { r.pre = evalRead(); r.status = 'play'; r.startedAt = Date.now(); saveEval(); closeModal(); evalBegin(r); };
+}
+function evalBegin(r) {
+  evalSess = r; evalPrevActive = null;
+  $('#nameIn').value = r.no;
+  enterGame();
+  renderEvalCard();
+  setTimeout(() => toast(`오늘 해 볼 업무: <b>${r.missions.map((id) => esc(msName(id))).join(', ')}</b><br><small>오른쪽 아래 <b>바로 가기</b>로 갈 수 있어요.</small>`, 6000), 1400);
+}
+function renderEvalCard() {
+  const c = $('#evalCard');
+  if (!evalSess || evalSess.status !== 'play') { c.hidden = true; return; }
+  const ms = evalSess.missions, done = ms.filter((id) => evalDoneOf(evalSess, id)).length;
+  c.hidden = false;
+  c.innerHTML = `<div class="eh">측정 중 · ${esc(evalSess.no)}<span class="t" id="evT">${fmtT(evalSecs())}</span></div>
+    <div class="em">지정 미션 <b>${done}/${ms.length}</b> · ${ms.map((id) => `<span class="${evalDoneOf(evalSess, id) ? 'ok' : ''}">${evalDoneOf(evalSess, id) ? '✓' : '○'} ${esc(msName(id))}</span>`).join(' ')}</div>
+    <div class="eb"><button class="mini-btn" data-ev="help">진행자 도움 +1 (${evalSess.help})</button><button class="mini-btn ${done === ms.length ? 'hl' : ''}" data-ev="end">체험 끝내기</button></div>`;
+}
+function evalTick(dt) { // update에서: 미션 시작 감지, 시계, 지정 미션을 다 하면 사후 질문 안내
+  if (!evalSess || evalSess.status !== 'play') return;
+  if (M.active !== evalPrevActive) {
+    const k = M.active; evalPrevActive = k;
+    if (k && (DEPT[k] || XD[k])) { const m = evalSess.ms[k] || (evalSess.ms[k] = { s: null, d: null }); if (m.s == null) { m.s = evalSecs(); saveEval(); } }
+  }
+  evalTT -= dt; if (evalTT <= 0) { evalTT = 1; const t = $('#evT'); if (t) t.textContent = fmtT(evalSecs()); }
+  const all = evalSess.missions.every((id) => evalDoneOf(evalSess, id));
+  if (all && !evalSess.asked && !modalOpen && !dialogOpen && !M.active && !skyM.on && badgeT <= -1.5) {
+    evalSess.asked = true; saveEval();
+    openModal(`<div class="done-head"><div class="stamp-big star">✓<small>지정 미션</small></div></div><h2 class="center">오늘 해 볼 업무를 모두 마쳤어요!</h2>
+      <p class="center">마지막으로 처음에 받은 질문 3개에 다시 답해 주세요.</p>
+      <div class="m-btns"><button class="btn" data-x>조금 더 둘러보기</button><button class="btn primary" data-go>사후 질문으로</button></div>`);
+    $('[data-x]', mcard).onclick = () => { closeModal(); toast('다 둘러봤으면 왼쪽 위 <b>체험 끝내기</b>를 눌러 주세요.'); };
+    $('[data-go]', mcard).onclick = () => { closeModal(); evalFinish(false, ''); };
+  }
+}
+function evalDone(k) { // 미션 완료 순간 (스탬프·별 받기 전)
+  if (!evalSess || evalSess.status !== 'play') return;
+  const m = evalSess.ms[k] || (evalSess.ms[k] = { s: evalSecs(), d: null });
+  if (m.d == null) { m.d = evalSecs(); saveEval(); renderEvalCard(); }
+}
+function evalEndAsk() {
+  const r = evalSess; if (!r || modalOpen) return;
+  const n = r.missions.length, done = r.missions.filter((id) => evalDoneOf(r, id)).length;
+  if (done === n) { evalFinish(false, ''); return; }
+  const REASONS = ['시간 부족', '조작이 어려움', '흥미가 떨어짐', '기기·화면 문제', '진행자 판단', '기타'];
+  openModal(`<p class="m-k">진행자 · ${esc(r.no)}</p><h2>지정 미션을 다 하지 않았어요</h2>
+    <p>지정 미션 <b>${done}/${n}</b> 완료 · ${fmtT(evalSecs())} 지났어요. 여기서 끝내면 <b>중단</b>으로 기록돼요.</p>
+    <p class="fine">중단 이유</p><div class="mopts" id="evR">${REASONS.map((x) => `<button type="button" class="chip" data-r="${x}" aria-pressed="false">${x}</button>`).join('')}</div>
+    <label class="field" style="margin-top:10px"><span>메모 (선택)</span><input id="evRt" maxlength="60" autocomplete="off"></label>
+    <div class="m-btns"><button class="btn" data-x>계속 체험하기</button><button class="btn" data-skip disabled>사후 질문 없이 저장</button><button class="btn primary" data-go disabled>중단 · 사후 질문으로</button></div>`);
+  let reason = '';
+  mcard.querySelectorAll('[data-r]').forEach((b) => (b.onclick = () => { reason = b.dataset.r; mcard.querySelectorAll('[data-r]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); $('[data-go]', mcard).disabled = false; $('[data-skip]', mcard).disabled = false; }));
+  const full = () => [reason, $('#evRt').value.trim()].filter(Boolean).join(' · ');
+  $('[data-x]', mcard).onclick = closeModal;
+  $('[data-go]', mcard).onclick = () => { const why = full(); closeModal(); evalFinish(true, why); };
+  $('[data-skip]', mcard).onclick = () => { const why = full(); closeModal(); evalFinish(true, why, true); };
+}
+function evalFinish(stopped, reason, skipPost) {
+  const r = evalSess; if (!r) return;
+  r.endedAt = Date.now(); r.mins = Math.round(((r.endedAt - r.startedAt) / 60000) * 10) / 10;
+  r.done = r.missions.every((id) => evalDoneOf(r, id)); r.stopped = !!stopped && !r.done; r.reason = r.stopped ? reason : '';
+  r.status = 'post'; saveEval(); renderEvalCard();
+  if (skipPost) { evalSave(r); return; }
+  evalAskPost(r);
+}
+function evalAskPost(r) {
+  openModal(`<p class="m-k">체험 후 질문 · ${esc(r.no)}</p><h2>마지막으로 질문 3개에 답해 주세요</h2>
+    <p class="muted">처음에 받은 질문과 같아요. 체험하면서 알게 된 대로 적어 주세요.</p>
+    ${evalQsHtml(r)}
+    <div class="eq"><p>체험해 보니 어땠나요? 한 줄로 남겨 주세요.</p><textarea data-op maxlength="200" aria-label="한 줄 의견"></textarea></div>
+    <details class="eq"><summary style="cursor:pointer;font-weight:700">진행자 기록 (선택) · 화면·내용 오류나 특이사항</summary><textarea data-iss maxlength="300" style="margin-top:8px" aria-label="진행자 기록"></textarea></details>
+    <div class="m-btns"><button class="btn primary" data-go>저장</button></div>`);
+  $('[data-go]', mcard).onclick = () => {
+    r.post = evalRead(); r.opinion = $('[data-op]', mcard).value.trim().slice(0, 200); r.issues = $('[data-iss]', mcard).value.trim().slice(0, 300);
+    closeModal(); evalSave(r);
+  };
+}
+function evalSave(r) {
+  r.status = 'saved'; delete r.asked; saveEval();
+  try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* 다음 참여자는 새 기록으로 */ }
+  evalSess = null; renderEvalCard(); SFX.chime();
+  openModal(`<h2 class="center">고맙습니다!</h2><p class="center"><b>${esc(r.no)}</b> 기록을 저장했어요.${r.stopped ? ' (중단)' : r.done ? ' (지정 미션 완료)' : ''}</p>
+    <p class="center muted">다음 참여자는 새 기록으로 처음부터 시작해요.</p>
+    <div class="m-btns"><button class="btn" data-rec>기록 보기·채점</button><button class="btn primary" data-next>다음 참여자</button></div>`);
+  $('[data-rec]', mcard).onclick = () => { closeModal(); openEvalRecords(); };
+  $('[data-next]', mcard).onclick = () => location.reload();
+}
+function openEvalQs() {
+  openModal(`<p class="m-k">진행자 · 문항 고치기</p><h2>이해도 문항 3개</h2>
+    <p class="muted">기관 담당부서 검토 뒤 쓰세요. 0점(무응답·오해) · 1점(일부 이해) · 2점(핵심 목적 설명) 채점 기준은 미리 정해 두세요. 이미 저장된 기록에는 그때 문항이 함께 남아요.</p>
+    ${evalData.qs.map((q, i) => `<div class="eq"><p>${i + 1}번 문항</p><textarea data-q="${i}" maxlength="200">${esc(q)}</textarea></div>`).join('')}
+    <div class="m-btns"><button class="btn" data-def>처음 문항으로</button><button class="btn" data-x>취소</button><button class="btn primary" data-go>저장</button></div>`);
+  $('[data-x]', mcard).onclick = closeModal;
+  $('[data-def]', mcard).onclick = () => EVAL_QS.forEach((q, i) => ($(`[data-q="${i}"]`, mcard).value = q));
+  $('[data-go]', mcard).onclick = () => { evalData.qs = [0, 1, 2].map((i) => $(`[data-q="${i}"]`, mcard).value.trim().slice(0, 200) || EVAL_QS[i]); saveEval(); closeModal(); toast('문항을 저장했어요. 다음 참여자부터 적용돼요.'); };
+}
+const sumArr = (a) => a.reduce((s, v) => s + v, 0);
+const scored = (r) => r.post && [...r.scorePre, ...r.scorePost].every((v) => v === 0 || v === 1 || v === 2);
+function evalSummary() {
+  const R = evalData.records.filter((r) => r.status === 'saved'), n = R.length;
+  const comp = R.filter((r) => r.done), free = comp.filter((r) => !r.help), S = R.filter(scored), stops = R.filter((r) => r.stopped), skipped = R.filter((r) => !r.done && !r.stopped);
+  const pct = (a, b) => (b ? `${Math.round((a / b) * 1000) / 10}%` : '-');
+  const f1 = (v) => (Math.round(v * 100) / 100).toString();
+  const pre = S.map((r) => sumArr(r.scorePre)), post = S.map((r) => sumArr(r.scorePost)), mean = (a) => sumArr(a) / a.length;
+  const t = comp.map((r) => r.mins).filter((v) => v != null).sort((a, b) => a - b);
+  const med = t.length ? (t.length % 2 ? t[(t.length - 1) / 2] : (t[t.length / 2 - 1] + t[t.length / 2]) / 2) : null;
+  const d = new Date(), ymd = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const L = [`푸른하늘 업무체험관 체험 효과 예비시험 요약 (${ymd} 기준)`, `참여(체험 시작) ${n}명`];
+  L.push(S.length ? `이해도 (전후 채점을 마친 ${S.length}명, 만점 6점): 사전 평균 ${f1(mean(pre))}점 → 사후 평균 ${f1(mean(post))}점, 차이 ${mean(post) - mean(pre) >= 0 ? '+' : ''}${f1(mean(post) - mean(pre))}점` : '이해도: 아직 전후 채점을 마친 참여자가 없어요');
+  L.push(`지정 미션 완료율: ${comp.length}/${n} = ${pct(comp.length, n)}`);
+  L.push(`도움 없이 완료한 비율: ${free.length}/${n} = ${pct(free.length, n)}`);
+  L.push(med != null ? `완료자 소요시간: 중앙값 ${f1(med)}분 (범위 ${f1(t[0])}~${f1(t[t.length - 1])}분)` : '완료자 소요시간: -');
+  L.push(`중단 ${stops.length}명${stops.length ? ` (${stops.map((r) => `${r.no}: ${r.reason || '이유 없음'}`).join(', ')})` : ''}${skipped.length ? ` · 미완료로 마친 ${skipped.length}명` : ''}`);
+  L.push('※ 소규모 편의표본 결과로, 전체 이용자의 교육효과로 일반화하지 않습니다.');
+  return L.join('\n');
+}
+function evalCSV() {
+  const cell = (v) => { let s = v == null ? '' : String(v); if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; return `"${s.replace(/"/g, '""')}"`; }; // 엑셀 수식 주입 막기
+  const H = ['참여번호', '상태', '기록일시', '기기', '지정미션', '지정미션완료', '완료한지정미션수', '소요시간(분)', '미션별소요(분)', '진행자도움', '바로가기사용', '미션그만두기', '중단', '중단이유', '사전1', '사전2', '사전3', '사후1', '사후2', '사후3', '사전점수1', '사전점수2', '사전점수3', '사후점수1', '사후점수2', '사후점수3', '사전합계', '사후합계', '한줄의견', '진행자기록', '문항1', '문항2', '문항3'];
+  const rows = evalData.records.map((r) => {
+    const dt = new Date(r.created), when = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+    const per = Object.entries(r.ms || {}).filter(([, m]) => m.s != null && m.d != null).map(([id, m]) => `${msName(id)} ${Math.round(((m.d - m.s) / 60) * 10) / 10}`).join(' / ');
+    const sp = r.scorePre || [], so = r.scorePost || [], ok = scored(r);
+    return [r.no, { saved: '저장', pre: '사전 질문 중', play: '체험 중', post: '사후 질문 중' }[r.status], when, r.device, r.missions.map(msName).join(' / '), r.done ? 'Y' : 'N', r.missions.filter((id) => evalDoneOf(r, id)).length, r.mins, per, r.help, r.nav, r.aborts, r.stopped ? 'Y' : 'N', r.reason,
+      ...(r.pre || ['', '', '']), ...(r.post || ['', '', '']), ...[0, 1, 2].map((i) => sp[i]), ...[0, 1, 2].map((i) => so[i]), ok ? sumArr(sp) : '', ok ? sumArr(so) : '', r.opinion, r.issues, ...(r.qs || ['', '', ''])];
+  });
+  return [H, ...rows].map((row) => row.map(cell).join(',')).join('\r\n');
+}
+function evalDownload() {
+  const d = new Date(), ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+  const blob = new Blob([`﻿${evalCSV()}`], { type: 'text/csv;charset=utf-8' }), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `푸른하늘_체험효과_${ymd}.csv`; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  toast('CSV 파일을 내려받았어요. 엑셀에서 열 수 있어요.');
+}
+function openEvalRecords() {
+  const R = evalData.records.slice().reverse();
+  const tag = (r) => (r.status !== 'saved' ? '<span class="tagp run">진행 중</span>' : r.stopped ? '<span class="tagp stop">중단</span>' : r.done ? '<span class="tagp ok">완료</span>' : '<span class="tagp">미완료</span>');
+  const scoreBtns = (r, kind, i) => `<div class="sc" role="group" aria-label="${kind === 'pre' ? '사전' : '사후'} ${i + 1}번 점수">${[0, 1, 2].map((v) => `<button type="button" data-sc="${kind}" data-i="${i}" data-v="${v}" data-no="${esc(r.no)}" aria-pressed="${(kind === 'pre' ? r.scorePre : r.scorePost)[i] === v}">${v}</button>`).join('')}</div>`;
+  const body = R.map((r) => {
+    const dt = new Date(r.created), done = r.missions.filter((id) => evalDoneOf(r, id)).length;
+    const per = Object.entries(r.ms || {}).filter(([, m]) => m.s != null && m.d != null).map(([id, m]) => `${esc(msName(id))} ${Math.round(((m.d - m.s) / 60) * 10) / 10}분`).join(', ');
+    return `<details class="ev-rec"><summary>${esc(r.no)} · ${dt.getMonth() + 1}/${dt.getDate()} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')} · 미션 ${done}/${r.missions.length}${r.mins != null ? ` · ${r.mins}분` : ''} · 도움 ${r.help}${tag(r)}</summary>
+      <div class="ev-qa">${(r.qs || []).map((q, i) => `<div><div class="qq">${i + 1}. ${esc(q)}</div><div class="aa"><div><small>사전</small>${esc((r.pre || [])[i] || '-')}${r.pre ? scoreBtns(r, 'pre', i) : ''}</div><div><small>사후</small>${esc((r.post || [])[i] || '-')}${r.post ? scoreBtns(r, 'post', i) : ''}</div></div></div>`).join('')}</div>
+      <p class="fine">지정 미션: ${r.missions.map((id) => `${evalDoneOf(r, id) ? '✓' : '○'} ${esc(msName(id))}`).join(', ')}${per ? `<br>미션별 소요: ${per}` : ''}<br>바로 가기 ${r.nav}회 · 미션 그만두기 ${r.aborts}회 · ${esc(r.device)}${r.reason ? `<br>중단 이유: ${esc(r.reason)}` : ''}${r.opinion ? `<br>한 줄 의견: ${esc(r.opinion)}` : ''}${r.issues ? `<br>진행자 기록: ${esc(r.issues)}` : ''}</p>
+      <button class="mini-btn" data-del="${esc(r.no)}">이 기록 삭제</button></details>`;
+  }).join('');
+  openModal(`<p class="m-k">진행자 · 체험 효과 기록</p><h2>기록 보기·채점</h2>
+    <p class="muted">각 답 아래 <b>0·1·2</b>를 눌러 채점하면 요약에 바로 반영돼요. 기록은 이 기기에만 있으니 끝나면 <b>CSV로 내려받아</b> 보관하세요.</p>
+    <div class="ev-sum" id="evSum">${esc(evalSummary())}</div>
+    <div class="m-btns" style="justify-content:flex-start"><button class="btn primary" data-csv ${evalData.records.length ? '' : 'disabled'}>CSV 내려받기</button><button class="btn" data-copy>요약 복사</button></div>
+    ${body || '<p class="muted">아직 기록이 없어요.</p>'}
+    <div class="m-btns"><button class="btn danger" data-clear ${evalData.records.length ? '' : 'disabled'}>기록 모두 지우기</button><button class="btn" data-x>닫기</button></div>`);
+  const byNo = (no) => evalData.records.find((r) => r.no === no);
+  mcard.querySelectorAll('[data-sc]').forEach((b) => (b.onclick = () => {
+    const r = byNo(b.dataset.no); if (!r) return; const arr = b.dataset.sc === 'pre' ? r.scorePre : r.scorePost, i = Number(b.dataset.i), v = Number(b.dataset.v);
+    arr[i] = arr[i] === v ? null : v; saveEval();
+    b.parentElement.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(Number(x.dataset.v) === arr[i])));
+    $('#evSum', mcard).textContent = evalSummary();
+  }));
+  mcard.querySelectorAll('[data-del]').forEach((b) => (b.onclick = () => { const r = byNo(b.dataset.del); if (!r || !confirm(`${r.no} 기록을 지울까요? 되돌릴 수 없어요.`)) return; evalData.records.splice(evalData.records.indexOf(r), 1); saveEval(); if (evalSess === r) { evalSess = null; renderEvalCard(); } closeModal(); openEvalRecords(); if (!started) renderEvalPanel(); }));
+  $('[data-csv]', mcard).onclick = evalDownload;
+  $('[data-copy]', mcard).onclick = () => { const s = evalSummary(); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(s).then(() => toast('요약을 복사했어요.'), () => toast('복사하지 못했어요. 요약을 직접 선택해 복사해 주세요.')); };
+  $('[data-clear]', mcard).onclick = () => { if (!confirm('측정 기록을 모두 지울까요? CSV로 내려받았는지 먼저 확인하세요. 되돌릴 수 없어요.')) return; evalData.records = []; saveEval(); evalSess = null; renderEvalCard(); closeModal(); if (!started) renderEvalPanel(); toast('측정 기록을 모두 지웠어요.'); };
+  $('[data-x]', mcard).onclick = closeModal;
+}
+if (MODE === 'eval') {
+  ['#enterBtn', '#skyOnlyBtn', '#resetBtn', '#roomInfo'].forEach((s) => { const el = $(s); if (el) el.hidden = true; });
+  $('#nameIn').closest('.field').hidden = true; $('#viewBtn').hidden = true;
+  document.documentElement.classList.remove('clean'); // 측정 카드가 숨지 않게 (저장된 설정은 그대로)
+  renderEvalPanel();
+  $('#evalPanel').addEventListener('click', (e) => {
+    const ms = e.target.closest('[data-ms]');
+    if (ms) { const id = ms.dataset.ms, on = evalData.missions.includes(id); if (on && evalData.missions.length === 1) { toast('지정 미션은 하나 이상 골라 주세요.'); return; } evalData.missions = on ? evalData.missions.filter((x) => x !== id) : [...evalData.missions, id]; saveEval(); ms.setAttribute('aria-pressed', String(!on)); SFX.tick(); return; }
+    const b = e.target.closest('[data-ev]'); if (!b) return; SFX.init();
+    const k = b.dataset.ev, open = evalOpenRec();
+    if (k === 'records') openEvalRecords();
+    if (k === 'qs') openEvalQs();
+    if (k === 'start') {
+      const no = ($('#evNo').value || '').replace(/[^\w-]/g, '').slice(0, 10) || evalNextNo();
+      if (evalData.records.some((r) => r.no === no)) { toast(`<b>${esc(no)}</b>는 이미 있는 참여번호예요. 다른 번호를 써 주세요.`); return; }
+      evalAskPre(evalNewRecord(no));
+    }
+    if (k === 'resume' && open) { if (open.status === 'pre') evalAskPre(open); else if (open.status === 'post') { evalSess = open; evalAskPost(open); } else evalBegin(open); }
+    if (k === 'drop' && open) { open.status = 'saved'; open.stopped = !open.done; open.reason = open.reason || '이어 하지 않음(새 참여자로 넘어감)'; open.endedAt = open.endedAt || Date.now(); if (open.startedAt && open.mins == null) open.mins = Math.round(((open.endedAt - open.startedAt) / 60000) * 10) / 10; saveEval(); try { localStorage.removeItem(SAVE_KEY); } catch (err) { /* ignore */ } location.reload(); }
+  });
+  $('#evalCard').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-ev]'); if (!b || !evalSess) return;
+    if (b.dataset.ev === 'help') { evalSess.help++; saveEval(); renderEvalCard(); SFX.tick(); toast(`진행자 도움 ${evalSess.help}회째를 기록했어요.`, 1600); }
+    if (b.dataset.ev === 'end') evalEndAsk();
+  });
+}
 function enterGame(skyOnly) {
   SFX.init();
   if (startCz) { startCz.stop(); startCz = null; }
@@ -5038,6 +5369,7 @@ function objTargetRaw() { // 지금 가야 할 곳 (화면 밖이면 가장자�
   if (M.active === 'fuel') { const left = fuelCans.filter((c) => !c.got); return left.length ? near(left.map((c) => c.pos)) : FUEL_TABLE; }
   if (SPOTS[M.active]) { const left = SPOTS[M.active].filter((s) => !s.done && (!s.when || s.when())); return left.length ? near(left.map((s) => s.pos)) : null; }
   if (M.active) return null;
+  if (evalSess && evalSess.status === 'play') { const next = evalSess.missions.find((id) => !evalDoneOf(evalSess, id)); if (next) return npcByKey[XD[next] ? XD[next].dept : next].pos; }
   if (doneCount() === 4) return guide.pos;
   return near(npcs.filter((n) => n.key !== 'guide' && !state.done[n.key]).map((n) => n.pos));
 }
@@ -5156,6 +5488,7 @@ function update(dt, t) {
   updateOrbs(dt, t); updateLanterns(dt, t); pumpBadges(dt);
   if (curRoom === 'sky') updateFire(dt, t);
   if (seek.on) updateSeek(dt, t);
+  if (evalSess) evalTick(dt);
   net.sendT += dt; if (net.sendT > 0.12) { net.sendT = 0; sendState(false); }
   // 분위기
   flags.forEach((f) => (f.piv.rotation.y = Math.sin(t * 2.6 + f.ph) * 0.3 - Math.atan2(IDLE_WIND.z, IDLE_WIND.x)));
@@ -5218,7 +5551,7 @@ requestAnimationFrame(frame);
 window.__worldReady = true;
 if (location.hash === '#debug') window.__w = { state, player, van, sweeper, M, plan, lab, car, checkpoints, factories, fuelCans, cars, net, skyM, npcByKey, talkTo, checkFactory, startExtra, enterSky, exitSky, openCustomizer, sendChat, camera, interacts, renderer, scene, moveRoom, openRooms, GATES, zoneGroups, get curRoom() { return curRoom; }, get ctrl() { return ctrl; }, get mode() { return mode; }, get cur() { return cur; }, get perf() { return perf; }, keys, joy,
   step(n = 30, dt = 1 / 30) { for (let i = 0; i < n; i++) { last += dt * 1000; update(dt, last / 1000); } renderer.render(scene, camera); },
-  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, orbs, ORBS, collectOrb, rings, RINGS, ringsReset, seek, startSeek, endSeek, lanterns, launchLantern, openWish, award, BADGES, openBadges, FIRE, FIRE_SEAT, fireflies, checkBadges, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
+  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, orbs, ORBS, collectOrb, rings, RINGS, ringsReset, seek, startSeek, endSeek, lanterns, launchLantern, openWish, award, BADGES, openBadges, FIRE, FIRE_SEAT, fireflies, checkBadges, showExtraDone, evalData, get evalSess() { return evalSess; }, SAVE_KEY, MODE, ROOM, get mpOn() { return mpOn; }, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
   look(px, py, pz, tx, ty, tz) { camHold = true; camera.position.set(px, py, pz); camera.lookAt(tx, ty, tz); renderer.render(scene, camera); }, unlook() { camHold = false; } };
 </script>
 </body>
