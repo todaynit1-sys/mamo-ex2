@@ -483,6 +483,7 @@ input{-webkit-user-select:text;user-select:text}
       <button data-m="invite">방 링크 복사</button>
       <button data-m="newroom">새 방 만들기</button>
       <button data-m="mp">여럿이 함께: 켜짐</button>
+      <button data-m="bgm">배경음악: 켜짐</button>
       <a href="https://mamo-ex.vercel.app" target="_blank" rel="noopener">업무 소개 영상 보기 ↗</a>
       <button data-m="reset">처음부터 다시 하기</button>
     </div>
@@ -678,14 +679,67 @@ const SFX = (() => {
     });
     if (w) w.g.gain.setTargetAtTime(on ? 0.045 : 0, ctx.currentTime, 0.8);
   }
+  // 배경음악: 잔잔한 패드 화음 위로 오르골 같은 멜로디를 그때그때 만들어 냄 (음악 파일 없음)
+  const bgm = { on: true, out: null, bus: null, next: 0, beat: 0, ni: 2, duck: 1, calm: false, quiet: false, timer: 0 };
+  try { bgm.on = localStorage.getItem('mamo-world-bgm') !== '0'; } catch (e) { /* ignore */ }
+  const BEAT = 0.95;
+  const CHORDS = [ // b: 베이스, p: 패드, m: 멜로디로 쓸 음 (Fmaj7 → Em7 → Dm7 → Cmaj9)
+    { b: 87.31, p: [174.61, 220.0, 261.63, 329.63], m: [440.0, 523.25, 659.25, 698.46, 880.0] },
+    { b: 82.41, p: [164.81, 196.0, 246.94, 293.66], m: [392.0, 493.88, 587.33, 659.25, 783.99] },
+    { b: 73.42, p: [146.83, 174.61, 220.0, 261.63], m: [440.0, 523.25, 587.33, 698.46, 880.0] },
+    { b: 65.41, p: [130.81, 164.81, 196.0, 246.94, 293.66], m: [392.0, 523.25, 587.33, 659.25, 783.99] },
+  ];
+  function bgmLevel() { if (bgm.out) bgm.out.gain.setTargetAtTime(bgm.on && !muted ? bgm.duck : 0, ctx.currentTime, 1.4); }
+  function bgmBuild() { // 부드러운 저역 통과 + 잔향
+    if (bgm.out) return;
+    const out = ctx.createGain(); out.gain.value = 0; out.connect(master);
+    const bus = ctx.createGain(), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600; lp.Q.value = 0.2;
+    const len = Math.floor(ctx.sampleRate * 2.8), ir = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+    const rv = ctx.createConvolver(); rv.buffer = ir;
+    const wet = ctx.createGain(); wet.gain.value = 0.45; const dry = ctx.createGain(); dry.gain.value = 0.8;
+    bus.connect(lp); lp.connect(dry); dry.connect(out); lp.connect(rv); rv.connect(wet); wet.connect(out);
+    bgm.out = out; bgm.bus = bus; bgmLevel();
+  }
+  function pad(f, t, dur, vol) { // 천천히 차오르고 천천히 사라지는 화음
+    const g = ctx.createGain(); g.connect(bgm.bus);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 2.4); g.gain.setValueAtTime(vol, t + dur - 1.5); g.gain.linearRampToValueAtTime(0.0001, t + dur + 1.8);
+    [[0, 'sine', 1], [7, 'triangle', 0.28]].forEach(([dt, type, k]) => { const o = ctx.createOscillator(), og = ctx.createGain(); o.type = type; o.frequency.value = f; o.detune.value = dt; og.gain.value = k; o.connect(og); og.connect(g); o.start(t); o.stop(t + dur + 2); });
+  }
+  function bell(f, t, vol) { // 오르골처럼 맑게 울리고 사라지는 음
+    [[1, vol, 2.8], [2, vol * 0.16, 0.9], [3, vol * 0.04, 0.45]].forEach(([h, v, d]) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = f * h; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(g); g.connect(bgm.bus); o.start(t); o.stop(t + d + 0.05); });
+  }
+  function bgmBeat(t) {
+    const k = bgm.beat++ % 32, ch = CHORDS[Math.floor(k / 8)], pos = k % 8;
+    if (pos === 0) { ch.p.forEach((f) => pad(f, t, BEAT * 8 + 0.5, 0.009)); pad(ch.b, t, BEAT * 8, 0.013); }
+    if (bgm.quiet) return; // 멍때릴 땐 그쪽 소리가 따로 있어서 화음만
+    if (pos !== 0 && Math.random() > (bgm.calm ? 0.24 : 0.36)) return;
+    bgm.ni = clamp(bgm.ni + pick([-2, -1, -1, 0, 1, 1, 2]), 0, ch.m.length - 1);
+    const oct = bgm.calm ? 0.5 : 1;
+    bell(ch.m[bgm.ni] * oct, t + (Math.random() < 0.2 ? BEAT / 2 : 0), 0.022 + Math.random() * 0.01);
+    if (Math.random() < 0.12) bell(ch.m[Math.max(0, bgm.ni - 2)] * oct, t + BEAT / 2, 0.014);
+  }
+  function bgmTick() { // 1.5초 앞까지 미리 예약 (탭을 숨겼다 돌아오면 다시 맞춤)
+    if (!ctx || !bgm.on || muted || ctx.state !== 'running') return;
+    bgmBuild();
+    const now = ctx.currentTime;
+    if (bgm.next < now) { bgm.next = now + 0.15; bgm.beat -= bgm.beat % 8; }
+    while (bgm.next < now + 1.5) { bgmBeat(bgm.next); bgm.next += BEAT; }
+  }
+  function bgmStart() { if (!bgm.timer) bgm.timer = setInterval(bgmTick, 250); bgmTick(); }
   return {
-    init, rain, water,
+    init() { const first = !ctx; init(); if (first && ctx) bgmStart(); },
+    rain, water,
+    get bgmOn() { return bgm.on; },
+    get bgmState() { return ctx ? { state: ctx.state, now: +ctx.currentTime.toFixed(2), next: +bgm.next.toFixed(2), beat: bgm.beat, level: bgm.out ? +bgm.out.gain.value.toFixed(3) : null, quiet: bgm.quiet, calm: bgm.calm } : null; },
+    setBgm(v) { bgm.on = v; try { localStorage.setItem('mamo-world-bgm', v ? '1' : '0'); } catch (e) { /* ignore */ } if (ctx) { if (v) bgmStart(); bgmLevel(); } },
+    bgmMode(quiet, calm, duck) { if (quiet === bgm.quiet && calm === bgm.calm && duck === bgm.duck) return; bgm.quiet = quiet; bgm.calm = calm; bgm.duck = duck; if (ctx) bgmLevel(); },
     note(f, v = 0.026) { tone(f, { dur: 2.8, vol: v, attack: 0.04 }); tone(f * 2, { dur: 1.1, vol: v * 0.22, attack: 0.02 }); },
     plop() { tone(rand(520, 700), { f2: rand(1100, 1500), dur: 0.08, vol: 0.03 }); noise({ dur: 0.05, vol: 0.02, f: 1800, q: 2 }); },
     cricket() { const f = rand(4300, 4800); [0, 0.06, 0.12].forEach((d) => tone(f, { dur: 0.03, vol: 0.01, delay: d, type: 'triangle' })); },
     purr() { noise({ dur: 1.3, vol: 0.06, f: 140, f2: 110, type: 'lowpass', q: 4 }); tone(52, { dur: 1.2, vol: 0.04, type: 'triangle', attack: 0.15 }); },
     get muted() { return muted; },
-    toggle() { muted = !muted; try { localStorage.setItem('mamo-world-mute', muted ? '1' : '0'); } catch (e) { /* ignore */ } if (master) master.gain.setTargetAtTime(muted ? 0 : 0.55, ctx.currentTime, 0.05); return muted; },
+    toggle() { muted = !muted; try { localStorage.setItem('mamo-world-mute', muted ? '1' : '0'); } catch (e) { /* ignore */ } if (master) { master.gain.setTargetAtTime(muted ? 0 : 0.55, ctx.currentTime, 0.05); bgmLevel(); } return muted; },
     suspend() { if (ctx) ctx.suspend(); }, resume() { if (ctx) ctx.resume(); },
     step(run) { noise({ dur: 0.05, vol: run ? 0.05 : 0.03, f: rand(500, 820), q: 1.2 }); },
     blip() { tone(rand(820, 900), { type: 'square', dur: 0.025, vol: 0.016 }); },
@@ -3990,8 +4044,12 @@ $('#menu').addEventListener('click', (e) => {
     if (mpOn) netStart(); else netStop();
     refreshMenu(); toast(mpOn ? '여럿이 함께 모드를 켰어요.' : '혼자 체험 모드로 바꿨어요.');
   }
+  if (m === 'bgm') { SFX.init(); SFX.setBgm(!SFX.bgmOn); refreshMenu(); toast(SFX.bgmOn ? (SFX.muted ? '배경음악을 켰어요. 소리 버튼이 꺼져 있으면 들리지 않아요.' : '배경음악을 켰어요.') : '배경음악을 껐어요. 효과음은 그대로 나요.'); }
 });
-function refreshMenu() { const b = $('[data-m="mp"]'); if (b) b.textContent = `여럿이 함께: ${mpOn ? '켜짐' : '꺼짐'}`; }
+function refreshMenu() {
+  const b = $('[data-m="mp"]'); if (b) b.textContent = `여럿이 함께: ${mpOn ? '켜짐' : '꺼짐'}`;
+  const g = $('[data-m="bgm"]'); if (g) g.textContent = `배경음악: ${SFX.bgmOn ? '켜짐' : '꺼짐'}`;
+}
 { // 메뉴에 꾸미기·하늘멍 추가
   const menu = $('#menu'), first = menu.firstElementChild;
   [['rooms', '룸 이동'], ['avatar', '내 캐릭터 꾸미기'], ['sky', '하늘멍 하기'], ['fly', '하늘 날기']].forEach(([k, t]) => { const b = document.createElement('button'); b.dataset.m = k; b.textContent = t; menu.insertBefore(b, first); });
@@ -4605,6 +4663,7 @@ function update(dt, t) {
   if (ctrl.wheels) ctrl.wheels.forEach((w) => (w.rotation.x += ctrl.moved / 0.42));
   const veh = ctrl.kind !== 'walk';
   SFX.engine(veh ? clamp(Math.abs(ctrl.fwd || 0) / ctrl.speed, 0, 1.3) : 0, veh && started);
+  SFX.bgmMode(skyM.on, curRoom === 'inside', skyM.on ? 0.5 : fly.on ? 0.8 : veh ? 0.8 : 1); // 멍때릴 땐 화음만 작게, 라운지에선 더 차분하게
   if (veh) ctrl.brake.color.set(ctrl.braking ? '#ff3b3b' : '#7a1d1d');
   sweeper.brushes.forEach((b) => (b.rotation.y += dt * (mode === 'sweeper' ? 14 : 0)));
   sweeper.beacon.material.color.set(mode === 'sweeper' && Math.sin(t * 10) > 0 ? '#ffd23f' : '#b38a1d');
@@ -4727,7 +4786,7 @@ requestAnimationFrame(frame);
 window.__worldReady = true;
 if (location.hash === '#debug') window.__w = { state, player, van, sweeper, M, plan, lab, car, checkpoints, factories, fuelCans, cars, net, skyM, npcByKey, talkTo, checkFactory, startExtra, enterSky, exitSky, openCustomizer, sendChat, camera, interacts, renderer, scene, moveRoom, openRooms, GATES, zoneGroups, get curRoom() { return curRoom; }, get ctrl() { return ctrl; }, get mode() { return mode; }, get cur() { return cur; }, get perf() { return perf; }, keys, joy,
   step(n = 30, dt = 1 / 30) { for (let i = 0; i < n; i++) { last += dt * 1000; update(dt, last / 1000); } renderer.render(scene, camera); },
-  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
+  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
   look(px, py, pz, tx, ty, tz) { camHold = true; camera.position.set(px, py, pz); camera.lookAt(tx, ty, tz); renderer.render(scene, camera); }, unlook() { camHold = false; } };
 </script>
 </body>
