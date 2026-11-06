@@ -461,6 +461,30 @@ input{-webkit-user-select:text;user-select:text}
 .emo-float{position:absolute;left:0;top:0;pointer-events:none;will-change:transform}
 .emo-float span{display:block;font-size:32px;line-height:1;transform-origin:50% 100%;animation:emof 1.8s ease-out forwards;filter:drop-shadow(0 3px 6px rgba(0,0,0,.25))}
 @keyframes emof{0%{opacity:0;transform:scale(.3)}12%{opacity:1;transform:scale(1.2)}24%{transform:scale(1)}72%{opacity:1}100%{opacity:0;transform:scale(1)}}
+/* 청장실 기관 소개 */
+.org-hero{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;background:var(--soft);margin:8px 0 10px}
+.org-hero svg{width:44px;height:44px;flex:none}
+.org-hero b{display:block;font-size:14px;line-height:1.4}
+.org-hero span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.org-motto{margin:0 0 12px!important;padding:11px 12px;border-radius:12px;background:#1f3a5f;color:#fff;font-weight:800;text-align:center;font-size:15px!important;word-break:keep-all;text-wrap:balance}
+.modal-card h3.org-h{margin:14px 0 8px;font-size:14.5px}
+.org-h small{font-size:11.5px;font-weight:700;color:var(--muted);margin-left:8px}
+.org-do{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.org-do li{position:relative;padding-left:28px;font-size:13.5px;line-height:1.55}
+.org-do li i{position:absolute;left:0;top:-1px;font-style:normal;font-size:17px}
+.org-chart{display:grid;gap:10px;justify-items:center}
+.org-top{position:relative;padding:7px 22px;border-radius:10px;background:#1f3a5f;color:#fff;font-weight:900;font-size:14px}
+.org-top::after{content:'';position:absolute;left:50%;top:100%;width:2px;height:10px;background:var(--line)}
+.org-depts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
+.org-d{display:grid;gap:3px;text-align:left;padding:10px 12px;border-radius:12px;border:1.5px solid var(--c);background:var(--panel-solid);color:var(--text);font:inherit;cursor:pointer}
+.org-d b{color:var(--c);font-size:14px}
+.org-d span{font-size:12px;color:var(--muted);line-height:1.45}
+.org-d em{font-style:normal;font-size:11px;font-weight:800;color:var(--muted)}
+.org-d:hover{background:var(--soft)}
+.org-d:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.org-link{margin-top:12px!important}
+.org-link a{color:var(--accent);font-weight:700}
+@media (max-width:420px){.org-depts{grid-template-columns:1fr}}
 /* 시연·측정 모드 */
 .mode-note{margin:-2px 0 12px;padding:9px 12px;border-radius:10px;background:#fff4d6;color:#5a4300;font-size:13px;font-weight:700;line-height:1.55}
 .mode-note b{color:#8a5a00}
@@ -1059,11 +1083,12 @@ function resolve(p, r) {
 /* rooms — 로비 + 부서별 미션룸 4개 + 청사 안 라운지 + 하늘멍 언덕 */
 const SKY_C = new THREE.Vector3(170, 0, 0);
 const IN_C = new THREE.Vector3(-170, 0, 0); // 청사 안 맑은숨 라운지 (멀리 떨어진 따로 공간)
-const ROOM_IDS = ['lobby', 'plan', 'total', 'lab', 'car', 'inside', 'sky'];
+const OFF_C = new THREE.Vector3(-170, 0, 60); // 청사 안 청장실 (라운지 서쪽 문으로 이어짐)
+const ROOM_IDS = ['lobby', 'plan', 'total', 'lab', 'car', 'inside', 'office', 'sky'];
 let curRoom = 'lobby';
 function zoneOf(x, z) {
   if (Math.hypot(x - SKY_C.x, z - SKY_C.z) < 75) return 'sky';
-  if (x < -95) return 'inside';
+  if (x < -95) return z > 30 ? 'office' : 'inside';
   if (Math.hypot(x, z) < 15.5) return 'lobby';
   return x < 0 ? (z < 0 ? 'plan' : 'car') : (z < 0 ? 'total' : 'lab');
 }
@@ -1071,6 +1096,7 @@ function clampRoom(p, rad) { // 지금 있는 룸 밖으로 못 나가게
   if (curRoom === 'lobby') { const d = Math.hypot(p.x, p.z), m = 13.9 - rad; if (d > m) { p.x *= m / d; p.z *= m / d; } return; }
   if (curRoom === 'sky') { const dx = p.x - SKY_C.x, dz = p.z - SKY_C.z, d = Math.hypot(dx, dz), m = 30 - rad; if (d > m) { p.x = SKY_C.x + (dx / d) * m; p.z = SKY_C.z + (dz / d) * m; } return; }
   if (curRoom === 'inside') { p.x = clamp(p.x, IN_C.x - 11.75 + rad, IN_C.x + 11.75 - rad); p.z = clamp(p.z, IN_C.z - 7.75 + rad, IN_C.z + 7.7 - rad); return; }
+  if (curRoom === 'office') { p.x = clamp(p.x, OFF_C.x - 8.75 + rad, OFF_C.x + 8.75 - rad); p.z = clamp(p.z, OFF_C.z - 5.75 + rad, OFF_C.z + 5.7 - rad); return; }
   const sx = curRoom === 'plan' || curRoom === 'car' ? -1 : 1, sz = curRoom === 'plan' || curRoom === 'total' ? -1 : 1, e = 0.6 + rad;
   if (sx * p.x < e) p.x = sx * e; if (sz * p.z < e) p.z = sz * e;
   p.x = clamp(p.x, -57, 57); p.z = clamp(p.z, -57, 57);
@@ -1611,6 +1637,153 @@ let IN_VIEW = null;
     const ts = textPlane('따뜻한 차 한 잔', { w: 1.8, h: 0.36, bg: '#c97b5a' }); ts.position.set(x - 0.44, 1.7, z); ts.rotation.y = -Math.PI / 2; scene.add(ts);
   }
 }
+// 청장실: 라운지 서쪽 문으로 들어가는 기관장실 — 책상과 명패, 태극기, 현관 표어 액자, 접견 소파, 책장, 상패 장식장, 창밖 도시
+function taegukgiCanvas(w = 360) { // 대한민국 국기 (국기법 시행령 표준도 비율: 가로 3 : 세로 2, 태극 지름 = 세로의 1/2)
+  const h = Math.round((w * 2) / 3), c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d'), D = h / 2, R = D / 2, L = D / 2, T = D / 12, G = D / 24, B = D / 24;
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h);
+  g.save(); g.translate(w / 2, h / 2); g.rotate(Math.atan2(2, 3)); // 태극의 축: 왼쪽 위(건) → 오른쪽 아래(곤) 대각선
+  g.fillStyle = '#0047a0'; g.beginPath(); g.arc(0, 0, R, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#cd2e3a'; g.beginPath(); g.arc(0, 0, R, Math.PI, Math.PI * 2); g.fill(); // 위쪽 절반은 빨강
+  g.beginPath(); g.arc(-R / 2, 0, R / 2, 0, Math.PI * 2); g.fill(); // 왼쪽은 빨강이 아래로 휘고
+  g.fillStyle = '#0047a0'; g.beginPath(); g.arc(R / 2, 0, R / 2, 0, Math.PI * 2); g.fill(); // 오른쪽은 파랑이 위로 휨
+  g.restore();
+  // 4괘: 태극 둘레에서 지름의 1/4 떨어진 곳, 효 길이 = 지름의 1/2, 두께 = 1/12, 효 사이·끊긴 틈 = 1/24 (1 = 이어진 효, 0 = 끊긴 효)
+  [[Math.atan2(-2, -3), [1, 1, 1]], [Math.atan2(2, 3), [0, 0, 0]], [Math.atan2(-2, 3), [0, 1, 0]], [Math.atan2(2, -3), [1, 0, 1]]].forEach(([a, bars]) => { // 건(왼쪽 위)·곤(오른쪽 아래)·감(오른쪽 위)·리(왼쪽 아래)
+    g.save(); g.translate(w / 2, h / 2); g.rotate(a); g.fillStyle = '#000000';
+    bars.forEach((solid, k) => { const x = R + D / 4 + k * (T + G); if (solid) g.fillRect(x, -L / 2, T, L); else { g.fillRect(x, -L / 2, T, (L - B) / 2); g.fillRect(x, B / 2, T, (L - B) / 2); } });
+    g.restore();
+  });
+  return c;
+}
+const OFF_N = OFF_C.z - 6; // 청장실 북쪽 벽
+{
+  const cx = OFF_C.x, cz = OFF_C.z, W = 18, D = 12, N = OFF_N;
+  const WALL = '#f3ede3', FRAME = '#3f4852', WOOD = '#6e4a30', WOOD2 = '#5a3b25';
+  // 짙은 원목 마루 + 디오라마 받침
+  const fcv = document.createElement('canvas'); fcv.width = fcv.height = 256; const fg = fcv.getContext('2d');
+  for (let r = 0; r < 8; r++) { const y = r * 32; fg.fillStyle = r % 2 ? '#b98d63' : '#c29870'; fg.fillRect(0, y, 256, 32); fg.fillStyle = '#9a724d'; fg.fillRect(0, y, 256, 2); const off = (r * 83) % 256; fg.fillRect(off, y, 2, 32); fg.fillRect((off + 128) % 256, y, 2, 32); }
+  for (let i = 0; i < 220; i++) { fg.fillStyle = `rgba(90,55,25,${rand(0.03, 0.08).toFixed(3)})`; fg.fillRect(rand(0, 256), rand(0, 256), rand(10, 40), 1); }
+  const ftex = new THREE.CanvasTexture(fcv); ftex.wrapS = ftex.wrapT = THREE.RepeatWrapping; ftex.repeat.set(W / 4, D / 4); ftex.colorSpace = THREE.SRGBColorSpace; ftex.anisotropy = 4;
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), new THREE.MeshLambertMaterial({ map: ftex }));
+  floor.rotation.x = -Math.PI / 2; floor.position.set(cx, 0.005, cz); floor.receiveShadow = true; scene.add(floor);
+  box(W + 0.8, 1.6, D + 0.4, '#a98463', cx, -0.8, cz + 0.2, scene, false);
+  box(W + 0.8, 0.1, 0.3, '#8e6a4b', cx, -0.02, cz + D / 2 + 0.25, scene, false);
+  // 북쪽 벽: 양옆은 큰 창, 가운데는 액자를 거는 벽
+  box(6.4, 5.4, 0.4, WALL, cx, 2.7, N);
+  for (const s of [-1, 1]) {
+    const x = cx + s * 6.1;
+    box(5.8, 0.9, 0.4, WALL, x, 0.45, N); box(5.8, 0.8, 0.4, WALL, x, 5.0, N);
+    box(5.8, 0.07, 0.5, '#e3d3bb', x, 0.93, N + 0.2);
+    for (let i = 0; i <= 4; i++) box(0.12, 3.7, 0.24, FRAME, x - 2.9 + i * 1.45, 2.75, N);
+    box(5.8, 0.08, 0.22, FRAME, x, 3.75, N);
+  }
+  box(W + 1.2, 0.12, 0.62, '#e2d6c4', cx, 5.46, N, scene, false);
+  for (const s of [-1, 1]) { // 옆벽 + 나무 징두리
+    box(0.4, 5.4, D, WALL, cx + s * 9, 2.7, cz);
+    box(0.08, 1.0, D - 0.4, '#b58d67', cx + s * 8.78, 0.5, cz, scene, false);
+    box(0.62, 0.12, D + 0.2, '#e2d6c4', cx + s * 9, 5.46, cz, scene, false);
+  }
+  { // 창밖 도시 (그림)
+    const vc = document.createElement('canvas'); vc.width = 1024; vc.height = 256; const v = vc.getContext('2d');
+    const sk = v.createLinearGradient(0, 0, 0, 170); sk.addColorStop(0, '#78b6e4'); sk.addColorStop(1, '#d6ecf7'); v.fillStyle = sk; v.fillRect(0, 0, 1024, 256);
+    for (let i = 0; i < 7; i++) { const x = rand(40, 980), y = rand(20, 90), r = rand(30, 55); for (let k = 0; k < 4; k++) { const g2 = v.createRadialGradient(x + k * r * 0.5, y, 0, x + k * r * 0.5, y, r * 0.7); g2.addColorStop(0, 'rgba(255,255,255,.85)'); g2.addColorStop(1, 'rgba(255,255,255,0)'); v.fillStyle = g2; v.fillRect(0, 0, 1024, 256); } }
+    v.fillStyle = '#b4c8d6'; v.beginPath(); v.moveTo(0, 170); for (let x = 0; x <= 1024; x += 64) v.lineTo(x, 140 + Math.sin(x * 0.011) * 14 + Math.sin(x * 0.029) * 6); v.lineTo(1024, 190); v.lineTo(0, 190); v.fill();
+    for (let i = 0; i < 46; i++) { const bw = rand(28, 64), bh = rand(40, 120), x = rand(-20, 1024), y = 256; v.fillStyle = pick(['#e3e6e8', '#d3dbe1', '#ece7de', '#c9d3da', '#f2f0eb']); v.fillRect(x, y - bh, bw, bh); v.fillStyle = 'rgba(90,130,170,.35)'; for (let r = y - bh + 8; r < y - 6; r += 12) for (let c2 = x + 5; c2 < x + bw - 6; c2 += 11) v.fillRect(c2, r, 6, 5); }
+    const vt = new THREE.CanvasTexture(vc); vt.colorSpace = THREE.SRGBColorSpace;
+    const view = new THREE.Mesh(new THREE.PlaneGeometry(W, 4.0), new THREE.MeshBasicMaterial({ map: vt, fog: false })); view.position.set(cx, 2.75, N - 0.6); scene.add(view);
+  }
+  { // 현관 캐노피의 표어를 담은 액자
+    const c = document.createElement('canvas'); c.width = 1024; c.height = 320; const g = c.getContext('2d');
+    g.fillStyle = '#c9a24a'; g.fillRect(0, 0, 1024, 320); g.fillStyle = '#1f3a5f'; g.fillRect(14, 14, 996, 292);
+    g.strokeStyle = 'rgba(242,201,76,.6)'; g.lineWidth = 3; g.strokeRect(30, 30, 964, 260);
+    g.fillStyle = '#ffffff'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = `800 62px ${FONT}`; g.fillText('맑은 공기로', 512, 102); g.font = `900 74px ${FONT}`; g.fillText('건강한 100세 시대 구현', 512, 186);
+    g.fillStyle = '#f2c94c'; g.font = `700 32px ${FONT}`; g.fillText('수도권대기환경청', 512, 262);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(4.6, 1.44), new THREE.MeshBasicMaterial({ map: t })); m.position.set(cx, 3.75, N + 0.215); scene.add(m);
+  }
+  // 넓은 러그
+  flat(5.4, 3.6, '#e9dfcc', cx + 0.6, cz + 0.5, 0.012); flat(5.0, 3.2, '#45597a', cx + 0.6, cz + 0.5, 0.014);
+  // 청장 책상 · 명패 · 모니터 · 서류
+  const DZ = cz - 2.6;
+  box(3.1, 0.08, 1.25, WOOD, cx, 0.78, DZ); box(3.0, 0.66, 0.06, WOOD2, cx, 0.41, DZ + 0.56);
+  for (const s of [-1, 1]) box(0.62, 0.74, 1.15, WOOD2, cx + s * 1.18, 0.37, DZ);
+  box(3.1, 0.03, 0.06, '#c9a24a', cx, 0.83, DZ + 0.61, scene, false);
+  addRect(cx, DZ, 3.2, 1.35);
+  box(0.95, 0.56, 0.06, '#2b3036', cx - 0.7, 1.16, DZ - 0.3); box(0.08, 0.24, 0.08, '#2b3036', cx - 0.7, 0.94, DZ - 0.3); box(0.36, 0.03, 0.22, '#2b3036', cx - 0.7, 0.83, DZ - 0.3);
+  box(0.5, 0.05, 0.36, '#f6f3ea', cx + 0.55, 0.845, DZ - 0.05, scene, false); box(0.46, 0.05, 0.32, '#e8f0f6', cx + 0.58, 0.89, DZ - 0.02, scene, false);
+  cyl(0.06, 0.06, 0.16, '#3d405b', cx + 1.15, 0.9, DZ - 0.35, scene, 10); cyl(0.07, 0.06, 0.12, '#ffffff', cx + 0.95, 0.88, DZ + 0.2, scene, 10);
+  cyl(0.09, 0.07, 0.14, '#c97b5a', cx - 1.25, 0.89, DZ + 0.25, scene, 10); sph(0.13, '#5f9e57', cx - 1.25, 1.04, DZ + 0.25);
+  { const p = box(0.86, 0.22, 0.07, '#1f2a44', cx + 0.1, 0.94, DZ + 0.45, scene, false); p.rotation.x = -0.25;
+    const t = textPlane('청 장', { w: 0.8, h: 0.18, bg: '#1f2a44', fg: '#f2c94c', size: 0.72, radius: 0.03 }); t.position.set(cx + 0.1, 0.945, DZ + 0.49); t.rotation.x = -0.25; scene.add(t); }
+  { const z = DZ - 1.2; // 의자
+    box(0.8, 0.14, 0.74, '#3b2f2a', cx, 0.55, z); box(0.84, 1.05, 0.16, '#3b2f2a', cx, 1.15, z - 0.38);
+    for (const s of [-1, 1]) box(0.1, 0.24, 0.6, '#2b2320', cx + s * 0.42, 0.72, z);
+    cyl(0.05, 0.05, 0.42, '#7d8288', cx, 0.27, z, scene, 8); cyl(0.36, 0.36, 0.05, '#4a4f55', cx, 0.04, z, scene, 12);
+    addCircle(cx, z, 0.5); }
+  { const z = N + 0.55; // 뒤쪽 장식장: 책·상패·사진 액자
+    box(4.6, 0.85, 0.6, WOOD, cx, 0.425, z); box(4.7, 0.05, 0.66, WOOD2, cx, 0.87, z, scene, false);
+    for (const dx of [-1.15, 0, 1.15]) box(0.02, 0.5, 0.02, '#c9a24a', cx + dx, 0.45, z + 0.31, scene, false);
+    const BOOK = ['#1f3a5f', '#8e2b2b', '#2f5f4f', '#c9a24a', '#5a5f66'];
+    let x = cx - 2.1; while (x < cx - 0.9) { const bw = rand(0.08, 0.13), bh = rand(0.3, 0.42); box(bw, bh, 0.26, pick(BOOK), x + bw / 2, 0.9 + bh / 2, z, scene, false); x += bw + 0.01; }
+    cyl(0.09, 0.12, 0.08, '#c9a24a', cx + 1.4, 0.93, z, scene, 12); cyl(0.04, 0.04, 0.22, '#c9a24a', cx + 1.4, 1.08, z, scene, 8); sph(0.11, '#e8c55a', cx + 1.4, 1.28, z);
+    box(0.36, 0.28, 0.04, WOOD2, cx + 0.6, 1.04, z - 0.05).rotation.x = -0.15; box(0.3, 0.22, 0.01, '#d9e4ec', cx + 0.6, 1.04, z - 0.025, scene, false).rotation.x = -0.15;
+    addRect(cx, z, 4.6, 0.6); }
+  { const fx = cx - 2.85, fz = N + 1.0; // 태극기 (보는 쪽에서 왼쪽)
+    cyl(0.2, 0.25, 0.08, '#8a6a3a', fx, 0.04, fz, scene, 14); cyl(0.024, 0.024, 2.7, '#c9a24a', fx, 1.39, fz, scene, 8); sph(0.065, '#e0b84e', fx, 2.78, fz);
+    const tex = new THREE.CanvasTexture(taegukgiCanvas()); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+    const geo = new THREE.PlaneGeometry(1.14, 0.76, 12, 1), pa = geo.attributes.position;
+    for (let i = 0; i < pa.count; i++) { const u = (pa.getX(i) + 0.57) / 1.14; pa.setZ(i, Math.sin(u * Math.PI * 1.6) * 0.06 * u); }
+    geo.computeVertexNormals();
+    const flag = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map: tex, side: THREE.DoubleSide })); flag.position.set(fx + 0.6, 2.32, fz + 0.02); flag.castShadow = true; scene.add(flag);
+    addCircle(fx, fz, 0.3); }
+  { const bx = cx - 8.55, bz = cz - 3.3; // 서쪽 벽 책장
+    box(0.5, 2.7, 3.2, WOOD, bx, 1.35, bz); addRect(bx, bz, 0.5, 3.2);
+    const BOOK = ['#1f3a5f', '#8e2b2b', '#2f5f4f', '#c9a24a', '#f3f3f3', '#5a5f66', '#3a8fd1'];
+    for (let r = 0; r < 4; r++) { box(0.42, 0.05, 3.0, WOOD2, bx + 0.06, 0.3 + r * 0.62, bz, scene, false); let zz = bz - 1.35; while (zz < bz + 1.3) { const bw = rand(0.09, 0.15), bh = rand(0.34, 0.5); box(0.32, bh, bw, pick(BOOK), bx + 0.1, 0.33 + r * 0.62 + bh / 2, zz + bw / 2, scene, false); zz += bw + 0.012; if (Math.random() < 0.1) zz += 0.22; } }
+  }
+  { // 서쪽 벽 그림: 맑은 하늘 풍경
+    const c = document.createElement('canvas'); c.width = 512; c.height = 300; const g = c.getContext('2d');
+    g.fillStyle = '#c9a24a'; g.fillRect(0, 0, 512, 300);
+    const sk = g.createLinearGradient(0, 16, 0, 284); sk.addColorStop(0, '#4f9ad6'); sk.addColorStop(1, '#cfe8f6'); g.fillStyle = sk; g.fillRect(16, 16, 480, 268);
+    g.fillStyle = '#fff4c2'; g.beginPath(); g.arc(380, 80, 30, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#7fae8a'; g.beginPath(); g.moveTo(16, 230); g.lineTo(140, 130); g.lineTo(230, 200); g.lineTo(330, 120); g.lineTo(496, 220); g.lineTo(496, 284); g.lineTo(16, 284); g.fill();
+    g.fillStyle = '#5f9e6e'; g.beginPath(); g.moveTo(16, 260); g.lineTo(190, 200); g.lineTo(320, 250); g.lineTo(496, 210); g.lineTo(496, 284); g.lineTo(16, 284); g.fill();
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.4), new THREE.MeshBasicMaterial({ map: t })); m.position.set(cx - 8.77, 2.75, cz + 2.5); m.rotation.y = Math.PI / 2; scene.add(m);
+  }
+  { const x = cx - 5.3, z = cz + 2.5; // 접견 소파 · 탁자 · 찻잔 · 꽃병
+    flat(5.6, 4.4, '#b9a68e', x - 0.4, z, 0.012); flat(5.2, 4.0, '#d4c4ad', x - 0.4, z, 0.014);
+    const sofa = (px, pz, rot, len) => { const g = new THREE.Group(); g.position.set(px, 0, pz); g.rotation.y = rot; scene.add(g);
+      box(len, 0.42, 0.95, '#2f4f6f', 0, 0.26, 0.05, g); box(len, 0.8, 0.26, '#2f4f6f', 0, 0.7, -0.4, g);
+      for (const s of [-1, 1]) box(0.22, 0.6, 0.95, '#294560', (s * len) / 2, 0.4, 0.05, g);
+      box(len - 0.5, 0.1, 0.72, '#e9e2d4', 0, 0.52, 0.1, g, false); };
+    sofa(cx - 7.85, z, Math.PI / 2, 3.0); addRect(cx - 7.85, z, 1.0, 3.3);
+    sofa(x, z - 1.95, 0, 1.2); addRect(x, z - 1.95, 1.45, 1.0);
+    sofa(x, z + 1.95, Math.PI, 1.2); addRect(x, z + 1.95, 1.45, 1.0);
+    box(1.1, 0.06, 1.9, WOOD, x, 0.42, z); for (const sx of [-0.45, 0.45]) for (const sz of [-0.8, 0.8]) box(0.06, 0.4, 0.06, WOOD2, x + sx, 0.2, z + sz, scene, false);
+    addRect(x, z, 1.1, 1.9);
+    for (const [dx, dz] of [[-0.25, -0.5], [0.25, -0.3], [-0.2, 0.45]]) { cyl(0.07, 0.06, 0.1, '#ffffff', x + dx, 0.5, z + dz, scene, 10); cyl(0.1, 0.1, 0.012, '#ffffff', x + dx, 0.452, z + dz, scene, 10, false); }
+    cyl(0.1, 0.08, 0.22, '#e9e2d4', x + 0.15, 0.56, z + 0.1, scene, 10);
+    for (let k = 0; k < 5; k++) sph(0.065, ['#f28482', '#f6bd60', '#f7ede2', '#cdb4db', '#f28482'][k], x + 0.15 + rand(-0.07, 0.07), 0.72 + rand(0, 0.05), z + 0.1 + rand(-0.07, 0.07));
+  }
+  { const x = cx + 8.5, z = cz - 3.4; // 동쪽 벽 상패 장식장
+    box(0.12, 2.2, 2.6, WOOD2, x + 0.24, 1.1, z);
+    for (const dz of [-1.25, 1.25]) box(0.5, 2.2, 0.1, WOOD, x, 1.1, z + dz);
+    for (let r = 0; r < 4; r++) box(0.5, 0.06, 2.5, WOOD, x, 0.06 + r * 0.7, z, scene, false);
+    for (let r = 1; r < 4; r++) for (let k = 0; k < 3; k++) {
+      const zz = z - 0.8 + k * 0.8, y = 0.09 + r * 0.7;
+      if ((r + k) % 2) { cyl(0.1, 0.13, 0.08, '#c9a24a', x - 0.05, y + 0.04, zz, scene, 10); cyl(0.03, 0.03, 0.18, '#c9a24a', x - 0.05, y + 0.17, zz, scene, 6); sph(0.1, '#e8c55a', x - 0.05, y + 0.32, zz); }
+      else { box(0.06, 0.34, 0.26, WOOD2, x + 0.1, y + 0.18, zz).rotation.z = 0.12; box(0.01, 0.26, 0.18, '#d8c27a', x + 0.065, y + 0.18, zz, scene, false).rotation.z = 0.12; }
+    }
+    addRect(x, z, 0.6, 2.6); }
+  [[cx + 8.1, N + 0.8], [cx + 3.7, N + 0.8], [cx - 8.2, cz + 5.3], [cx + 8.2, cz + 5.3]].forEach(([x, z], i) => { // 큰 잎 화분
+    cyl(0.34, 0.26, 0.6, ['#e9d8c4', '#d9896a', '#f1ebe0', '#c9a57d'][i], x, 0.3, z, scene, 12);
+    for (let k = 0; k < 6; k++) { const a = (k / 6) * Math.PI * 2 + i, l = put(new THREE.Mesh(new THREE.SphereGeometry(0.34, 8, 6), mat(k % 2 ? '#5f9e57' : '#4f8f4f')), scene, x + Math.cos(a) * 0.32, 1.05 + (k % 3) * 0.22, z + Math.sin(a) * 0.32); l.scale.set(1, 0.35, 0.7); l.rotation.set(rand(-0.5, 0.5), -a, 0.5); }
+    sph(0.22, '#6aa85c', x, 1.5, z); addCircle(x, z, 0.42);
+  });
+}
 // 룸 정보와 문(포털)
 const ROOMS = {
   lobby: { name: '로비 · 청사 광장', short: '로비', color: '#217569', desc: '안내 직원과 전광판이 있는 청사 앞 광장', spawn: [0, 8], face: Math.PI },
@@ -1619,19 +1792,20 @@ const ROOMS = {
   lab: { name: '조사분석과 미션룸', short: '조사분석과', color: '#8e6bbf', desc: '시료 분석 · 측정망 · 이동측정 · 배출량 조사', spawn: [14.7, 14.7], face: Math.PI * 0.25 },
   car: { name: '자동차관리과 미션룸', short: '자동차관리과', color: '#e4572e', desc: '도로 청소 · 연료 · 저감사업 · 건설기계', spawn: [-14.7, 14.7], face: -Math.PI * 0.25 },
   inside: { name: '맑은숨 라운지', short: '라운지', color: '#c97b5a', desc: '청사 안 창가와 실내 연못에서 멍때리며 쉬는 곳', spawn: [IN_C.x + 9.3, 5.0], face: -Math.PI / 2 },
+  office: { name: '청장실', short: '청장실', color: '#2c4f7c', desc: '청장님이 우리 청을 소개해 주는 방 (라운지 서쪽 문)', spawn: [OFF_C.x + 5.5, OFF_C.z + 2.7], face: -Math.PI / 2 },
   sky: { name: '하늘멍 언덕', short: '하늘멍', color: '#5aa9e6', desc: '누워서 하늘 보며 쉬는 잔디 언덕', spawn: [SKY_C.x, SKY_C.z + 12], face: Math.PI },
 };
 const GATES = [];
-function makeGate(x, z, face, to, from) {
+function makeGate(x, z, face, to, from, label) { // label: 다가가면 뜨는 행동 이름 (없으면 룸 이름으로)
   const R = ROOMS[to], g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = face; scene.add(g);
   for (const sx of [-1.35, 1.35]) { cyl(0.17, 0.2, 3.2, '#f2efe6', sx, 1.6, 0, g, 10); cyl(0.28, 0.28, 0.25, R.color, sx, 0.12, 0, g, 10); }
   box(3.2, 0.36, 0.42, R.color, 0, 3.3, 0, g); box(0.5, 0.5, 0.46, '#f2efe6', 0, 3.3, 0, g);
   const glow = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 2.95), new THREE.MeshBasicMaterial({ color: R.color, transparent: true, opacity: 0.3, side: THREE.DoubleSide, depthWrite: false }));
   glow.position.set(0, 1.55, 0); g.add(glow);
-  const lbl = textPlane(to === 'lobby' ? '로비로' : to === 'sky' ? '하늘멍 언덕' : `${R.short} 미션룸`, { w: 3.0, h: 0.56, bg: R.color }); lbl.position.set(0, 3.95, 0.05); g.add(lbl);
+  const lbl = textPlane(to === 'lobby' ? '로비로' : to === 'sky' ? '하늘멍 언덕' : to === 'office' ? '청장실' : to === 'inside' ? '라운지로' : `${R.short} 미션룸`, { w: 3.0, h: 0.56, bg: R.color }); lbl.position.set(0, 3.95, 0.05); g.add(lbl);
   const back = lbl.clone(); back.rotation.y = Math.PI; back.position.z = -0.05; g.add(back);
   const px = Math.cos(face) * 1.35, pz = -Math.sin(face) * 1.35; addCircle(x + px, z + pz, 0.32); addCircle(x - px, z - pz, 0.32);
-  GATES.push({ pos: new THREE.Vector3(x, 0, z), to, from, glow, face });
+  GATES.push({ pos: new THREE.Vector3(x, 0, z), to, from, glow, face, label });
 }
 makeGate(-13.0, -4.5, Math.atan2(13.0, 4.5), 'plan', 'lobby');
 makeGate(13.0, -4.5, Math.atan2(-13.0, 4.5), 'total', 'lobby');
@@ -1644,9 +1818,23 @@ makeGate(12.9, 12.9, Math.atan2(1, 1), 'lobby', 'lab');
 makeGate(-12.9, 12.9, Math.atan2(-1, 1), 'lobby', 'car');
 makeGate(SKY_C.x, SKY_C.z + 15, Math.PI, 'lobby', 'sky');
 makeGate(IN_C.x + 11.3, 5.0, -Math.PI / 2, 'lobby', 'inside');
+makeGate(IN_C.x - 11.3, -3.3, Math.PI / 2, 'office', 'inside', '청장실로 들어가기'); // 라운지 서쪽 벽 (책장과 창가 벤치 사이)
+makeGate(OFF_C.x + 8.3, OFF_C.z + 3.0, -Math.PI / 2, 'inside', 'office', '라운지로 나가기');
+// 옆벽 문은 카메라에서 옆모습만 보이므로, 벽에서 튀어나온 문패를 달아 정면에서 읽히게
+[[IN_C.x - 11.8, -1.45, 1, '청장실', ROOMS.office.color], [OFF_C.x + 8.8, OFF_C.z + 4.65, -1, '라운지로', ROOMS.inside.color]].forEach(([wx, z, dir, text, color]) => {
+  box(1.5, 0.06, 0.06, '#c9a24a', wx + dir * 0.75, 3.62, z, scene, false);
+  const s = textPlane(text, { w: 1.4, h: 0.5, bg: color, size: 0.6 }); s.position.set(wx + dir * 0.8, 3.3, z); scene.add(s);
+  const b = s.clone(); b.rotation.y = Math.PI; b.position.z -= 0.01; scene.add(b);
+});
 // 청사 현관문 자체가 라운지로 가는 문 (돌아오면 현관 앞 계단에 섬)
 GATES.push({ pos: new THREE.Vector3(0, 0, -2.0), to: 'inside', from: 'lobby', glow: hqDoorGlow, face: Math.PI, label: '청사 안으로 들어가기', out: [0, 2.0, 0] });
 const gateTo = (from, to) => GATES.find((g) => g.from === from && g.to === to);
+function nextGate(from, to) { // 다른 룸으로 갈 때 지금 룸에서 지나갈 문 (청장실은 라운지를 거침, 나머지는 로비를 거침)
+  if (from === to) return null;
+  if (from === 'office') return gateTo('office', 'inside');
+  const t = to === 'office' && from !== 'inside' ? 'inside' : to;
+  return from === 'lobby' ? gateTo('lobby', t) : gateTo(from, t) || gateTo(from, 'lobby');
+}
 // 기획과 차고
 {
   for (const [dx, dz] of [[-3.6, -2.6], [3.6, -2.6], [-3.6, 2.6], [3.6, 2.6]]) { cyl(0.14, 0.14, 3.4, '#cfd5d2', -20 + dx, 1.7, -9 + dz, scene, 8); addCircle(-20 + dx, -9 + dz, 0.25); }
@@ -1977,7 +2165,7 @@ for (let i = 0; i < 22; i++) {
    characters
    ========================================================= */
 const shade = (hex, k) => { const c = new THREE.Color(hex); c.multiplyScalar(k); return `#${c.getHexString()}`; };
-function makePerson({ shirt = '#3b82c4', pants = '#38485a', hair = '#2a221d', skin = '#f1c8a4', vest = false, helmet = false, style = 'short', acc = 'none', scale = 1, body: shape = 'm', top = 'long', bottom = 'pants', eye = 'round', mouth = 'smile', cheek = 'pink' } = {}) {
+function makePerson({ shirt = '#3b82c4', pants = '#38485a', hair = '#2a221d', skin = '#f1c8a4', vest = false, helmet = false, style = 'short', acc = 'none', scale = 1, body: shape = 'm', top = 'long', bottom = 'pants', eye = 'round', mouth = 'smile', cheek = 'pink', tie = true, shoe = null } = {}) { // tie: 정장 넥타이 (false면 블라우스+브로치), shoe: 구두 색
   // 2.5등신 귀여운 비율: 큰 머리, 짧은 팔다리, 둥근 몸
   const root = new THREE.Group(); const body = new THREE.Group(); root.add(body);
   root.rotation.order = 'YXZ'; // 방향을 먼저 돌리고 몸을 기울여야 눕기·날기 자세가 바르게 나옴
@@ -1990,7 +2178,7 @@ function makePerson({ shirt = '#3b82c4', pants = '#38485a', hair = '#2a221d', sk
     const p = new THREE.Group(); p.position.set(x, 0.5, 0); body.add(p);
     if (bottom === 'pants') mk(cap(0.1, 0.24), pants, 0, -0.2, 0, p);
     else { mk(cap(0.1, 0.06), bottom === 'shorts' ? pants : skin, 0, -0.1, 0, p); mk(cap(0.085, 0.18), skin, 0, -0.27, 0, p); }
-    const shoe = mk(new THREE.SphereGeometry(0.12, 12, 8), f && bottom === 'skirt' ? '#c25a6a' : '#3a3f46', 0, -0.44, 0.045, p); shoe.scale.set(1, 0.62, 1.35);
+    const sh = mk(new THREE.SphereGeometry(0.12, 12, 8), shoe || (f && bottom === 'skirt' ? '#c25a6a' : '#3a3f46'), 0, -0.44, 0.045, p); sh.scale.set(1, 0.62, 1.35);
     return p;
   });
   if (bottom === 'skirt') mk(new THREE.CylinderGeometry(TR * 0.95, TR * 1.5, 0.3, 14), pants, 0, 0.56, 0);
@@ -2002,7 +2190,8 @@ function makePerson({ shirt = '#3b82c4', pants = '#38485a', hair = '#2a221d', sk
   if (top === 'shirt' || top === 'suit') {
     if (top === 'suit') mk(new THREE.BoxGeometry(0.16, 0.3, 0.02), '#f6f6f2', 0, 0.97, FZ - 0.01);
     for (const s of [-1, 1]) { const c = mk(new THREE.BoxGeometry(0.12, 0.06, 0.04), '#f6f6f2', s * 0.065, 1.1, FZ - 0.02); c.rotation.z = s * -0.5; }
-    mk(new THREE.BoxGeometry(0.06, 0.26, 0.02), top === 'suit' ? '#8b2d34' : '#2f3e46', 0, 0.94, FZ + 0.005);
+    if (tie || top !== 'suit') mk(new THREE.BoxGeometry(0.06, 0.26, 0.02), top === 'suit' ? '#8b2d34' : '#2f3e46', 0, 0.94, FZ + 0.005);
+    else mk(new THREE.SphereGeometry(0.032, 10, 8), '#e0b84e', 0.115, 1.0, FZ + 0.012); // 넥타이 대신 금색 브로치
   }
   if (top === 'hoodie') {
     const h = mk(new THREE.SphereGeometry(1, 12, 8), shade(shirt, 0.85), 0, 1.1, -FZ + 0.02); h.scale.set(0.22, 0.12, 0.12);
@@ -2067,6 +2256,7 @@ function makePerson({ shirt = '#3b82c4', pants = '#38485a', hair = '#2a221d', sk
   return { root, body, head, torso, eyes, legL: legs[0], legR: legs[1], armL: arms[0], armR: arms[1], phase: Math.random() * 6, carry: false, blink: rand(1, 4), wave: 0, jump: 0, lastSt: 1, look: 0, seed: Math.random() * 10, lean: 0 };
 }
 function animPerson(rig, speed, dt) { // 걸음 이벤트가 생기면 true
+  if (!Number.isFinite(speed)) speed = 0; if (!Number.isFinite(rig.phase)) rig.phase = 0; // 숫자가 깨지면 몸이 통째로 사라지므로 막아 둠
   const run = speed > 7.2;
   rig.phase += dt * (2.6 + speed * 1.55);
   const a = Math.min(1, speed / 4) * (run ? 1 : 0.78);
@@ -2114,6 +2304,8 @@ addNPC('plan', '기획과 주무관', -14.9, -8.6, Math.PI - 0.35, { shirt: '#f4
 addNPC('total', '대기총량과 주무관', 16, -8.5, -0.3, { shirt: '#f4f4f0', vest: true, helmet: true });
 addNPC('lab', '조사분석과 주무관', 21, 31.5, 0.6, { shirt: '#f4f4f0', vest: true, helmet: true, skin: '#e8b991' });
 addNPC('car', '자동차관리과 주무관', -14, 27, -0.5, { shirt: '#f4f4f0', vest: true, hair: '#5a3d2b' });
+// 청장님: 청장실 책상 앞에서 손님을 맞음 (지금 청장님이 여성이라 여성 캐릭터 · 남색 정장 · 단발)
+const chief = addNPC('chief', '청장님', OFF_C.x + 1.7, OFF_C.z - 1.0, 0.88, { body: 'f', style: 'bob', hair: '#2a211b', skin: '#f1c8a4', top: 'suit', shirt: '#2f3d5c', bottom: 'skirt', pants: '#2f3d5c', acc: 'none', eye: 'round', mouth: 'smile', cheek: 'pink', tie: false, shoe: '#2b2f36' });
 const npcByKey = Object.fromEntries(npcs.map((n) => [n.key, n]));
 
 const walkers = [];
@@ -2214,7 +2406,7 @@ const zoneGroups = {};
   }
   ROOM_IDS.forEach((k) => scene.add(zoneGroups[k]));
 })();
-function showZones(id) { ROOM_IDS.forEach((k) => (zoneGroups[k].visible = id === 'all' ? k !== 'sky' && k !== 'inside' : k === id)); }
+function showZones(id) { ROOM_IDS.forEach((k) => (zoneGroups[k].visible = id === 'all' ? k !== 'sky' && k !== 'inside' && k !== 'office' : k === id)); }
 
 /* =========================================================
    player & control
@@ -2288,7 +2480,7 @@ function walkCtrl(dt, inp) {
   if (nav) navStuck(dt, inp.mag > 0.2 && p.moved < Math.max(sp, 2) * dt * 0.2);
   if (sp > 0.3) p.heading = angLerp(p.heading, Math.atan2(p.vel.x, p.vel.z), 1 - Math.exp(-16 * dt));
   p.running = inp.run && sp > 6.5;
-  return p.moved / dt;
+  return dt > 0 ? p.moved / dt : 0;
 }
 function driveCtrl(dt, inp) { // 조이스틱 방향으로 핸들을 꺾으며 달림. 벽에 끼면 알아서 살짝 후진해서 빠져나옴
   const v = ctrl, top = v.speed * (inp.run ? 1.3 : 1);
@@ -2324,7 +2516,7 @@ function driveCtrl(dt, inp) { // 조이스틱 방향으로 핸들을 꺾으며 �
   v.steer += (steer * clamp(v.fwd / 6, 0, 1) - v.steer) * (1 - Math.exp(-6 * dt));
   v.body.rotation.z = v.steer * 0.07;
   v.body.rotation.x += (clamp((-dF / Math.max(dt, 1e-3)) * 0.006, -0.06, 0.06) - v.body.rotation.x) * (1 - Math.exp(-8 * dt));
-  return v.moved / dt;
+  return dt > 0 ? v.moved / dt : 0;
 }
 function moveCtrl(dt) { const inp = readInput(); return ctrl.kind === 'walk' ? walkCtrl(dt, inp) : driveCtrl(dt, inp); }
 
@@ -2400,7 +2592,7 @@ function toast(msg, ms = 2900) {
 const interacts = [];
 function addI(o) { const it = Object.assign({ r: 2.6, modes: ['walk'], dy: 2.9, ring: 1 }, o); interacts.push(it); return it; }
 let cur = null;
-npcs.forEach((n) => addI({ pos: n.pos, r: 2.9, dy: 3.35, label: () => (n.key === 'guide' ? '대화하기' : '업무 고르기'), act: () => talkTo(n) }));
+npcs.forEach((n) => addI({ pos: n.pos, r: 2.9, dy: 3.35, label: () => (n.key === 'guide' ? '대화하기' : n.key === 'chief' ? '청장님께 인사하기' : '업무 고르기'), act: () => talkTo(n) }));
 addI({ pos: new THREE.Vector3(7, 0, 38.6), r: 2.6, dy: 2.2, label: () => (M.active === 'net' ? '측정자료 점검하기' : '측정소 안내 보기'), act: () => (M.active === 'net' ? openNetCheck() : talk('안내판', ['<b>국가대기오염측정망 측정소</b>예요. 흡입구로 주변 공기를 받아들여 미세먼지·오존 같은 항목별 대기오염도를 연속으로 측정해요.', '조사분석과가 측정망을 설치·운영하고, 장비 상태와 측정자료를 점검해 품질을 관리해요. 측정자료는 분석·평가를 거쳐 대기환경 현황을 파악하는 데 쓰여요.'])) });
 addI({ pos: new THREE.Vector3(-10.8, 0, 5.8), r: 2.6, dy: 4.8, label: () => '전광판 보기', act: () => talk('전광판', [`지금 수도권 하늘 맑음도는 <b>${Math.round(skyTarget * 100)}%</b>예요. 업무를 하나 체험할 때마다 25%씩 맑아져요.`]) });
 
@@ -2805,6 +2997,7 @@ const TALK = {
 };
 function talkTo(n) {
   if (n.key === 'guide') return talkGuide();
+  if (n.key === 'chief') return talkChief();
   if (M.active && M.active !== n.key) return talk(n.name, ['지금 하고 있는 체험을 먼저 마쳐 주세요. 왼쪽 미션 창의 <b>체험 그만두기</b>로 멈출 수도 있어요.']);
   if (M.active) return talk(n.name, [M.active === 'total' ? '노란 원이 남은 설비를 마저 점검해 주세요.' : '왼쪽 위 안내를 따라 계속 진행해 주세요.']);
   n.rig.wave = 1.2;
@@ -2847,6 +3040,49 @@ function talkGuide() {
   if (n === 4) return talk('안내 직원', [`네 과의 대표 업무를 모두 체험하셨네요! 하늘이 이렇게 맑아졌어요. 지금까지 <b>${doneAll()}/16</b>가지 업무를 해 봤어요. 작은 기념장을 드릴게요.`], [{ label: '기념장 받기', primary: true, onClick: showCert }]);
   const left = Object.keys(DEPT).filter((k) => !state.done[k]).map((k) => DEPT[k].name).join(', ');
   talk('안내 직원', [`지금까지 <b>${doneAll()}/16</b>가지 업무를 체험했어요. 대표 업무가 남은 곳은 ${left}예요. <b>바로 가기</b>로 고르면 알아서 걸어가요.`], [{ label: '닫기' }, { label: '바로 가기', primary: true, onClick: () => setTimeout(openNavPicker, 120) }]);
+}
+// ---- 청장님: 기관 소개 (청장실) ----
+function chiefDone() { if (!state.metChief) { state.metChief = true; save(); award('chief'); refreshAll(); } }
+function talkChief() {
+  const n = chief, did = doneAll(); n.rig.wave = 1.4;
+  const btns = [{ label: '고맙습니다', onClick: chiefDone }, { label: state.metChief ? '기관 소개 다시 보기' : '기관 소개 자세히 보기', primary: true, onClick: () => { chiefDone(); setTimeout(openOrgIntro, 120); } }];
+  if (!state.metChief) return talk(n.name, [
+    `어서 오세요, <b>${esc(state.name)}</b> 님! 청장실에 오신 걸 환영해요.${did ? ` 벌써 업무를 <b>${did}가지</b>나 체험하셨네요.` : ''} 우리 청을 잠깐 소개해 드릴게요.`,
+    '수도권대기환경청은 서울·인천·경기, <b>수도권의 공기를 맑게</b> 하려고 <b>2005년</b>에 문을 연 <b>기후에너지환경부 소속 기관</b>이에요.',
+    '수도권 대기환경을 개선하는 계획을 세우고, 서울·인천·경기가 함께 실천하도록 돕고 점검해요. 사업장과 자동차에서 나오는 오염물질을 줄이고, 대기질을 재고 조사하고, 시민과 함께하는 교육·홍보도 해요.',
+    '<b>기획과·대기총량과·조사분석과·자동차관리과</b>, 네 개 과가 힘을 모아 일해요. 체험관 곳곳에서 우리 직원들이 하는 일을 직접 해 볼 수 있어요.',
+    '청사 현관에 걸린 <b>“맑은 공기로 건강한 100세 시대 구현”</b>, 우리 모두의 바람이에요. 맑은 하늘, 함께 지켜 주세요!',
+  ], btns);
+  talk(n.name, [did >= 16 ? `16가지 업무를 모두 체험하셨군요, <b>${esc(state.name)}</b> 님! 이제 우리 청 일을 누구보다 잘 아시겠어요. 정말 고마워요.`
+    : did ? `다시 와 주셨네요, <b>${esc(state.name)}</b> 님! 지금까지 업무 <b>${did}가지</b>를 체험하셨어요. 남은 업무도 즐겁게 해 보세요.`
+      : `다시 와 주셨네요, <b>${esc(state.name)}</b> 님! 이제 네 개 과를 둘러보며 업무를 하나씩 체험해 보세요. 기관 소개에서 과를 누르면 바로 걸어가요.`], btns);
+}
+const ORG_DO = [
+  ['🗺️', '수도권 대기환경을 개선하는 계획을 세우고, 서울·인천·경기가 함께 실천하도록 돕고 점검해요.'],
+  ['🏭', '사업장이 내보내는 오염물질을 확인·관리하고, 시설 점검과 기술지원을 해요.'],
+  ['🚚', '노후 경유차·건설기계 저감사업과 도로 먼지 줄이기로 자동차·도로에서 생기는 오염을 줄여요.'],
+  ['📈', '측정망과 이동측정차량으로 대기질을 재고, 배출원과 배출량을 조사해요.'],
+  ['📣', '시민과 함께하는 대기환경 교육·홍보를 해요.'],
+];
+const ORG_DEPT = { plan: '업무계획 · 오존 대책 · 교육 홍보 · 감시장비', total: '사업장 배출 관리 · 비산배출 · 배출권 · 기술지원', lab: '측정망 · 배출량 조사 · 이동측정 · 시료 분석', car: '노후차 저감사업 · 건설기계 · 연료 품질 · 도로 먼지' };
+function openOrgIntro() {
+  if (!started) return;
+  openModal(`<p class="m-k">청장실 · 기관 소개</p><h2>수도권대기환경청을 소개합니다</h2>
+    <div class="org-hero"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#217569"/><circle cx="30" cy="17" r="6" fill="#f2c94c"/><path d="M13 35h21a6 6 0 0 0 .5-12A8.5 8.5 0 0 0 18.4 21 7 7 0 0 0 13 35z" fill="#fff"/></svg>
+      <div><b>기후에너지환경부 소속 · 2005년에 문을 열었어요</b><span>서울·인천·경기, 수도권의 공기를 맑게 하는 기관</span></div></div>
+    <p class="org-motto">“맑은 공기로 건강한 100세 시대 구현”</p>
+    <h3 class="org-h">우리 청이 하는 일</h3>
+    <ul class="org-do">${ORG_DO.map(([i, t]) => `<li><i aria-hidden="true">${i}</i>${t}</li>`).join('')}</ul>
+    <h3 class="org-h">네 개 과<small>누르면 그 과로 바로 걸어가요</small></h3>
+    <div class="org-chart"><div class="org-top">청장</div>
+      <div class="org-depts">${Object.keys(DEPT).map((k) => `<button type="button" class="org-d" data-go="${k}" style="--c:${ROOMS[k].color}"><b>${DEPT[k].name}</b><span>${ORG_DEPT[k]}</span><em>체험한 업무 ${DEPT_MS[k].filter(msDone).length}/4</em></button>`).join('')}</div></div>
+    <p class="fine org-link">우리 청 소식은 <a href="https://www.me.go.kr/mamo/" target="_blank" rel="noopener">수도권대기환경청 누리집 ↗</a>에서 볼 수 있어요.</p>
+    <div class="m-btns"><button class="btn primary" data-x>고맙습니다</button></div>`);
+  mcard.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => {
+    const d = navDests().find((x) => x.name === DEPT[b.dataset.go].name); closeModal();
+    if (d && navTo(d)) { SFX.ok(); toast(`<b>${d.name} 주무관</b>에게 걸어가요. 노란 점을 따라가요!`); }
+  }));
+  $('[data-x]', mcard).onclick = closeModal;
 }
 function showCert() {
   const d = new Date(), ds = `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
@@ -3735,7 +3971,8 @@ const MASCOT_TIPS = [
   () => `지금까지 업무 체험 <b>${doneAll()}개</b>를 했어. 16개 다 해 보자!`,
   () => '하늘멍 언덕에선 <b>하늘을 날 수도</b> 있어. 날면서 <b>구름 링 10개</b>를 지나 보자~',
   () => '청사 현관으로 들어가면 <b>맑은숨 라운지</b>가 있어. 창가에서 같이 멍때리자!',
-  () => { const here = ORBS.filter((o, i) => !state.orbs.includes(i) && zoneOf(o[0], o[1]) === curRoom).length; const left = ORBS.length - state.orbs.length; return left ? `반짝이는 <b>하늘 구슬</b>이 ${left}개 더 숨어 있어. ${here ? `이 룸에도 <b>${here}개</b>!` : '이 룸엔 다 찾았어!'}` : '하늘 구슬을 다 모았구나! 로비에 <b>무지개</b>가 떴어.'; },
+  () => { const inRoom = ORBS.filter((o) => zoneOf(o[0], o[1]) === curRoom).length, here = ORBS.filter((o, i) => !state.orbs.includes(i) && zoneOf(o[0], o[1]) === curRoom).length; const left = ORBS.length - state.orbs.length; return left ? `반짝이는 <b>하늘 구슬</b>이 ${left}개 더 숨어 있어. ${here ? `이 룸에도 <b>${here}개</b>!` : inRoom ? '이 룸엔 다 찾았어!' : '이 룸엔 구슬이 없어. 다른 룸을 찾아보자!'}` : '하늘 구슬을 다 모았구나! 로비에 <b>무지개</b>가 떴어.'; },
+  () => (state.metChief ? '청장님이 우리 청을 소개해 주셨지? <b>바로 가기</b>로 청장실에 또 갈 수 있어!' : '청사 안 라운지 <b>서쪽 문</b>으로 가면 <b>청장실</b>이 있어. 청장님이 우리 청을 소개해 주셔!'),
   () => '하늘멍 언덕 <b>모닥불</b>에서 불멍도 할 수 있어. 밤에 <b>소원 풍등</b>도 날려 보자.',
   () => `지금까지 배지를 <b>${badgeCount()}개</b> 모았어. 메뉴의 <b>업적 배지</b>에서 볼 수 있어!`,
   () => '가까운 길은 걷고, 버스·지하철을 타면 하늘이 더 맑아져!',
@@ -4065,11 +4302,12 @@ const BADGES = [
   ['lantern', '🏮', '소원을 띄운 밤', '소원 풍등 날리기'],
   ['cat', '🐱', '고양이 친구', '라운지 고양이 쓰다듬기'],
   ['play5', '🎈', '단짝', '마스코트랑 5번 같이 놀기'],
-  ['rooms', '🗺️', '탐험가', '7개 룸 모두 가 보기'],
+  ['rooms', '🗺️', '탐험가', '8개 룸 모두 가 보기'],
   ['dust', '🧹', '먼지 사냥꾼', '미세먼지 잡기 500점 넘기기'],
   ['fish', '🐟', '물고기 친구', '라운지 연못 물고기에게 먹이 주기'],
   ['bloom', '🌷', '정원사', '나만의 꽃밭에서 꽃 한 송이 피우기'],
   ['style', '🎀', '멋쟁이 친구들', '푸르미·맑음이 꾸며 주기'],
+  ['chief', '🏛️', '청장님과 인사', '청장실에서 우리 청 소개 듣기'],
 ];
 const TITLES = [[0, '새싹 지킴이'], [3, '바람 지킴이'], [6, '구름 지킴이'], [10, '하늘 지킴이'], [14, '푸른하늘 명예 지킴이']];
 const badgeCount = () => BADGES.filter((b) => state.badges[b[0]]).length;
@@ -4125,7 +4363,7 @@ const ORB_TIPS = [
   '차를 세워 둘 땐 시동을 꺼요. 공회전을 줄이면 공기가 깨끗해져요.',
   '전국 측정소의 대기질은 에어코리아 누리집에서 누구나 볼 수 있어요.',
   '고농도 미세먼지가 예보되면 비상저감조치로 배출을 함께 줄여요.',
-  '수도권대기환경청은 서울·인천·경기의 하늘을 함께 맑게 하려고 세워진 환경부 소속 기관이에요.',
+  '수도권대기환경청은 서울·인천·경기의 하늘을 함께 맑게 하려고 2005년에 문을 연 기후에너지환경부 소속 기관이에요.',
   '나뭇잎은 미세먼지를 붙잡아 줘요. 도시 숲이 많을수록 공기가 좋아져요.',
   '실내 환기는 미세먼지가 적은 시간에 짧게, 자주 하는 게 좋아요.',
   '오래된 경유차는 조기폐차·저감장치로 미세먼지를 크게 줄일 수 있어요.',
@@ -4792,6 +5030,7 @@ function sendEmo(i) {
 let skyTarget = doneCount() / 4, skyLevel = skyTarget, lastObj = '';
 function npcMark(n) {
   if (n.key === 'guide') return !state.metGuide || doneCount() === 4 ? 'bang' : null;
+  if (n.key === 'chief') return state.metChief ? null : 'bang';
   if (DEPT_MS[n.key] && DEPT_MS[n.key].every(msDone)) return 'chk';
   return state.metGuide ? 'bang' : null;
 }
@@ -4825,7 +5064,8 @@ function objective() {
     if (next) return `오늘 해 볼 업무: <b>${esc(msName(next))}</b> (${evalSess.missions.filter((id) => evalDoneOf(evalSess, id)).length}/${evalSess.missions.length}). <b>바로 가기</b>로 갈 수 있어요.`;
     return '오늘 해 볼 업무를 모두 마쳤어요! 왼쪽 <b>체험 끝내기</b>를 눌러 주세요.';
   }
-  if (curRoom === 'inside') return '<b>창가 벤치</b>나 <b>연못 앞 벤치</b>에 앉아 멍때려 보세요. 고양이도 쓰다듬어 보고요.';
+  if (curRoom === 'inside') return '<b>창가 벤치</b>나 <b>연못 앞 벤치</b>에 앉아 멍때려 보세요. 서쪽 문으로 가면 <b>청장실</b>이에요.';
+  if (curRoom === 'office') return state.metChief ? '청장님께 다시 말을 걸면 <b>기관 소개</b>를 또 볼 수 있어요. 과를 누르면 그 과로 바로 가요.' : '<span class="ib">!</span> <b>청장님</b>께 인사하고 우리 청 소개를 들어 보세요.';
   const n = doneCount();
   if (n === 4) return '모든 업무 완료! 청사 앞 <b>안내 직원</b>에게 가 보세요.';
   const left = Object.keys(DEPT).filter((k) => !state.done[k]);
@@ -4861,6 +5101,11 @@ function sizeMinimap() {
     c.fillStyle = '#7db7dc'; c.beginPath(); c.ellipse(W2X(IN_POND.x), W2Z(IN_POND.z), W2S(IN_PR[0]), W2S(IN_PR[1]), 0, 0, Math.PI * 2); c.fill();
     circ(IN_C.x - 1, 2.2, 1.2, '#7cb36a'); circ(IN_C.x - 8, 3, 2.4, '#efe3cf');
     WIN_SEATS.forEach((s) => R(s.x - 1.15, s.z - 0.45, s.x + 1.15, s.z + 0.45, '#c9a57d'));
+  } else if (curRoom === 'office') { // 청장실 평면도 (가구는 아래에서 회색으로)
+    Object.assign(mmView, { cx: OFF_C.x, cz: OFF_C.z, half: 10.5 });
+    c.fillStyle = '#56606a'; c.fillRect(0, 0, MMS, MMS); R(OFF_C.x - 9, OFF_N, OFF_C.x + 9, OFF_C.z + 6, '#c9a27a');
+    R(OFF_C.x - 9, OFF_N - 0.3, OFF_C.x - 3.2, OFF_N + 0.3, '#a9d6ef'); R(OFF_C.x + 3.2, OFF_N - 0.3, OFF_C.x + 9, OFF_N + 0.3, '#a9d6ef');
+    R(OFF_C.x - 2.1, OFF_C.z - 1.3, OFF_C.x + 3.1, OFF_C.z + 2.1, '#45597a'); R(OFF_C.x - 8.5, OFF_C.z + 0.3, OFF_C.x - 2.9, OFF_C.z + 4.7, '#d4c4ad');
   } else {
     Object.assign(mmView, { cx: 0, cz: 0, half: 60 });
     c.fillStyle = '#a6d18f'; c.fillRect(0, 0, MMS, MMS);
@@ -4871,7 +5116,7 @@ function sizeMinimap() {
   c.fillStyle = '#8b949b';
   if (curRoom !== 'inside') rects.forEach((r) => { if (r.x1 - r.x0 > 1.5 && r.z1 - r.z0 > 1.5 && r.x0 < 1e8 && inView(r.x0, r.z0)) c.fillRect(W2X(r.x0), W2Z(r.z0), W2X(r.x1) - W2X(r.x0), W2Z(r.z1) - W2Z(r.z0)); });
   if (curRoom !== 'inside') circles.forEach((r) => { if (r.r > 1.5 && inView(r.x, r.z)) circ(r.x, r.z, r.r, '#8b949b'); });
-  if (curRoom !== 'sky' && curRoom !== 'inside') {
+  if (curRoom !== 'sky' && curRoom !== 'inside' && curRoom !== 'office') {
     c.fillStyle = '#ffffff'; c.font = `800 ${Math.round(MMS / 16)}px ${FONT}`; c.textAlign = 'center';
     factories.forEach((f) => c.fillText(f.L, W2X(f.x), W2Z(f.z) + MMS / 45));
     // 다른 룸은 어둡게
@@ -5306,7 +5551,7 @@ function snapCamera() {
 }
 function showRoomCard(id) {
   const R = ROOMS[id];
-  $('.rc-k', roomCard).textContent = id === 'lobby' ? '로비' : id === 'sky' || id === 'inside' ? '쉼터' : '미션룸';
+  $('.rc-k', roomCard).textContent = id === 'lobby' ? '로비' : id === 'sky' || id === 'inside' ? '쉼터' : id === 'office' ? '기관 소개' : '미션룸';
   $('h2', roomCard).textContent = R.name; $('.rc-d', roomCard).textContent = R.desc;
   roomCard.hidden = false; roomCard.style.animation = 'none'; void roomCard.offsetWidth; roomCard.style.animation = '';
   clearTimeout(roomCard._t); roomCard._t = setTimeout(() => (roomCard.hidden = true), 2700);
@@ -5325,8 +5570,10 @@ function moveRoom(id, after) {
   setTimeout(() => {
     setRoom(id); setCtrl(player); mode = 'walk';
     const back = id === 'lobby' ? gateTo('lobby', from) : null, R = ROOMS[id];
+    const door = !back && from === 'office' ? gateTo(id, 'office') : null; // 청장실에서 나오면 라운지의 청장실 문 앞에 섬
     if (back && back.out) { player.pos.set(back.out[0], 0, back.out[1]); player.heading = back.out[2]; }
     else if (back) { player.pos.set(back.pos.x * 0.8, 0, back.pos.z * 0.8); player.heading = back.face + Math.PI; }
+    else if (door) { player.pos.set(door.pos.x + Math.sin(door.face) * 1.9, 0, door.pos.z + Math.cos(door.face) * 1.9); player.heading = door.face; }
     else { player.pos.set(R.spawn[0], 0, R.spawn[1]); player.heading = R.face; }
     player.vel.set(0, 0, 0); player.obj.rotation.y = player.heading; placeMascots();
     if (id !== 'sky') { state.space = id; save(); }
@@ -5364,6 +5611,7 @@ function roomBox(room) {
   if (room === 'lobby') return [-14.6, -14.6, 14.6, 14.6];
   if (room === 'sky') return [SKY_C.x - 31, SKY_C.z - 31, SKY_C.x + 31, SKY_C.z + 31];
   if (room === 'inside') return [IN_C.x - 12.2, -8.2, IN_C.x + 12.2, 8.2];
+  if (room === 'office') return [OFF_C.x - 9.2, OFF_C.z - 6.2, OFF_C.x + 9.2, OFF_C.z + 6.2];
   const w = room === 'plan' || room === 'car', n = room === 'plan' || room === 'total';
   return [w ? -58 : 0, n ? -58 : 0, w ? 0 : 58, n ? 0 : 58];
 }
@@ -5428,7 +5676,7 @@ function navTo(goal) { // 목적지까지 길을 찾아 출발 (다른 룸이면
   const zt = zoneOf(goal.pos.x, goal.pos.z);
   let target = goal.pos, act = goal.it || null;
   if (zt !== curRoom) {
-    const g = curRoom === 'lobby' ? gateTo('lobby', zt) : gateTo(curRoom, 'lobby');
+    const g = nextGate(curRoom, zt);
     if (!g) { navGoal = null; syncNav(); return false; }
     target = g.pos; act = interacts.find((i) => i.pos === g.pos) || null;
   }
@@ -5492,6 +5740,7 @@ function navDests() {
   const D = Object.keys(DEPT).map((k) => { const n = npcByKey[k], c = DEPT_MS[k].filter(msDone).length; return { name: DEPT[k].name, sub: `${DEPT[k].name} 주무관에게 가서 업무 고르기`, badge: `<span class="${c === 4 ? 'on' : ''}">업무 ${c}/4</span>`, color: ROOMS[k].color, pos: n.pos, it: it(n.pos) }; });
   D.push({ name: '안내 직원', sub: '로비 청사 앞 · 진행 상황과 기념장', color: ROOMS.lobby.color, pos: guide.pos, it: it(guide.pos) });
   D.push({ name: '맑은숨 라운지', sub: '청사 안 창가 벤치 · 창가멍·물멍', color: ROOMS.inside.color, pos: new THREE.Vector3(WIN_SEATS[1].x, 0, WIN_SEATS[1].z + 1.3) });
+  D.push({ name: '청장실', sub: '청사 안 라운지 옆 · 청장님의 기관 소개', color: ROOMS.office.color, badge: state.metChief ? '<span class="on">인사 ✓</span>' : '', pos: chief.pos, it: it(chief.pos) });
   D.push({ name: '하늘멍 언덕', sub: '잔디에 누워 하늘 보기 · 하늘 날기', color: ROOMS.sky.color, pos: REST });
   D.push({ name: '모닥불', sub: '하늘멍 언덕 · 불멍 · 소원 풍등', color: '#e07a3c', pos: new THREE.Vector3(FIRE_SEAT.x, 0, FIRE_SEAT.z + 1.3) });
   D.push({ name: '미세먼지 잡기 게임기', sub: `로비 · 30초 미니게임${state.best.dust ? ` · 내 최고 ${state.best.dust.toLocaleString()}점` : ''}`, color: '#3a8fd1', pos: arcadeI.pos, it: arcadeI });
@@ -5940,7 +6189,7 @@ function updateLabels() {
 function objTarget() { // 목표가 다른 룸에 있으면 그 룸으로 가는 문을 가리킴
   const tp = objTargetRaw(); if (!tp) return null;
   const zt = zoneOf(tp.x, tp.z); if (zt === curRoom) return tp;
-  const g = curRoom === 'lobby' ? gateTo('lobby', zt) : gateTo(curRoom, 'lobby');
+  const g = nextGate(curRoom, zt);
   return g ? g.pos : null;
 }
 function objTargetRaw() { // 지금 가야 할 곳 (화면 밖이면 가장자리에 화살표)
@@ -5978,7 +6227,7 @@ function updateWaypoint() {
 }
 function updateBirds(dt, t) {
   const indoor = skyM.on && skyM.kind !== 'sky';
-  birdGroup.visible = indoor ? skyM.mood === 'day' || skyM.mood === 'dusk' : curRoom !== 'inside' && skyLevel > (skyM.on ? 0.25 : 0.45);
+  birdGroup.visible = indoor ? skyM.mood === 'day' || skyM.mood === 'dusk' : curRoom !== 'inside' && curRoom !== 'office' && skyLevel > (skyM.on ? 0.25 : 0.45);
   if (!birdGroup.visible) return;
   flock.a += dt * 0.18;
   const base = indoor ? skyM.seat : skyM.on ? REST : ctrl.pos; flock.c.lerp(base, 1 - Math.exp(-dt * (fly.on ? 1.5 : indoor ? 3 : 0.4)));
@@ -6012,7 +6261,7 @@ function update(dt, t) {
   if (ctrl.wheels) ctrl.wheels.forEach((w) => (w.rotation.x += ctrl.moved / 0.42));
   const veh = ctrl.kind !== 'walk';
   SFX.engine(veh ? clamp(Math.abs(ctrl.fwd || 0) / ctrl.speed, 0, 1.3) : 0, veh && started);
-  SFX.bgmMode(skyM.on, curRoom === 'inside', skyM.on ? 0.5 : fly.on ? 0.8 : veh ? 0.8 : 1); // 멍때릴 땐 화음만 작게, 라운지에선 더 차분하게
+  SFX.bgmMode(skyM.on, curRoom === 'inside' || curRoom === 'office', skyM.on ? 0.5 : fly.on ? 0.8 : veh ? 0.8 : 1); // 멍때릴 땐 화음만 작게, 라운지에선 더 차분하게
   if (veh) ctrl.brake.color.set(ctrl.braking ? '#ff3b3b' : '#7a1d1d');
   sweeper.brushes.forEach((b) => (b.rotation.y += dt * (mode === 'sweeper' ? 14 : 0)));
   sweeper.beacon.material.color.set(mode === 'sweeper' && Math.sin(t * 10) > 0 ? '#ffd23f' : '#b38a1d');
@@ -6093,7 +6342,7 @@ function update(dt, t) {
   updateMotes(dt, t, ctrl.pos.x, ctrl.pos.z);
   skyLevel += (skyTarget - skyLevel) * (1 - Math.exp(-dt * 0.7));
   applySky(skyLevel);
-  if (skyM.on && skyM.kind !== 'sky') applyMood(dt); else if (started && curRoom === 'inside') loungeAir();
+  if (skyM.on && skyM.kind !== 'sky') applyMood(dt); else if (started && (curRoom === 'inside' || curRoom === 'office')) loungeAir(); // 청장실도 실내라 바깥 뿌연 하늘과 상관없이 밝게
   if (curRoom === 'inside') updateLounge(dt, t);
   updateCamera(dt);
   if (skyM.on) updateSky(dt, t);
@@ -6121,7 +6370,7 @@ function adapt(raw) { // 느린 기기면 화질을 단계적으로 낮춤
 let last = performance.now();
 function frame(now) {
   const raw = (now - last) / 1000, dt = clamp(raw, 0, 0.05); last = now;
-  update(dt, now / 1000);
+  if (dt > 0) update(dt, now / 1000); // 시간이 안 흐른 프레임은 건너뜀 (속도 = 거리 ÷ 0 이 되지 않게)
   renderer.render(scene, camera);
   adapt(raw);
   requestAnimationFrame(frame);
@@ -6141,7 +6390,7 @@ requestAnimationFrame(frame);
 window.__worldReady = true;
 if (location.hash === '#debug') window.__w = { state, player, van, sweeper, M, plan, lab, car, checkpoints, factories, fuelCans, cars, net, skyM, npcByKey, talkTo, checkFactory, startExtra, enterSky, exitSky, openCustomizer, sendChat, camera, interacts, renderer, scene, moveRoom, openRooms, GATES, zoneGroups, get curRoom() { return curRoom; }, get ctrl() { return ctrl; }, get mode() { return mode; }, get cur() { return cur; }, get perf() { return perf; }, keys, joy,
   step(n = 30, dt = 1 / 30) { for (let i = 0; i < n; i++) { last += dt * 1000; update(dt, last / 1000); } renderer.render(scene, camera); },
-  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, orbs, ORBS, collectOrb, rings, RINGS, ringsReset, seek, startSeek, endSeek, lanterns, launchLantern, openWish, award, BADGES, openBadges, FIRE, FIRE_SEAT, fireflies, checkBadges, showExtraDone, evalData, get evalSess() { return evalSess; }, SAVE_KEY, MODE, ROOM, get mpOn() { return mpOn; }, dust, startDust, stopDust, finishDust, hitMon, boardGet, boardAdd, BOARD_KEY, arcadeI, gardenI, GARDEN_FRONT, openGarden, growPlot, gardenSun, gplants, feedFish, pellets, lounge, openDress, applyAcc, mascots, sendEmo, floatEmoji, isRude, hasPrivate, softText, safeName, kioskReset, renderKioskPanel, drawQR, get kioskT() { return kioskT; }, set kioskT(v) { kioskT = v; }, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
+  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, orbs, ORBS, collectOrb, rings, RINGS, ringsReset, seek, startSeek, endSeek, lanterns, launchLantern, openWish, award, BADGES, openBadges, FIRE, FIRE_SEAT, fireflies, checkBadges, showExtraDone, evalData, get evalSess() { return evalSess; }, SAVE_KEY, MODE, ROOM, get mpOn() { return mpOn; }, chief, talkChief, openOrgIntro, nextGate, OFF_C, dust, startDust, stopDust, finishDust, hitMon, boardGet, boardAdd, BOARD_KEY, arcadeI, gardenI, GARDEN_FRONT, openGarden, growPlot, gardenSun, gplants, feedFish, pellets, lounge, openDress, applyAcc, mascots, sendEmo, floatEmoji, isRude, hasPrivate, softText, safeName, kioskReset, renderKioskPanel, drawQR, get kioskT() { return kioskT; }, set kioskT(v) { kioskT = v; }, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
   look(px, py, pz, tx, ty, tz) { camHold = true; camera.position.set(px, py, pz); camera.lookAt(tx, ty, tz); renderer.render(scene, camera); }, unlook() { camHold = false; } };
 </script>
 </body>
