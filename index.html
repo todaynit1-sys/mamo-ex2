@@ -1055,6 +1055,21 @@ if (STATS_ON) {
   window.gtag('config', STATS.ga, { page_location: location.origin + location.pathname + (MODE ? `?${MODE}` : ''), page_title: '푸른하늘 업무체험관' }); // 주소의 방 이름 등은 빼고 보냄
   const s = document.createElement('script'); s.async = true; s.src = `https://www.googletagmanager.com/gtag/js?id=${STATS.ga}`; document.head.appendChild(s);
 }
+// 관리용 오류 알림: 사용자 기기에서 난 오류를 통계(app_error)로 보냄. 오류 문구와 위치만, 같은 오류는 한 번, 한 창에서 최대 5개
+const errSeen = new Set();
+function statError(kind, msg, at) {
+  msg = String((msg && msg.message) || msg || '').replace(/https?:\/\/[^\s)]+/g, (u) => u.split(/[?#]/)[0]).replace(/"[^"]*"/g, '"…"').trim(); // 주소의 방 이름, 따옴표 속 글(사용자 글일 수 있음)은 뺌
+  if (!msg || msg === 'Script error.' || /ResizeObserver loop/.test(msg)) return; // 정보 없는 오류·브라우저 경고는 건너뜀
+  const key = `${kind}|${msg}`; if (errSeen.has(key) || errSeen.size >= 5) return; errSeen.add(key);
+  let room = ''; try { room = curRoom; } catch (e) { /* 아직 준비 전 */ }
+  stat('app_error', { kind, msg: (at ? `${msg} @${at}` : msg).slice(0, 100), room });
+}
+addEventListener('error', (e) => {
+  if (!e || !e.message || (e.filename && !e.filename.startsWith(location.origin))) return; // 확장 프로그램·다른 사이트 스크립트 오류는 건너뜀
+  const file = (e.filename || '').split(/[?#]/)[0].split('/').pop() || 'index';
+  statError('error', e.message, e.lineno ? `${file}:${e.lineno}` : '');
+});
+addEventListener('unhandledrejection', (e) => statError('promise', e && e.reason, ''));
 const EVAL_KEY = 'mamo-world-eval';
 const EVAL_QS = [ // 05_체험효과_검증계획의 이해도 문항 초안 (담당부서 검토 뒤 진행자가 고칠 수 있음)
   '공장 주변의 휘발성유기화합물(VOC) 배출원 후보를 이동측정장비로 찾는 일은 어떤 목적과 연결될까요?',
@@ -7028,7 +7043,7 @@ requestAnimationFrame(frame);
 window.__worldReady = true;
 if (location.hash === '#debug') window.__w = { state, player, van, sweeper, M, plan, lab, car, checkpoints, factories, fuelCans, cars, net, skyM, npcByKey, talkTo, checkFactory, startExtra, enterSky, exitSky, openCustomizer, sendChat, camera, interacts, renderer, scene, moveRoom, openRooms, GATES, zoneGroups, get curRoom() { return curRoom; }, get ctrl() { return ctrl; }, get mode() { return mode; }, get cur() { return cur; }, get perf() { return perf; }, keys, joy,
   step(n = 30, dt = 1 / 30) { for (let i = 0; i < n; i++) { last += dt * 1000; update(dt, last / 1000); } renderer.render(scene, camera); },
-  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, orbs, ORBS, collectOrb, rings, RINGS, ringsReset, seek, startSeek, endSeek, lanterns, launchLantern, openWish, award, BADGES, openBadges, FIRE, FIRE_SEAT, fireflies, checkBadges, showExtraDone, evalData, get evalSess() { return evalSess; }, SAVE_KEY, MODE, ROOM, get mpOn() { return mpOn; }, chief, talkChief, openOrgIntro, takeChiefPhoto, get photoUrl() { return photoUrl; }, duel, openDuel, joinDuel, goDuel, openDustChoice, sendDance, pact, openPeerMenu, peerAct, sendAsk, askAction, pickPeer, grp, addToGroup, leaveGroup, endGroup, quitGroup, grpTick, stat, statLog, STATS, STATS_ON, shareSite, savePhoto, statDone, showComplete, certOk, EVENT, walkers, navDests, navTo, get navGoal() { return navGoal; }, nextGate, OFF_C, dust, startDust, stopDust, finishDust, hitMon, boardGet, boardAdd, BOARD_KEY, arcadeI, gardenI, GARDEN_FRONT, openGarden, growPlot, gardenSun, gplants, feedFish, pellets, lounge, openDress, applyAcc, mascots, sendEmo, floatEmoji, isRude, hasPrivate, softText, safeName, kioskReset, renderKioskPanel, drawQR, get kioskT() { return kioskT; }, set kioskT(v) { kioskT = v; }, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
+  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, orbs, ORBS, collectOrb, rings, RINGS, ringsReset, seek, startSeek, endSeek, lanterns, launchLantern, openWish, award, BADGES, openBadges, FIRE, FIRE_SEAT, fireflies, checkBadges, showExtraDone, evalData, get evalSess() { return evalSess; }, SAVE_KEY, MODE, ROOM, get mpOn() { return mpOn; }, chief, talkChief, openOrgIntro, takeChiefPhoto, get photoUrl() { return photoUrl; }, duel, openDuel, joinDuel, goDuel, openDustChoice, sendDance, pact, openPeerMenu, peerAct, sendAsk, askAction, pickPeer, grp, addToGroup, leaveGroup, endGroup, quitGroup, grpTick, stat, statLog, STATS, STATS_ON, shareSite, savePhoto, statDone, showComplete, statError, certOk, EVENT, walkers, navDests, navTo, get navGoal() { return navGoal; }, nextGate, OFF_C, dust, startDust, stopDust, finishDust, hitMon, boardGet, boardAdd, BOARD_KEY, arcadeI, gardenI, GARDEN_FRONT, openGarden, growPlot, gardenSun, gplants, feedFish, pellets, lounge, openDress, applyAcc, mascots, sendEmo, floatEmoji, isRude, hasPrivate, softText, safeName, kioskReset, renderKioskPanel, drawQR, get kioskT() { return kioskT; }, set kioskT(v) { kioskT = v; }, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
   look(px, py, pz, tx, ty, tz) { camHold = true; camera.position.set(px, py, pz); camera.lookAt(tx, ty, tz); renderer.render(scene, camera); }, unlook() { camHold = false; } };
 </script>
 </body>

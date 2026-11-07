@@ -2,18 +2,21 @@
 /**
  * 푸른하늘 업무체험관 방문 통계 → 구글 시트 (매일 자동)
  *
- * 구글 애널리틱스(GA4) 숫자를 구글 시트 '일별 통계'에 날짜별로 적습니다.
+ * 구글 애널리틱스(GA4) 숫자를 구글 시트 '일별 통계'에 날짜별로 적고,
+ * 사용자 기기에서 난 오류(app_error)는 '오류 기록' 시트에 문구별로 모읍니다.
  * 구글 서버에서 돌아가서 컴퓨터를 꺼 둬도 매일 아침 채워집니다.
  *
  * 처음 한 번 설정
  * 1. 구글 시트에서 확장 프로그램 → Apps Script를 열고 이 코드를 붙여 넣습니다.
  * 2. 왼쪽 '서비스' 옆 + 를 눌러 'Google Analytics Data API'를 추가합니다.
- * 3. 위쪽 함수 목록에서 setup을 골라 실행하고, 권한을 허용합니다.
- *    → '일별 통계' 시트가 생기고, 매일 아침 6~7시에 최근 7일 숫자를 다시 받아 채웁니다.
+ * 3. 위쪽 함수 목록에서 setup을 골라 실행하고, 권한을 허용합니다('모두 선택' 체크).
+ *    → 매일 아침 6~7시에 최근 7일 숫자를 다시 받아 채웁니다.
  * 시트 메뉴 '체험관 통계 → 지금 업데이트'로 오늘 숫자까지 바로 받아 올 수도 있습니다.
+ * '오류 기록'은 애널리틱스에 맞춤 측정기준 '오류 내용'(이벤트 매개변수 msg)이 있어야 채워집니다.
  */
 const PROPERTY_ID = '563107418'; // 구글 애널리틱스 '푸른하늘 업무체험관' 속성
 const SHEET_NAME = '일별 통계';
+const ERR_SHEET = '오류 기록';
 const BASE = [ // [GA 측정항목, 머리글]
   ['activeUsers', '방문자(명)'],
   ['newUsers', '처음 온 사람(명)'],
@@ -36,6 +39,7 @@ const EVENTS = [ // [앱 이벤트, 머리글, count = 횟수 / users = 사람 �
   ['group_walk', '같이 다니기(회)', 'count'],
   ['dust_game', '미세먼지 잡기(회)', 'count'],
   ['meong', '멍때리기(회)', 'count'],
+  ['app_error', '오류(회)', 'count'],
 ];
 const HEAD = ['날짜'].concat(BASE.map((b) => b[1]), EVENTS.map((e) => e[1]));
 
@@ -53,17 +57,18 @@ function updateNow() { // 시트 메뉴: 오늘 숫자까지 바로
 }
 function onOpen() { SpreadsheetApp.getUi().createMenu('체험관 통계').addItem('지금 업데이트', 'updateNow').addToUi(); }
 
+const day_ = (v) => v.slice(0, 4) + '-' + v.slice(4, 6) + '-' + v.slice(6, 8); // 20261107 → 2026-11-07
+
 function update_(days, withToday) {
   const range = { startDate: days + 'daysAgo', endDate: withToday ? 'today' : 'yesterday' };
   const prop = 'properties/' + PROPERTY_ID;
   const rows = {}; // 'yyyy-MM-dd' → 숫자들
   const blank = () => new Array(HEAD.length - 1).fill(0);
-  const day = (v) => v.slice(0, 4) + '-' + v.slice(4, 6) + '-' + v.slice(6, 8);
   const base = AnalyticsData.Properties.runReport({
     dateRanges: [range], dimensions: [{ name: 'date' }], metrics: BASE.map((b) => ({ name: b[0] })), limit: 1000,
   }, prop);
   (base.rows || []).forEach((r) => {
-    const d = day(r.dimensionValues[0].value); rows[d] = rows[d] || blank();
+    const d = day_(r.dimensionValues[0].value); rows[d] = rows[d] || blank();
     BASE.forEach((b, i) => { rows[d][i] = Number(r.metricValues[i].value) || 0; });
   });
   const names = EVENTS.map((e) => e[0]).filter((n, i, a) => a.indexOf(n) === i);
@@ -72,10 +77,11 @@ function update_(days, withToday) {
     dimensionFilter: { filter: { fieldName: 'eventName', inListFilter: { values: names } } }, limit: 10000,
   }, prop);
   (ev.rows || []).forEach((r) => {
-    const d = day(r.dimensionValues[0].value), name = r.dimensionValues[1].value; rows[d] = rows[d] || blank();
+    const d = day_(r.dimensionValues[0].value), name = r.dimensionValues[1].value; rows[d] = rows[d] || blank();
     EVENTS.forEach((e, i) => { if (e[0] === name) rows[d][BASE.length + i] = Number(r.metricValues[e[2] === 'users' ? 1 : 0].value) || 0; });
   });
   write_(rows);
+  errors_(range, prop);
 }
 
 function write_(rows) { // 같은 날짜는 고쳐 쓰고, 새 날짜는 아래에 붙인 뒤 최근 날짜가 위로 오게 정렬
@@ -90,21 +96,45 @@ function write_(rows) { // 같은 날짜는 고쳐 쓰고, 새 날짜는 아래�
   });
   const n = sh.getLastRow() - 2;
   if (n > 1) sh.getRange(3, 1, n, HEAD.length).sort({ column: 1, ascending: false });
+  sh.getRange(1, HEAD.length + 1, 1, 4).clearContent(); // 칸이 늘어 밀린 예전 '마지막 업데이트' 지우기
   sh.getRange(1, HEAD.length + 2).setValue('마지막 업데이트: ' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm'));
+}
+
+function errors_(range, prop) { // '오류 기록': 최근 오류 문구별 횟수 (맞춤 측정기준 '오류 내용'이 없으면 건너뜀)
+  let rep;
+  try {
+    rep = AnalyticsData.Properties.runReport({
+      dateRanges: [range], dimensions: [{ name: 'date' }, { name: 'customEvent:msg' }], metrics: [{ name: 'eventCount' }],
+      dimensionFilter: { filter: { fieldName: 'eventName', stringFilter: { value: 'app_error' } } },
+      orderBys: [{ dimension: { dimensionName: 'date' }, desc: true }, { metric: { metricName: 'eventCount' }, desc: true }], limit: 500,
+    }, prop);
+  } catch (e) { return; }
+  const ss = SpreadsheetApp.getActive();
+  const sh = ss.getSheetByName(ERR_SHEET) || ss.insertSheet(ERR_SHEET);
+  sh.clearContents();
+  sh.getRange('A:A').setNumberFormat('@');
+  sh.getRange(1, 1, 1, 3).setValues([['날짜', '오류 내용', '횟수']]).setFontWeight('bold').setBackground('#fde8e8');
+  const list = (rep.rows || []).map((r) => [day_(r.dimensionValues[0].value), r.dimensionValues[1].value, Number(r.metricValues[0].value) || 0]);
+  if (list.length) sh.getRange(2, 1, list.length, 3).setValues(list);
+  else sh.getRange(2, 1, 1, 2).setValues([['', '이 기간에 기록된 오류가 없어요']]);
+  sh.setFrozenRows(1); sh.setColumnWidth(1, 96); sh.setColumnWidth(2, 560); sh.setColumnWidth(3, 60);
 }
 
 function getSheet_() {
   const ss = SpreadsheetApp.getActive();
   let sh = ss.getSheetByName(SHEET_NAME);
-  if (sh) return sh;
-  sh = ss.insertSheet(SHEET_NAME, 0);
-  sh.getRange('A:A').setNumberFormat('@'); // 날짜를 글자로 둠 (비교·정렬이 쉬움)
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_NAME, 0);
+    sh.getRange('A:A').setNumberFormat('@'); // 날짜를 글자로 둠 (비교·정렬이 쉬움)
+    sh.setFrozenRows(2); sh.setFrozenColumns(1);
+    sh.setRowHeight(1, 48); sh.setColumnWidth(1, 96);
+    const empty = ss.getSheetByName('시트1'); if (empty && empty.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(empty); // 빈 기본 시트 정리
+  }
+  // 머리글과 합계 줄은 매번 다시 씀 (칸을 더해도 맞춰짐)
   sh.getRange(1, 1, 1, HEAD.length).setValues([HEAD]).setFontWeight('bold').setBackground('#e8f3f1').setWrap(true).setVerticalAlignment('middle');
   const sums = ['합계'].concat(HEAD.slice(1).map((_, i) => { const c = col_(i + 2); return '=SUM(' + c + '3:' + c + ')'; }));
   sh.getRange(2, 1, 1, HEAD.length).setValues([sums]).setFontWeight('bold').setBackground('#fff6e0');
-  sh.setFrozenRows(2); sh.setFrozenColumns(1);
-  sh.setRowHeight(1, 48); sh.setColumnWidth(1, 96); sh.setColumnWidths(2, HEAD.length - 1, 92);
-  const empty = ss.getSheetByName('시트1'); if (empty && empty.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(empty); // 빈 기본 시트 정리
+  sh.setColumnWidths(2, HEAD.length - 1, 92);
   return sh;
 }
 function col_(n) { let s = ''; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; }
