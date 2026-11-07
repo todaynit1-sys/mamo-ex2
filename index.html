@@ -287,6 +287,11 @@ input{-webkit-user-select:text;user-select:text}
 .cz-panel{min-height:210px}
 .cz-panel .field{margin-bottom:10px}
 .cz-panel .chip{padding:7px 11px;min-height:34px;font-size:12.5px;white-space:nowrap}
+/* 성별: 남자·여자 두 개를 크게 (고르면 머리·옷 목록이 그 성별 것으로 바뀜) */
+.cz-panel .mopts.gender{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cz-panel .mopts.gender .chip{display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;font-size:14.5px;border-radius:14px}
+.cz-panel .mopts.gender .chip b{font-size:22px;line-height:1}
+.cz-panel .mopts.gender .chip[aria-pressed="true"]{border-width:2px;box-shadow:0 0 0 3px rgba(33,117,105,.15)}
 .start-grid{display:grid;grid-template-columns:minmax(270px,1fr) minmax(0,1.25fr);gap:28px;align-items:start}
 .start-info,.start-cz{min-width:0;word-break:keep-all;overflow-wrap:break-word}
 .start-cz{padding:16px;border-radius:16px;background:var(--bg);border:1px solid var(--line)}
@@ -2323,7 +2328,8 @@ function makePerson({ shirt = '#3b82c4', pants = '#38485a', hair = '#2a221d', sk
   if (top === 'shirt' || top === 'suit') {
     if (top === 'suit') mk(new THREE.BoxGeometry(0.16, 0.3, 0.02), '#f6f6f2', 0, 0.97, FZ - 0.01);
     for (const s of [-1, 1]) { const c = mk(new THREE.BoxGeometry(0.12, 0.06, 0.04), '#f6f6f2', s * 0.065, 1.1, FZ - 0.02); c.rotation.z = s * -0.5; }
-    if (tie || top !== 'suit') mk(new THREE.BoxGeometry(0.06, 0.26, 0.02), top === 'suit' ? '#8b2d34' : '#2f3e46', 0, 0.94, FZ + 0.005);
+    if (top === 'shirt' && f) { for (const s of [-1, 1]) { const w = mk(new THREE.BoxGeometry(0.075, 0.05, 0.02), '#e5484d', s * 0.045, 1.01, FZ + 0.012); w.rotation.z = s * 0.35; } mk(new THREE.SphereGeometry(0.024, 8, 6), '#c43a3f', 0, 1.01, FZ + 0.02); } // 여자 블라우스: 리본
+    else if (tie || top !== 'suit') mk(new THREE.BoxGeometry(0.06, 0.26, 0.02), top === 'suit' ? '#8b2d34' : '#2f3e46', 0, 0.94, FZ + 0.005);
     else mk(new THREE.SphereGeometry(0.032, 10, 8), '#e0b84e', 0.115, 1.0, FZ + 0.012); // 넥타이 대신 금색 브로치
   }
   if (top === 'hoodie') {
@@ -2345,17 +2351,29 @@ function makePerson({ shirt = '#3b82c4', pants = '#38485a', hair = '#2a221d', sk
   const face = mk(new THREE.SphereGeometry(HR, 20, 16), skin, 0, HY, 0, head); face.scale.set(1.04, 0.96, 1);
   const sph2 = (r, c, x, y, z, ps = 0, pl = Math.PI * 2, ts = 0, tl = Math.PI) => mk(new THREE.SphereGeometry(r, 18, 12, ps, pl, ts, tl), c, x, y, z, head);
   if (helmet) { sph2(0.46, '#f6f6f2', 0, HY + 0.02, 0, 0, Math.PI * 2, 0, Math.PI * 0.5); mk(new THREE.BoxGeometry(0.56, 0.04, 0.22), '#f6f6f2', 0, HY + 0.03, 0.4, head); }
-  else if (style === 'cap') { sph2(0.455, shirt, 0, HY + 0.02, 0, 0, Math.PI * 2, 0, Math.PI * 0.5); const b = mk(new THREE.BoxGeometry(0.5, 0.04, 0.3), shirt, 0, HY + 0.03, 0.44, head); b.rotation.x = 0.12; sph2(HR + 0.012, hair, 0, HY, 0, Math.PI, Math.PI, Math.PI * 0.42, Math.PI * 0.3); }
-  else if (style === 'beanie') { sph2(0.46, shade(shirt, 0.9), 0, HY + 0.02, 0, 0, Math.PI * 2, 0, Math.PI * 0.52); mk(new THREE.CylinderGeometry(0.465, 0.465, 0.1, 20), shirt, 0, HY + 0.03, 0, head); mk(new THREE.SphereGeometry(0.09, 10, 8), '#f6f6f2', 0, HY + 0.5, 0, head); }
   else {
-    const front = sph2(HR + 0.02, hair, 0, HY + 0.01, 0, 0, Math.PI * 2, 0, Math.PI * 0.44); front.rotation.x = -0.16; // 앞머리
-    const backLen = style === 'bob' ? 0.86 : style === 'long' ? 0.9 : 0.7;
-    sph2(HR + 0.015, hair, 0, HY, 0, Math.PI, Math.PI, 0, Math.PI * backLen); // 뒷머리
-    if (style === 'bob') for (const s of [-1, 1]) { const sd = mk(cap(0.1, 0.18), hair, s * 0.39, HY - 0.12, 0.02, head); sd.scale.z = 0.8; }
-    if (style === 'long') { const l = mk(cap(0.24, 0.42), hair, 0, HY - 0.36, -0.2, head); l.scale.z = 0.55; for (const s of [-1, 1]) mk(cap(0.09, 0.3), hair, s * 0.38, HY - 0.2, 0.0, head); }
-    if (style === 'bun') { sph2(0.17, hair, 0, HY + 0.45, -0.12); }
-    if (style === 'pony') { const t = mk(cap(0.11, 0.34), hair, 0, HY - 0.05, -0.5, head); t.rotation.x = 0.55; mk(new THREE.TorusGeometry(0.1, 0.03, 6, 12), '#e5484d', 0, HY + 0.12, -0.42, head).rotation.x = 1.1; }
-    if (style === 'curly') for (let k = 0; k < 11; k++) { const a = (k / 11) * Math.PI * 2; sph2(0.13, hair, Math.cos(a) * 0.34, HY + 0.28 + Math.sin(k * 1.7) * 0.05, Math.sin(a) * 0.3 - 0.05); }
+    const longHair = (wavy) => { // 긴 머리 (뒤로 길게 + 양옆 머리), wavy: 끝이 동글동글한 웨이브
+      const l = mk(cap(0.24, 0.42), hair, 0, HY - 0.36, -0.2, head); l.scale.z = 0.55; for (const s of [-1, 1]) mk(cap(0.09, 0.3), hair, s * 0.38, HY - 0.2, 0.0, head);
+      if (wavy) { for (let k = -2; k <= 2; k++) mk(new THREE.SphereGeometry(0.1, 10, 8), hair, k * 0.1, HY - 0.66 + Math.abs(k) * 0.03, -0.22, head); for (const s of [-1, 1]) mk(new THREE.SphereGeometry(0.1, 10, 8), hair, s * 0.4, HY - 0.42, 0.02, head); }
+    };
+    if (style === 'cap' || style === 'fcap') { // 야구모자 (fcap: 모자 밖으로 긴 머리)
+      sph2(0.455, shirt, 0, HY + 0.02, 0, 0, Math.PI * 2, 0, Math.PI * 0.5); const b = mk(new THREE.BoxGeometry(0.5, 0.04, 0.3), shirt, 0, HY + 0.03, 0.44, head); b.rotation.x = 0.12; sph2(HR + 0.012, hair, 0, HY, 0, Math.PI, Math.PI, Math.PI * 0.42, Math.PI * 0.3);
+      if (style === 'fcap') longHair(false);
+    } else if (style === 'beanie') { sph2(0.46, shade(shirt, 0.9), 0, HY + 0.02, 0, 0, Math.PI * 2, 0, Math.PI * 0.52); mk(new THREE.CylinderGeometry(0.465, 0.465, 0.1, 20), shirt, 0, HY + 0.03, 0, head); mk(new THREE.SphereGeometry(0.09, 10, 8), '#f6f6f2', 0, HY + 0.5, 0, head); }
+    else {
+      const tight = style === 'buzz'; // 스포츠머리: 머리에 딱 붙고 앞머리가 짧음
+      const front = sph2(HR + (tight ? 0.008 : 0.02), hair, 0, HY + 0.01, 0, 0, Math.PI * 2, 0, Math.PI * (tight ? 0.34 : 0.44)); front.rotation.x = tight ? -0.04 : -0.16; // 앞머리
+      const backLen = style === 'bob' ? 0.86 : style === 'long' || style === 'wave' ? 0.9 : style === 'twin' ? 0.8 : tight ? 0.6 : 0.7;
+      sph2(HR + (tight ? 0.006 : 0.015), hair, 0, HY, 0, Math.PI, Math.PI, 0, Math.PI * backLen); // 뒷머리
+      if (style === 'bob') for (const s of [-1, 1]) { const sd = mk(cap(0.1, 0.18), hair, s * 0.39, HY - 0.12, 0.02, head); sd.scale.z = 0.8; }
+      if (style === 'long' || style === 'wave') longHair(style === 'wave');
+      if (style === 'bun') { sph2(0.17, hair, 0, HY + 0.45, -0.12); }
+      if (style === 'pony') { const t = mk(cap(0.11, 0.34), hair, 0, HY - 0.05, -0.5, head); t.rotation.x = 0.55; mk(new THREE.TorusGeometry(0.1, 0.03, 6, 12), '#e5484d', 0, HY + 0.12, -0.42, head).rotation.x = 1.1; }
+      if (style === 'twin') for (const s of [-1, 1]) { const t = mk(cap(0.1, 0.3), hair, s * 0.46, HY - 0.14, -0.1, head); t.rotation.z = s * 0.38; mk(new THREE.SphereGeometry(0.06, 10, 8), '#e5484d', s * 0.42, HY + 0.08, -0.1, head); } // 양갈래 + 빨간 머리끈
+      if (style === 'curly') for (let k = 0; k < 11; k++) { const a = (k / 11) * Math.PI * 2; sph2(0.13, hair, Math.cos(a) * 0.34, HY + 0.28 + Math.sin(k * 1.7) * 0.05, Math.sin(a) * 0.3 - 0.05); }
+      if (style === 'part') { const sw = mk(new THREE.SphereGeometry(0.2, 14, 10), hair, -0.13, HY + 0.33, 0.17, head); sw.scale.set(1.35, 0.5, 1.0); sw.rotation.z = 0.35; } // 가르마: 한쪽으로 넘긴 앞머리
+      if (style === 'spiky') for (let k = 0; k < 8; k++) { const a = (k / 8) * Math.PI * 2, r = k === 7 ? 0 : 0.2, c = mk(new THREE.ConeGeometry(0.075, 0.22, 6), hair, Math.cos(a) * r, HY + 0.42, Math.sin(a) * r * 0.9 - 0.04, head); if (r) c.rotation.set(Math.sin(a) * 0.55, 0, -Math.cos(a) * 0.55); } // 삐죽머리
+    }
   }
   // 얼굴: 큰 눈 + 반짝 + 볼터치 + 웃는 입
   const EZ = HR - 0.035, INK = '#1d1d22';
@@ -2430,7 +2448,7 @@ function animPerson(rig, speed, dt) { // 걸음 이벤트가 생기면 true
   return step;
 }
 const cheer = (rig) => { if (rig) { rig.jump = 0.55; } };
-const avatarLook = (a) => ({ shirt: a.shirt, pants: a.pants, hair: a.hairColor, skin: a.skin, style: a.hair, acc: a.acc, body: a.body, top: a.top, bottom: a.bottom, eye: a.eye, mouth: a.mouth, cheek: a.cheek });
+const avatarLook = (a0) => { const a = fitGender({ ...a0 }); return { shirt: a.shirt, pants: a.pants, hair: a.hairColor, skin: a.skin, style: a.hair, acc: a.acc, body: a.body, top: a.top, bottom: a.bottom, eye: a.eye, mouth: a.mouth, cheek: a.cheek, tie: a.body !== 'f' }; }; // 여자 정장은 넥타이 대신 브로치
 
 const npcs = [];
 function addNPC(key, name, x, z, face, look) {
@@ -2458,7 +2476,7 @@ for (let i = 0; i < 3; i++) { // 광장을 걷는 일반인 (휴대폰 부담을
   walkers.push({ rig, pos: rig.root.position, target: new THREE.Vector3(), wait: rand(0, 3), heading: rand(0, 6), stuck: 0 });
 }
 const kids = [-36.3, -35.1, -33.9, -32.7].map((x, i) => {
-  const rig = makePerson({ shirt: ['#f28482', '#84a59d', '#f6bd60', '#a0c4ff'][i], pants: '#3d405b', hair: pick(['#2a211b', '#5a3d2b']), style: i % 2 ? 'bun' : 'short', scale: 0.62 });
+  const rig = makePerson({ shirt: ['#f28482', '#84a59d', '#f6bd60', '#a0c4ff'][i], pants: '#3d405b', hair: pick(['#2a211b', '#5a3d2b']), style: i % 2 ? 'bun' : 'short', body: i % 2 ? 'f' : 'm', scale: 0.62 });
   rig.root.position.set(x, 0, -9.7); rig.root.rotation.y = Math.PI; scene.add(rig.root);
   return rig;
 });
@@ -3546,11 +3564,26 @@ const BODIES = [['m', '남자'], ['f', '여자']];
 const EYES = [['round', '동글눈'], ['sparkle', '반짝눈'], ['smile', '웃는 눈'], ['sleepy', '졸린 눈'], ['wink', '윙크']];
 const MOUTHS = [['smile', '미소'], ['grin', '활짝'], ['cat', '고양이 입'], ['o', '동그란 입']];
 const CHEEKS = [['pink', '볼터치'], ['freckle', '주근깨'], ['none', '없음']];
-const HAIRS = [['short', '짧은 머리'], ['curly', '곱슬머리'], ['bob', '단발'], ['long', '긴 머리'], ['pony', '포니테일'], ['bun', '똥머리'], ['cap', '야구모자'], ['beanie', '비니']];
+// 머리 모양은 남녀 따로 (섞여 보이지 않게). HAIRS는 네트워크로 받은 값을 확인하는 전체 목록
+const HAIRS_M = [['short', '짧은 머리'], ['buzz', '스포츠머리'], ['part', '가르마'], ['spiky', '삐죽머리'], ['curly', '곱슬 파마'], ['cap', '야구모자'], ['beanie', '비니']];
+const HAIRS_F = [['long', '긴 생머리'], ['bob', '단발'], ['pony', '포니테일'], ['bun', '똥머리'], ['twin', '양갈래'], ['wave', '웨이브'], ['fcap', '모자·긴머리']];
+const HAIRS = HAIRS_M.concat(HAIRS_F);
+const HAIR_FIX = { // 성별을 바꾸면 비슷한 머리로
+  f: { short: 'bob', buzz: 'bob', part: 'bob', spiky: 'bob', curly: 'wave', cap: 'fcap', beanie: 'fcap' },
+  m: { long: 'short', bob: 'short', pony: 'short', bun: 'short', twin: 'short', wave: 'curly', fcap: 'cap' },
+};
 const HAIR_COLS = ['#2a211b', '#5a3d2b', '#8a6a4a', '#c9a15a', '#6b6f78', '#a8452f', '#e6d3a3'];
 const TOPS = [['tee', '반팔 티'], ['long', '긴팔 티'], ['shirt', '셔츠·넥타이'], ['hoodie', '후드티'], ['suit', '정장'], ['vest', '형광 조끼']];
 const SHIRTS = ['#3b82c4', '#2f9e6e', '#e0a526', '#d9667f', '#8e6bbf', '#e4572e', '#f3f3f3', '#3d405b', '#2b2f36', '#f2a7c3', '#7fc8f8', '#a3d977'];
-const BOTTOMS = [['pants', '긴바지'], ['shorts', '반바지'], ['skirt', '치마']];
+const BOTTOMS_M = [['pants', '긴바지'], ['shorts', '반바지']];
+const BOTTOMS = BOTTOMS_M.concat([['skirt', '치마']]); // 치마는 여자만
+const TOPS_F = TOPS.map(([k, nm]) => [k, k === 'shirt' ? '블라우스·리본' : nm]); // 여자 셔츠는 넥타이 대신 리본
+function fitGender(a) { // 성별에 맞게 머리·아래옷을 맞춤 (예전 기록·다른 사람 캐릭터도 이걸로 보정)
+  const g = a.body === 'f' ? 'f' : 'm', list = g === 'f' ? HAIRS_F : HAIRS_M;
+  if (!list.some((h) => h[0] === a.hair)) a.hair = HAIR_FIX[g][a.hair] || list[0][0];
+  if (g === 'm' && a.bottom === 'skirt') a.bottom = 'pants';
+  return a;
+}
 const PANTS = ['#34495e', '#2f3e46', '#5c5552', '#3b6ea5', '#c9b48a', '#2b2f36', '#d9667f', '#f3f3f3'];
 const ACCS = [['none', '없음'], ['glasses', '안경'], ['sunglasses', '선글라스'], ['mask', '마스크'], ['headphones', '헤드폰']];
 const PRESETS = [
@@ -3569,23 +3602,25 @@ function parseAvatar(code) { // 네트워크로 받은 값은 허용 목록 안�
   AV_KEYS.forEach((k, i) => (a[k] = AV_OK[k].includes(p[i]) ? p[i] : AV_OK[k][0]));
   return a;
 }
-const CZ_TABS = [
-  ['base', '기본', [['p', '추천 조합'], ['c', 'body', '성별', BODIES], ['s', 'skin', '피부', SKINS]]],
+const CZ_TABS = [ // 목록 자리에 함수가 오면 지금 성별에 맞는 목록 (남녀 머리·옷을 따로 보여 줌)
+  ['base', '기본', [['g', 'body', '성별', BODIES], ['p', '추천 조합'], ['s', 'skin', '피부', SKINS]]],
   ['face', '얼굴', [['c', 'eye', '눈', EYES], ['c', 'mouth', '입', MOUTHS], ['c', 'cheek', '볼', CHEEKS], ['c', 'acc', '얼굴 소품', ACCS]]],
-  ['hair', '머리', [['c', 'hair', '머리 모양', HAIRS], ['s', 'hairColor', '머리 색', HAIR_COLS]]],
-  ['wear', '옷', [['c', 'top', '윗옷', TOPS], ['s', 'shirt', '윗옷 색', SHIRTS], ['c', 'bottom', '아래옷', BOTTOMS], ['s', 'pants', '아래옷 색', PANTS]]],
+  ['hair', '머리', [['c', 'hair', '머리 모양', (d) => (d.body === 'f' ? HAIRS_F : HAIRS_M)], ['s', 'hairColor', '머리 색', HAIR_COLS]]],
+  ['wear', '옷', [['c', 'top', '윗옷', (d) => (d.body === 'f' ? TOPS_F : TOPS)], ['s', 'shirt', '윗옷 색', SHIRTS], ['c', 'bottom', '아래옷', (d) => (d.body === 'f' ? BOTTOMS : BOTTOMS_M)], ['s', 'pants', '아래옷 색', PANTS]]],
 ];
 // 캐릭터 만들기 (시작 화면·게임 안 공용): 미리보기 + 탭
 function mountCreator(box, draft, onChange) {
   let tab = 'base';
+  fitGender(draft); // 예전 기록이 남녀 섞인 머리면 성별에 맞게
   box.innerHTML = `<div class="cz"><div class="cz-prev"><canvas class="czCv" aria-label="캐릭터 미리보기. 끌어서 돌려 볼 수 있어요"></canvas><button class="mini-btn" type="button" data-rand>무작위로</button></div>
     <div class="cz-side"><div class="cz-tabs" role="tablist">${CZ_TABS.map(([id, nm]) => `<button type="button" class="cz-tab" role="tab" data-tab="${id}" aria-selected="${id === tab}">${nm}</button>`).join('')}</div><div class="cz-panel"></div></div></div>`;
   const panel = $('.cz-panel', box);
   const render = () => {
     const [, , groups] = CZ_TABS.find((t) => t[0] === tab);
     panel.innerHTML = groups.map((g) => {
-      if (g[0] === 'p') return `<div class="field"><span>${g[1]}</span><div class="mopts">${PRESETS.map(([nm], i) => `<button type="button" class="chip" data-p="${i}">${nm}</button>`).join('')}</div></div>`;
-      const [kind, key, label, list] = g;
+      if (g[0] === 'p') return `<div class="field"><span>${g[1]}</span><div class="mopts">${PRESETS.map(([nm, a], i) => (a.body === draft.body ? `<button type="button" class="chip" data-p="${i}">${nm}</button>` : '')).join('')}</div></div>`; // 고른 성별의 추천만
+      if (g[0] === 'g') return `<div class="field"><span>${g[2]}</span><div class="mopts gender" data-key="${g[1]}">${g[3].map(([v, nm]) => `<button type="button" class="chip" data-v="${v}" aria-pressed="${draft[g[1]] === v}"><b aria-hidden="true">${v === 'f' ? '👧' : '👦'}</b>${nm}</button>`).join('')}</div></div>`; // 성별: 크게 둘 중 하나
+      const [kind, key, label, list0] = g, list = typeof list0 === 'function' ? list0(draft) : list0;
       if (kind === 's') return `<div class="field"><span>${label}</span><div class="swatches sm" data-key="${key}">${list.map((c) => `<button type="button" class="sw" data-v="${c}" style="background:${c}" aria-label="${label}" aria-pressed="${draft[key] === c}"></button>`).join('')}</div></div>`;
       return `<div class="field"><span>${label}</span><div class="mopts" data-key="${key}">${list.map(([v, nm]) => `<button type="button" class="chip" data-v="${v}" aria-pressed="${draft[key] === v}">${nm}</button>`).join('')}</div></div>`;
     }).join('');
@@ -3595,9 +3630,13 @@ function mountCreator(box, draft, onChange) {
   box.addEventListener('click', (e) => {
     const t = e.target.closest('[data-tab]'); if (t) { tab = t.dataset.tab; render(); SFX.tick(); return; }
     const p = e.target.closest('[data-p]'); if (p) { Object.assign(draft, PRESETS[Number(p.dataset.p)][1]); changed(); if (prev) prev.cheer(); return; }
-    if (e.target.closest('[data-rand]')) { AV_KEYS.forEach((k) => (draft[k] = pick(AV_OK[k]))); changed(); if (prev) prev.cheer(); return; }
+    if (e.target.closest('[data-rand]')) { // 무작위: 성별을 먼저 정하고 그 성별에 맞는 머리·아래옷에서 고름
+      AV_KEYS.forEach((k) => (draft[k] = pick(AV_OK[k])));
+      const fem = draft.body === 'f'; draft.hair = pick(fem ? HAIRS_F : HAIRS_M)[0]; draft.bottom = pick(fem ? BOTTOMS : BOTTOMS_M)[0];
+      changed(); if (prev) prev.cheer(); return;
+    }
     const v = e.target.closest('[data-v]'), g = v && v.closest('[data-key]');
-    if (g) { draft[g.dataset.key] = v.dataset.v; changed(); }
+    if (g) { draft[g.dataset.key] = v.dataset.v; if (g.dataset.key === 'body') fitGender(draft); changed(); }
   });
   render();
   let prev = null;
@@ -7125,7 +7164,7 @@ requestAnimationFrame(frame);
 window.__worldReady = true;
 if (location.hash === '#debug') window.__w = { state, player, van, sweeper, M, plan, lab, car, checkpoints, factories, fuelCans, cars, net, skyM, npcByKey, talkTo, checkFactory, startExtra, enterSky, exitSky, openCustomizer, sendChat, camera, interacts, renderer, scene, moveRoom, openRooms, GATES, zoneGroups, get curRoom() { return curRoom; }, get ctrl() { return ctrl; }, get mode() { return mode; }, get cur() { return cur; }, get perf() { return perf; }, keys, joy,
   step(n = 30, dt = 1 / 30) { for (let i = 0; i < n; i++) { last += dt * 1000; update(dt, last / 1000); } renderer.render(scene, camera); },
-  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, orbs, ORBS, collectOrb, rings, RINGS, ringsReset, seek, startSeek, endSeek, lanterns, launchLantern, openWish, award, BADGES, openBadges, FIRE, FIRE_SEAT, fireflies, checkBadges, showExtraDone, evalData, get evalSess() { return evalSess; }, SAVE_KEY, MODE, ROOM, get mpOn() { return mpOn; }, chief, talkChief, openOrgIntro, takeChiefPhoto, get photoUrl() { return photoUrl; }, duel, openDuel, joinDuel, goDuel, openDustChoice, sendDance, pact, openPeerMenu, peerAct, sendAsk, askAction, pickPeer, grp, addToGroup, leaveGroup, endGroup, quitGroup, grpTick, stat, statLog, STATS, STATS_ON, shareSite, savePhoto, statDone, showComplete, statError, gdl, shareGrp, safeRich, talk, closeDialog, get dialogOpen() { return dialogOpen; }, certOk, EVENT, walkers, navDests, navTo, get navGoal() { return navGoal; }, nextGate, OFF_C, dust, startDust, stopDust, finishDust, hitMon, boardGet, boardAdd, BOARD_KEY, arcadeI, gardenI, GARDEN_FRONT, openGarden, growPlot, gardenSun, gplants, feedFish, pellets, lounge, openDress, applyAcc, mascots, sendEmo, floatEmoji, isRude, hasPrivate, softText, safeName, kioskReset, renderKioskPanel, drawQR, get kioskT() { return kioskT; }, set kioskT(v) { kioskT = v; }, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
+  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, orbs, ORBS, collectOrb, rings, RINGS, ringsReset, seek, startSeek, endSeek, lanterns, launchLantern, openWish, award, BADGES, openBadges, FIRE, FIRE_SEAT, fireflies, checkBadges, showExtraDone, evalData, get evalSess() { return evalSess; }, SAVE_KEY, MODE, ROOM, get mpOn() { return mpOn; }, chief, talkChief, openOrgIntro, takeChiefPhoto, get photoUrl() { return photoUrl; }, duel, openDuel, joinDuel, goDuel, openDustChoice, sendDance, pact, openPeerMenu, peerAct, sendAsk, askAction, pickPeer, grp, addToGroup, leaveGroup, endGroup, quitGroup, grpTick, stat, statLog, STATS, STATS_ON, shareSite, savePhoto, statDone, showComplete, statError, gdl, shareGrp, safeRich, talk, closeDialog, get dialogOpen() { return dialogOpen; }, makePerson, avatarLook, fitGender, HAIRS_M, HAIRS_F, THREE, certOk, EVENT, walkers, navDests, navTo, get navGoal() { return navGoal; }, nextGate, OFF_C, dust, startDust, stopDust, finishDust, hitMon, boardGet, boardAdd, BOARD_KEY, arcadeI, gardenI, GARDEN_FRONT, openGarden, growPlot, gardenSun, gplants, feedFish, pellets, lounge, openDress, applyAcc, mascots, sendEmo, floatEmoji, isRude, hasPrivate, softText, safeName, kioskReset, renderKioskPanel, drawQR, get kioskT() { return kioskT; }, set kioskT(v) { kioskT = v; }, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
   look(px, py, pz, tx, ty, tz) { camHold = true; camera.position.set(px, py, pz); camera.lookAt(tx, ty, tz); renderer.render(scene, camera); }, unlook() { camHold = false; } };
 </script>
 </body>
