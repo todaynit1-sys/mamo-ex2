@@ -455,6 +455,18 @@ input{-webkit-user-select:text;user-select:text}
 .grpc .gi b{display:block;font-size:13px}
 .grpc .gi small{display:block;color:var(--muted);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .grpc .mini-btn{margin:0;flex:none}
+/* 같이 다니기: 앞장선 사람의 대화를 줄 사람들 화면에 함께 보여 줌 (조작은 막지 않음) */
+.gdl{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(600px,calc(100vw - 24px));padding:10px 14px 13px;z-index:19;background:var(--panel-solid);color:var(--text);border:1.5px solid #e0a54a;border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.25);pointer-events:none;animation:card-up .25s ease-out}
+.touch .gdl{bottom:calc(max(26px,env(safe-area-inset-bottom)) + 150px)}
+.gdl .gd-h{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:800;color:#a8741a;margin-bottom:4px}
+.gdl .gd-x{pointer-events:auto;border:0;background:var(--soft);color:var(--text);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:13px;flex:none}
+.gdl .who{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:800;color:var(--accent);margin-bottom:4px}
+.gdl .pg{color:var(--muted);font-weight:600}
+.gdl .txt{font-size:14.5px;line-height:1.6;max-height:38vh;overflow:auto}
+.gdl .txt.in{animation:fadeup .3s ease-out}
+.gdl .txt b{color:var(--accent)}
+.talking .gdl,.dusting .gdl,.skymode .gdl{display:none!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .gdl .gd-h{color:#f5c76a}}
 .pc-g button:focus-visible,.rps-g button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .rps-g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .rps-g button{display:grid;justify-items:center;gap:2px;font-size:30px;padding:8px 0;border-radius:14px;border:1.5px solid var(--line);background:var(--panel-solid);color:var(--text);cursor:pointer;min-height:66px;font-weight:800}
@@ -2680,13 +2692,17 @@ function typewrite(el) { // 글자가 또박또박 나오는 대사 (누르면 �
   if (reduceMotion) api.finish(); else raf = requestAnimationFrame(tick);
   return api;
 }
+let dlgSeq = 0, dlgShared = 0; // 같이 다니기: 앞장선 사람의 대화 번호 (줄 사람들에게 함께 보여 줌)
 function talk(who, pages, buttons) {
   let i = 0; dialogOpen = true; dlg.hidden = false; document.body.classList.add('talking'); SFX.open();
   if (typeof closeChat === 'function' && chatOpen) closeChat();
   for (const k in keys) keys[k] = false; moveTarget = null; pendingAct = null;
+  const cid = ++dlgSeq;
   const render = () => {
+    const withN = grpLeadN();
     $('.nm', dlg).textContent = who;
-    $('.pg', dlg).textContent = pages.length > 1 ? `${i + 1} / ${pages.length}` : '';
+    $('.pg', dlg).textContent = (pages.length > 1 ? `${i + 1} / ${pages.length}` : '') + (withN ? `${pages.length > 1 ? ' · ' : ''}🚂 ${withN}명과 함께` : '');
+    if (withN) { dlgShared = cid; shareGrp('dlg', { c: cid, nm: String(who).slice(0, 24), tx: String(pages[i]).slice(0, 1500), pg: pages.length > 1 ? `${i + 1}/${pages.length}` : '' }); }
     const txt = $('.txt', dlg); txt.innerHTML = pages[i]; txt.classList.remove('in'); void txt.offsetWidth; txt.classList.add('in');
     typing = typewrite(txt);
     const bw = $('.btns', dlg); bw.innerHTML = '';
@@ -2701,7 +2717,10 @@ function talk(who, pages, buttons) {
   render();
 }
 $('#dialog .txt').addEventListener('click', () => typing && typing.finish());
-function closeDialog() { dialogOpen = false; typing = null; dlg.hidden = true; if (!modalOpen) document.body.classList.remove('talking'); }
+function closeDialog() {
+  dialogOpen = false; typing = null; dlg.hidden = true; if (!modalOpen) document.body.classList.remove('talking');
+  if (dlgShared) { shareGrp('dlgx', { c: dlgShared }); dlgShared = 0; } // 줄 사람들 화면의 함께 보기도 닫음
+}
 const modal = $('#modal'), mcard = $('.modal-card', modal);
 let modalSeq = 0;
 function openModal(html) {
@@ -3073,6 +3092,7 @@ function abortMission() {
 function showComplete(key, { title, body, steps }, after) {
   const first = !state.done[key];
   evalDone(key); // 체험 효과 측정: 미션 완료 시각
+  shareGrp('msok', { t: msTask(key) }); // 같이 다니는 사람들에게 업무 완료 소식
   openModal(`<div class="done-head"><div class="stamp-big">${DEPT[key].short}<small>체험 완료</small></div></div>
     <h2 class="center">${title}</h2><p>${body}</p>
     <ol class="flow">${steps.map((s) => `<li>${s}</li>`).join('')}</ol>
@@ -3212,6 +3232,7 @@ function openOrgIntro() {
       <div class="org-depts">${Object.keys(DEPT).map((k) => `<button type="button" class="org-d" data-go="${k}" style="--c:${ROOMS[k].color}"><b>${DEPT[k].name}</b><span>${ORG_DEPT[k]}</span><em>체험한 업무 ${DEPT_MS[k].filter(msDone).length}/4</em></button>`).join('')}</div></div>
     <p class="fine org-link">우리 청 소식은 <a href="https://www.me.go.kr/mamo/" target="_blank" rel="noopener">수도권대기환경청 누리집 ↗</a>에서 볼 수 있어요.</p>
     <div class="m-btns">${MODE === 'kiosk' || curRoom !== 'office' ? '' : '<button class="btn" data-photo>청장님과 기념사진</button>'}<button class="btn primary" data-x>고맙습니다</button></div>`);
+  shareGrp('intro'); // 같이 다니는 사람들도 함께 봄
   const ph = $('[data-photo]', mcard); if (ph) ph.onclick = () => { closeModal(); setTimeout(takeChiefPhoto, 120); };
   mcard.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => {
     const d = navDests().find((x) => x.name === DEPT[b.dataset.go].name); closeModal();
@@ -3392,6 +3413,7 @@ function celebrate() { // 미션을 마치면 내 캐릭터와 마스코트가 �
 function showExtraDone(key, title, body) {
   const first = !state.extra[key];
   evalDone(key);
+  shareGrp('msok', { t: msTask(key) });
   openModal(`<div class="done-head"><div class="stamp-big star">★<small>업무 체험</small></div></div>
     <h2 class="center">${title}</h2><p>${body}</p>
     <div class="m-btns"><button class="btn primary" data-ok>${first ? '별 받기' : '확인'}</button></div>`);
@@ -5346,7 +5368,7 @@ function renderGrp() {
   el.hidden = false;
 }
 function quitGroup() { if (grp.lead === myId) endGroup(true); else leaveGroup(true); }
-function clearGrp() { Object.assign(grp, { g: '', lead: '', m: [], hold: 0 }); if (navGoal && navGoal.grp) navStop(); renderGrp(); }
+function clearGrp() { Object.assign(grp, { g: '', lead: '', m: [], hold: 0, ms: null }); if (navGoal && navGoal.grp) navStop(); dlgShared = 0; hideGdl(); renderGrp(); }
 function sendGrp() { grp.sent = T; pub('e', { id: myId, e: 'grp', k: 'set', g: grp.g, m: grp.m }); renderGrp(); } // 앞장선 사람이 줄 순서를 모두에게 알림 (4초마다 다시: 메시지가 빠져도 맞춰지게)
 function addToGroup(id) { // 앞장선 사람(또는 혼자인 사람)이 새 친구를 줄 맨 뒤에 붙임
   if (!grp.g) Object.assign(grp, { g: Math.random().toString(36).slice(2, 9), lead: myId, m: [myId] });
@@ -5377,10 +5399,55 @@ function onGrpMsg(m, p) {
   if (m.k === 'leave' && g && grp.g === g && grp.lead === myId) { dropMember(m.id, p.name, '빠져'); return; }
   if (m.k === 'end' && g && grp.g === g && m.id === grp.lead) { clearGrp(); toast(`<b>${esc(p.name)}</b> 님이 같이 다니기를 마쳤어요.`, 2200); return; }
   if (m.k === 'full' && m.to === myId) toast('그 줄은 이미 꽉 찼어요 (5명).', 2200);
+  if (g && grp.g === g && m.id === grp.lead && grp.lead !== myId) onLeadShare(m, p); // 앞장선 사람이 함께 보여 주는 것
+}
+/* ---- 같이 다니기: 앞장선 사람이 보는 대화·기관 소개·업무 소식을 줄 사람들도 함께 봄 ---- */
+function grpLeadN() { try { return grp.g && grp.lead === myId ? grp.m.length - 1 : 0; } catch (e) { return 0; } } // 앞장일 때 같이 다니는 사람 수
+function shareGrp(k, extra) { if (grpLeadN() > 0) pub('e', Object.assign({ id: myId, e: 'grp', k, g: grp.g }, extra)); }
+const gdl = { el: null, c: 0, shut: 0 }; // 함께 보기 창: 지금 대화 번호, 내가 닫은 대화 번호
+function gdlEl() {
+  if (!gdl.el) {
+    gdl.el = document.createElement('div'); gdl.el.className = 'gdl'; gdl.el.hidden = true; gdl.el.setAttribute('role', 'status'); gdl.el.setAttribute('aria-live', 'polite');
+    gdl.el.innerHTML = '<div class="gd-h"><span class="gd-who"></span><button type="button" class="gd-x" aria-label="함께 보기 닫기">✕</button></div><div class="who"><span class="nm"></span><span class="pg"></span></div><div class="txt"></div>';
+    $('.gd-x', gdl.el).addEventListener('click', () => { gdl.shut = gdl.c; gdl.el.hidden = true; });
+    document.body.appendChild(gdl.el);
+  }
+  return gdl.el;
+}
+function hideGdl() { if (gdl.el) gdl.el.hidden = true; }
+function safeRich(html) { // 받은 대사에서 굵게(b)·키(kbd)·줄바꿈만 남기고 나머지는 글자로 (다른 사람이 보낸 내용이라 안전하게)
+  const doc = new DOMParser().parseFromString(`<div>${String(html || '').slice(0, 1500)}</div>`, 'text/html'), out = [];
+  const walk = (node) => node.childNodes.forEach((c) => {
+    if (c.nodeType === 3) out.push(esc(c.textContent));
+    else if (c.nodeType === 1) { const t = c.tagName.toLowerCase(); if (t === 'br') out.push('<br>'); else if (t === 'b' || t === 'kbd') { out.push(`<${t}>`); walk(c); out.push(`</${t}>`); } else { if (c.classList.contains('sub')) out.push('<br>'); walk(c); } }
+  });
+  walk(doc.body.firstElementChild || doc.body);
+  return out.join('');
+}
+function onLeadShare(m, p) {
+  const busy = dialogOpen || modalOpen || dust.on || skyM.on || !!M.active || !started;
+  if (m.k === 'dlg') { // 앞장선 사람의 대화 한 쪽
+    const c = Number(m.c) || 0; if (!c || c === gdl.shut || busy) return; // 내가 닫았거나 내 할 일 중이면 방해하지 않음
+    const el = gdlEl(), first = el.hidden || gdl.c !== c; gdl.c = c;
+    $('.gd-who', el).textContent = `🚂 ${p.name} 님과 함께 보는 중`;
+    $('.nm', el).textContent = String(m.nm || '').slice(0, 24);
+    $('.pg', el).textContent = typeof m.pg === 'string' ? m.pg.slice(0, 9) : '';
+    const txt = $('.txt', el); txt.innerHTML = safeRich(m.tx); txt.classList.remove('in'); void txt.offsetWidth; txt.classList.add('in');
+    el.hidden = false; if (first) SFX.tick();
+  } else if (m.k === 'dlgx') { if (Number(m.c) === gdl.c) hideGdl(); }
+  else if (m.k === 'intro') { // 기관 소개
+    if (busy) toast(`🚂 <b>${esc(p.name)}</b> 님이 기관 소개를 보고 있어요. 청장실 청장님께 말을 걸면 나도 볼 수 있어요.`, 3000);
+    else { openOrgIntro(); toast(`🚂 <b>${esc(p.name)}</b> 님과 함께 기관 소개를 봐요`, 2200); }
+  } else if (m.k === 'ms') toast(`🚂 <b>${esc(p.name)}</b> 님이 「${esc(String(m.t || '').slice(0, 30))}」 업무를 시작했어요. 따라다니며 지켜봐요!`, 3200);
+  else if (m.k === 'msok') { SFX.chime(); toast(`🎉 <b>${esc(p.name)}</b> 님이 「${esc(String(m.t || '').slice(0, 30))}」 업무를 마쳤어요!`, 3200); }
 }
 function grpTick() { // 따라가는 사람: 바로 앞사람을 계속 따라감 (직접 움직이면 1.2초 쉬었다가 다시)
   if (!grp.g || !started) return;
-  if (grp.lead === myId) { if (T - (grp.sent || 0) > 4) sendGrp(); return; }
+  if (grp.lead === myId) {
+    if (T - (grp.sent || 0) > 4) sendGrp();
+    if (M.active !== grp.ms) { grp.ms = M.active; if (M.active && (DEPT[M.active] || XD[M.active])) shareGrp('ms', { t: msTask(M.active) }); } // 업무 시작 소식
+    return;
+  }
   if (!net.peers.has(grp.lead)) { clearGrp(); toast('앞장선 친구가 나가서 같이 다니기를 마쳤어요.'); return; }
   if (T - (grp.got || 0) > 13) { clearGrp(); toast('같이 다니기가 끝났어요.'); return; } // 앞장선 사람의 줄 소식이 끊김
   const ahead = grpAhead(); if (!ahead) return;
@@ -7043,7 +7110,7 @@ requestAnimationFrame(frame);
 window.__worldReady = true;
 if (location.hash === '#debug') window.__w = { state, player, van, sweeper, M, plan, lab, car, checkpoints, factories, fuelCans, cars, net, skyM, npcByKey, talkTo, checkFactory, startExtra, enterSky, exitSky, openCustomizer, sendChat, camera, interacts, renderer, scene, moveRoom, openRooms, GATES, zoneGroups, get curRoom() { return curRoom; }, get ctrl() { return ctrl; }, get mode() { return mode; }, get cur() { return cur; }, get perf() { return perf; }, keys, joy,
   step(n = 30, dt = 1 / 30) { for (let i = 0; i < n; i++) { last += dt * 1000; update(dt, last / 1000); } renderer.render(scene, camera); },
-  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, orbs, ORBS, collectOrb, rings, RINGS, ringsReset, seek, startSeek, endSeek, lanterns, launchLantern, openWish, award, BADGES, openBadges, FIRE, FIRE_SEAT, fireflies, checkBadges, showExtraDone, evalData, get evalSess() { return evalSess; }, SAVE_KEY, MODE, ROOM, get mpOn() { return mpOn; }, chief, talkChief, openOrgIntro, takeChiefPhoto, get photoUrl() { return photoUrl; }, duel, openDuel, joinDuel, goDuel, openDustChoice, sendDance, pact, openPeerMenu, peerAct, sendAsk, askAction, pickPeer, grp, addToGroup, leaveGroup, endGroup, quitGroup, grpTick, stat, statLog, STATS, STATS_ON, shareSite, savePhoto, statDone, showComplete, statError, certOk, EVENT, walkers, navDests, navTo, get navGoal() { return navGoal; }, nextGate, OFF_C, dust, startDust, stopDust, finishDust, hitMon, boardGet, boardAdd, BOARD_KEY, arcadeI, gardenI, GARDEN_FRONT, openGarden, growPlot, gardenSun, gplants, feedFish, pellets, lounge, openDress, applyAcc, mascots, sendEmo, floatEmoji, isRude, hasPrivate, softText, safeName, kioskReset, renderKioskPanel, drawQR, get kioskT() { return kioskT; }, set kioskT(v) { kioskT = v; }, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
+  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, orbs, ORBS, collectOrb, rings, RINGS, ringsReset, seek, startSeek, endSeek, lanterns, launchLantern, openWish, award, BADGES, openBadges, FIRE, FIRE_SEAT, fireflies, checkBadges, showExtraDone, evalData, get evalSess() { return evalSess; }, SAVE_KEY, MODE, ROOM, get mpOn() { return mpOn; }, chief, talkChief, openOrgIntro, takeChiefPhoto, get photoUrl() { return photoUrl; }, duel, openDuel, joinDuel, goDuel, openDustChoice, sendDance, pact, openPeerMenu, peerAct, sendAsk, askAction, pickPeer, grp, addToGroup, leaveGroup, endGroup, quitGroup, grpTick, stat, statLog, STATS, STATS_ON, shareSite, savePhoto, statDone, showComplete, statError, gdl, shareGrp, safeRich, talk, closeDialog, get dialogOpen() { return dialogOpen; }, certOk, EVENT, walkers, navDests, navTo, get navGoal() { return navGoal; }, nextGate, OFF_C, dust, startDust, stopDust, finishDust, hitMon, boardGet, boardAdd, BOARD_KEY, arcadeI, gardenI, GARDEN_FRONT, openGarden, growPlot, gardenSun, gplants, feedFish, pellets, lounge, openDress, applyAcc, mascots, sendEmo, floatEmoji, isRude, hasPrivate, softText, safeName, kioskReset, renderKioskPanel, drawQR, get kioskT() { return kioskT; }, set kioskT(v) { kioskT = v; }, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
   look(px, py, pz, tx, ty, tz) { camHold = true; camera.position.set(px, py, pz); camera.lookAt(tx, ty, tz); renderer.render(scene, camera); }, unlook() { camHold = false; } };
 </script>
 </body>
