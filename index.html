@@ -1037,7 +1037,7 @@ if (QS.has('event')) EVENT.on = true;
    시연(?demo), 내 컴퓨터(localhost), '추적 안 함'을 켠 브라우저에서는 보내지 않아요.
    --------------------------------------------------------- */
 const STATS = {
-  ga: '',                           // 구글 애널리틱스 4 측정 ID (예: 'G-AB12CD34EF')
+  ga: 'G-90VJDVTKXE',               // 구글 애널리틱스 4 측정 ID ('푸른하늘 업무체험관' 속성). 비우면 통계를 끔
 };
 const STATS_ON = /^G-[A-Z0-9]{4,20}$/.test(STATS.ga) && MODE !== 'demo' && !QS.has('nostats')
   && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && navigator.doNotTrack !== '1' && navigator.globalPrivacyControl !== true;
