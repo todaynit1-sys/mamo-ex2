@@ -753,6 +753,7 @@ input{-webkit-user-select:text;user-select:text}
         <button id="skyOnlyBtn" class="btn big ghost" type="button">하늘멍만 하기</button>
         <button id="resetBtn" class="linkish" hidden>기록을 지우고 처음부터 하기</button>
         <p class="fine" id="roomInfo"></p>
+        <p class="fine" id="statsInfo" hidden>방문 통계를 위해 구글 애널리틱스(쿠키)를 써요. 이름·채팅·사진은 보내지 않아요.</p>
       </div>
       <div class="start-cz">
         <p class="cz-title">내 캐릭터 만들기 <span>성별 · 얼굴 · 머리 · 옷을 골라 보세요</span></p>
@@ -1029,6 +1030,31 @@ const EVENT = {
   need: 4,                          // 인증샷 조건: 끝내야 하는 대표 업무(스탬프) 수 (1~4)
 };
 if (QS.has('event')) EVENT.on = true;
+/* ---------------------------------------------------------
+   방문 통계 — 구글 애널리틱스 4(무료). 측정 ID(G-로 시작)를 넣으면 켜지고, 비우면 아무것도 보내지 않아요.
+   보내는 것: 페이지 방문과 체험 단계(체험 시작·업무 완료·인증샷 등) 횟수.
+   이름·채팅·사진·방 이름은 보내지 않아요.
+   시연(?demo), 내 컴퓨터(localhost), '추적 안 함'을 켠 브라우저에서는 보내지 않아요.
+   --------------------------------------------------------- */
+const STATS = {
+  ga: '',                           // 구글 애널리틱스 4 측정 ID (예: 'G-AB12CD34EF')
+};
+const STATS_ON = /^G-[A-Z0-9]{4,20}$/.test(STATS.ga) && MODE !== 'demo' && !QS.has('nostats')
+  && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && navigator.doNotTrack !== '1' && navigator.globalPrivacyControl !== true;
+const statLog = [], statOnce = new Set(); // statLog: 보낸 기록 (#debug에서 확인용)
+function stat(name, params = {}) { // 체험 단계 하나를 통계로 보냄 (꺼져 있으면 기록만)
+  const p = Object.assign({ mode: MODE || 'web' }, params);
+  statLog.push([name, p]); if (statLog.length > 80) statLog.shift();
+  if (STATS_ON && window.gtag) { try { window.gtag('event', name, p); } catch (e) { /* ignore */ } }
+}
+function statFirst(name, params) { if (!statOnce.has(name)) { statOnce.add(name); stat(name, params); } } // 이 창에서 처음 한 번만
+if (STATS_ON) {
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function gtag() { window.dataLayer.push(arguments); };
+  window.gtag('js', new Date());
+  window.gtag('config', STATS.ga, { page_location: location.origin + location.pathname + (MODE ? `?${MODE}` : ''), page_title: '푸른하늘 업무체험관' }); // 주소의 방 이름 등은 빼고 보냄
+  const s = document.createElement('script'); s.async = true; s.src = `https://www.googletagmanager.com/gtag/js?id=${STATS.ga}`; document.head.appendChild(s);
+}
 const EVAL_KEY = 'mamo-world-eval';
 const EVAL_QS = [ // 05_체험효과_검증계획의 이해도 문항 초안 (담당부서 검토 뒤 진행자가 고칠 수 있음)
   '공장 주변의 휘발성유기화합물(VOC) 배출원 후보를 이동측정장비로 찾는 일은 어떤 목적과 연결될까요?',
@@ -1070,6 +1096,11 @@ const CERT_NEED = Math.min(4, Math.max(1, Math.round(Number(EVENT.need)) || 4));
 const certOk = () => doneCount() >= CERT_NEED; // 미션 완료 인증샷을 찍을 수 있는지
 state.certNo = typeof state.certNo === 'string' ? state.certNo.slice(0, 20) : ''; state.certShot = Number(state.certShot) || 0;
 const doneAll = () => doneCount() + Object.values(state.extra).filter(Boolean).length; // 16가지 업무 중 끝낸 수
+function statDone(kind, key) { // 통계: 업무 하나 완료, 대표 업무 4개 완료, 16가지 모두 완료
+  stat('mission_done', { kind, mission: key, total: doneAll() });
+  if (kind === 'main' && doneCount() === 4) stat('all_main_done');
+  if (doneAll() === 16) stat('all_16_done');
+}
 
 const DEPT = {
   plan: { name: '기획과', short: '기획', task: '이동측정 배출원 찾기' },
@@ -3036,7 +3067,7 @@ function showComplete(key, { title, body, steps }, after) {
     closeModal(); gardenSun();
     if (first) {
       SFX.stamp(); buzz([30, 50, 30]); celebrate();
-      state.done[key] = true; save();
+      state.done[key] = true; save(); statDone('main', key);
       const n = doneCount(); skyTarget = n / 4; refreshAll();
       toast(n === 4 ? '하늘이 완전히 맑아졌어요! 청사 앞 안내 직원에게 가 보세요.' : `${DEPT[key].name} 스탬프 획득! 하늘이 한층 맑아졌어요 (${n}/4)`, 3800);
     }
@@ -3126,7 +3157,7 @@ function talkGuide() {
   talk('안내 직원', [`지금까지 <b>${doneAll()}/16</b>가지 업무를 체험했어요. 대표 업무가 남은 곳은 ${left}예요. <b>바로 가기</b>로 고르면 알아서 걸어가요.${state.metChief ? '' : ' 청사 안 <b>청장실</b>에도 들러 보세요. 청장님이 우리 청을 소개해 줘요.'}`], [{ label: '닫기' }, { label: '바로 가기', primary: true, onClick: () => setTimeout(openNavPicker, 120) }]);
 }
 // ---- 청장님: 기관 소개 (청장실) ----
-function chiefDone() { if (!state.metChief) { state.metChief = true; save(); award('chief'); refreshAll(); } }
+function chiefDone() { if (!state.metChief) { state.metChief = true; save(); award('chief'); refreshAll(); stat('chief_meet'); } }
 function talkChief() {
   const n = chief, did = doneAll(), cert = certOk() && MODE !== 'kiosk'; n.rig.wave = 1.4;
   const photo = { label: cert ? '미션 완료 인증샷 찍기' : '기념사진 찍기', primary: cert, onClick: () => { chiefDone(); setTimeout(takeChiefPhoto, 150); } };
@@ -3214,6 +3245,7 @@ function takeChiefPhoto() {
   if (cert && !state.certNo) state.certNo = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
   if (cert) { state.certShot++; save(); }
   photoKind = cert ? 'cert' : 'visit';
+  stat(cert ? 'cert_photo' : 'chief_photo', { friends: friends.length });
   g.strokeStyle = '#c9a24a'; g.lineWidth = 6; g.strokeRect(40, 40, 1000, 1000);
   if (cert) { // 사진 오른쪽 위 '미션 완료' 도장
     g.save(); g.translate(902, 168); g.rotate(-0.21); g.globalAlpha = 0.92;
@@ -3248,11 +3280,13 @@ function takeChiefPhoto() {
     $('[data-x]', mcard).onclick = closeModal;
     $('[data-save]', mcard).onclick = savePhoto;
     $('[data-share]', mcard).onclick = sharePhoto;
+    const evA = $('.ev-box a', mcard); if (evA) evA.addEventListener('click', () => stat('event_entry')); // 통계: 이벤트 응모하기를 누름
   }, 380);
 }
 let photoKind = 'visit';
 function savePhoto() {
   if (!photoUrl) return;
+  stat('photo_keep', { how: 'save', cert: photoKind === 'cert' ? 1 : 0 });
   const a = document.createElement('a'); a.href = photoUrl; a.download = `${photoKind === 'cert' ? '미션완료-인증샷' : '청장실-기념사진'}-${todayStr()}.jpg`; document.body.appendChild(a); a.click(); a.remove();
   toast('사진을 저장했어요.');
 }
@@ -3261,7 +3295,7 @@ async function sharePhoto() {
   try {
     const cert = photoKind === 'cert', blob = await (await fetch(photoUrl)).blob(), file = new File([blob], cert ? '미션완료-인증샷.jpg' : '청장실-기념사진.jpg', { type: 'image/jpeg' });
     const text = cert ? `수도권대기환경청 푸른하늘 업무체험관 미션 완료! 청장님과 인증샷 찰칵 📸 ${EVENT.on ? `${EVENT.tag} ` : ''}${SITE_URL}` : `수도권대기환경청 청장실에서 기념사진 찰칵! ${SITE_URL}`;
-    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: '푸른하늘 업무체험관', text }); return; }
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { stat('photo_keep', { how: 'share', cert: cert ? 1 : 0 }); await navigator.share({ files: [file], title: '푸른하늘 업무체험관', text }); return; }
   } catch (e) { if (e && e.name === 'AbortError') return; }
   savePhoto(); toast('이 기기에서는 사진 공유가 안 돼서 저장했어요. 저장한 사진을 카톡·SNS에 올려 주세요.', 4200);
 }
@@ -3349,7 +3383,7 @@ function showExtraDone(key, title, body) {
   SFX.chime(); celebrate();
   $('[data-ok]', mcard).onclick = () => {
     closeModal(); gardenSun();
-    if (first) { state.extra[key] = true; save(); refreshAll(); SFX.stamp(); buzz([30, 50, 30]); toast(`업무 체험 별 획득! 지금까지 ${doneAll()}/16가지`); }
+    if (first) { state.extra[key] = true; save(); statDone('extra', key); refreshAll(); SFX.stamp(); buzz([30, 50, 30]); toast(`업무 체험 별 획득! 지금까지 ${doneAll()}/16가지`); }
     endExtra();
   };
 }
@@ -3607,6 +3641,7 @@ function enterMeong(kind, seat) { // 라운지 창가·연못 벤치, 언덕 모
   if (dialogOpen) closeDialog(); if (modalOpen) closeModal(); if (chatOpen) closeChat();
   SFX.init();
   Object.assign(skyM, { on: true, kind, seat, done: false, msgT: 0, mi: -1, bT: 0, inhale: null, a: 0, noteT: 1.2, fxT: 1.5, crT: 0.3, sat: 0 });
+  stat('meong', { kind });
   if (kind === 'fire' && (skyM.mood === 'day' || skyM.mood === 'rain')) skyM.mood = 'dusk'; // 모닥불은 해 질 녘부터
   setSkyMin(false); meongUI(kind);
   setCtrl(player); mode = 'sky'; moveTarget = null;
@@ -3649,6 +3684,7 @@ function enterSky() {
   if (dialogOpen) closeDialog(); if (modalOpen) closeModal(); if (chatOpen) closeChat();
   SFX.init();
   skyM.on = true; skyM.kind = 'sky'; skyM.seat = null; skyM.done = false; skyM.msgT = 0; skyM.mi = -1; skyM.bT = 0; skyM.inhale = null; skyM.a = 0; setSkyMin(false); meongUI('sky');
+  stat('meong', { kind: 'sky' });
   setCtrl(player); mode = 'sky'; moveTarget = null;
   if (!state.meong.sky) { state.meong.sky = true; save(); checkBadges(); }
   player.pos.set(REST.x, 0.19, REST.z); player.heading = 0; player.rig.root.rotation.x = -Math.PI / 2;
@@ -4823,6 +4859,7 @@ const softText = (s) => (isRude(s) ? '♡♡♡' : String(s || '').replace(new R
 const safeName = (s) => { const n = cleanName(s); return isRude(n) || hasPrivate(n) ? '방문자' : n; };
 function shareSite(text) { // 휴대폰은 공유 창(카톡·SNS), PC는 문구 복사
   const data = { title: '푸른하늘 업무체험관', text, url: SITE_URL };
+  stat('share', { method: navigator.share ? 'share' : 'copy' });
   if (navigator.share) { navigator.share(data).catch(() => {}); return; }
   const s = `${text} ${SITE_URL}`;
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(s).then(() => toast('공유 문구를 복사했어요. 카톡이나 SNS에 붙여 넣어 보세요.'), () => toast(esc(s), 6000));
@@ -4846,6 +4883,7 @@ function startDust(from = 'menu') {
   if (modalOpen) closeModal(); if (skyM.on) exitSky(true); if (fly.on) endFly(true); if (dialogOpen) closeDialog(); if (chatOpen) closeChat();
   SFX.init(); navStop();
   Object.assign(dust, { on: true, phase: 'count', t: 0, cd: 3.2, endT: 0, score: 0, popped: 0, combo: 0, maxCombo: 0, lastPop: -9, spawnT: 0.3, mons: [], parts: [], winds: 0, from });
+  stat('dust_game', { from });
   mode = 'cutscene'; dgEl.hidden = false; document.body.classList.add('dusting'); dustResize(); dustUI(); $('#dgTime').textContent = String(DUST_SEC);
   dustMsg('준비!', true);
 }
@@ -5150,6 +5188,7 @@ function grpBtn(p) { // 함께하기 메뉴 맨 위 '같이 다니기' 버튼
 }
 function peerAct(k, p) {
   if (!net.peers.has(p.id)) { toast(`<b>${esc(p.name)}</b> 님이 방을 나갔어요.`); return; }
+  stat('peer_act', { act: k });
   const near = p.sp === curRoom && flatDist(p.vehObj ? p.vehObj.position : p.pos, ctrl.pos) < 3;
   if (k === 'hi') { if (T - pact.lastHi < 1.5) return; pact.lastHi = T; if (ctrl === player) faceTowards(p); doWave(); floatEmoji(meAt, '👋', 2.9); pub('e', { id: myId, e: 'hi', to: p.id }); toast(`<b>${esc(p.name)}</b> 님에게 손을 흔들었어요 👋`, 1800); }
   else if (k === 'heart') { if (T - pact.lastHeart < 1.2) return; pact.lastHeart = T; flyEmoji(meAt, peerAt(p), '❤️'); SFX.pop(); pub('e', { id: myId, e: 'heart', to: p.id }); toast(`<b>${esc(p.name)}</b> 님에게 하트를 보냈어요 ❤️`, 1800); }
@@ -5298,7 +5337,7 @@ function addToGroup(id) { // 앞장선 사람(또는 혼자인 사람)이 새 �
   if (!grp.g) Object.assign(grp, { g: Math.random().toString(36).slice(2, 9), lead: myId, m: [myId] });
   if (grp.lead !== myId || grp.m.includes(id)) return false;
   if (grp.m.length >= GRP_MAX) { pub('e', { id: myId, e: 'grp', k: 'full', to: id }); toast(`같이 다니기는 ${GRP_MAX}명까지예요.`); return false; }
-  grp.m.push(id); sendGrp(); SFX.chime();
+  grp.m.push(id); sendGrp(); SFX.chime(); stat('group_walk', { role: 'lead', size: grp.m.length });
   const p = net.peers.get(id); toast(`🚂 <b>${p ? esc(p.name) : '친구'}</b> 님이 같이 다녀요! 내가 앞장서면 줄줄이 따라와요.`, 2800); return true;
 }
 function leaveGroup(tell) { if (!grp.g || grp.lead === myId) return; if (tell) pub('e', { id: myId, e: 'grp', k: 'leave', g: grp.g }); clearGrp(); if (tell) toast('같이 다니기에서 빠졌어요.'); }
@@ -5316,7 +5355,7 @@ function onGrpMsg(m, p) {
     if (list.includes(myId)) {
       if (grp.g && grp.g !== g && grp.lead === myId) return; // 내가 다른 줄 앞장이면 무시
       const was = grp.g === g; Object.assign(grp, { g, lead: m.id, m: list, got: T }); renderGrp();
-      if (!was) { SFX.chime(); toast(`🚂 <b>${esc(p.name)}</b> 님과 같이 다녀요! 앞사람을 줄줄이 따라가요. 직접 움직이면 잠깐 멈췄다가 다시 따라가요.`, 3600); }
+      if (!was) { SFX.chime(); stat('group_walk', { role: 'follow', size: list.length }); toast(`🚂 <b>${esc(p.name)}</b> 님과 같이 다녀요! 앞사람을 줄줄이 따라가요. 직접 움직이면 잠깐 멈췄다가 다시 따라가요.`, 3600); }
     } else if (grp.g === g) clearGrp(); // 줄에서 빠졌음
     return;
   }
@@ -6000,6 +6039,7 @@ function makePeer(m) {
   const el = document.createElement('div'); el.className = 'tag other';
   p.dot = document.createElement('i'); p.nameEl = document.createElement('span'); p.nameEl.textContent = p.name; el.append(p.dot, p.nameEl);
   el.title = '눌러서 함께하기'; el.addEventListener('click', (e) => { e.stopPropagation(); openPeerMenu(p); }); // 이름표를 눌러도 함께하기 메뉴
+  statFirst('play_together'); // 통계: 이 창에서 처음 다른 사람을 만남
   setPeerLook(p, typeof m.a === 'string' ? m.a : '');
   p.pos.set(clamp(Number(m.x) || 0, -240, 240), 0, clamp(Number(m.z) || 0, -240, 240));
   const at = (v) => v.copy(p.vehObj ? p.vehObj.position : p.pos);
@@ -6361,6 +6401,7 @@ navBtn.addEventListener('click', (e) => { e.stopPropagation(); onNavBtn(); });
 let startCz = mountCreator($('#czStart'), state.avatar, () => { state.color = state.avatar.shirt; save(); });
 $('#czStart').addEventListener('pointerdown', () => SFX.init(), { once: true });
 if (hadSave && state.name) { $('#nameIn').value = state.name; $('#enterBtn').textContent = `이어서 입장하기 (${doneCount()}/4)`; $('#resetBtn').hidden = false; }
+if (STATS_ON) $('#statsInfo').hidden = false; // 통계를 켰을 때만 시작 화면에 안내
 $('#roomInfo').textContent = mpOn ? `같은 링크로 들어온 사람끼리 만나 채팅할 수 있어요 · 방 이름: ${ROOM}` : '혼자 체험 모드예요. 메뉴에서 여럿이 함께를 켤 수 있어요.';
 $('#resetBtn').onclick = () => { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ } location.reload(); };
 $('#nameIn').addEventListener('keydown', (e) => { if (e.key === 'Enter') { if (MODE === 'kiosk') kioskDust(); else enterGame(); } });
@@ -6684,6 +6725,7 @@ if (MODE === 'eval') {
 function enterGame(skyOnly, then) { // then: 들어가자마자 할 일 (키오스크의 미세먼지 잡기 도전)
   if (started) return;
   SFX.init();
+  const back = !!state.metGuide; // 통계: 다시 온 사람인지
   if (startCz) { startCz.stop(); startCz = null; }
   state.name = safeName($('#nameIn').value || state.name); save();
   if (!player.rig) { createPlayer(); selfBubble = makeBubble((v) => v.copy(ctrl.pos), () => (ctrl.kind === 'walk' ? (skyM.on ? 1.6 : 3.25) : 4.6)); }
@@ -6694,6 +6736,7 @@ function enterGame(skyOnly, then) { // then: 들어가자마자 할 일 (키오�
   if (first === 'sky') first = 'lobby';
   setRoom(first); const R = ROOMS[first]; player.pos.set(R.spawn[0], 0, R.spawn[1]); player.heading = R.face; placeMascots();
   $('#start').hidden = true; $('#hud').hidden = false; started = true;
+  stat('game_start', { start: skyOnly ? 'sky' : then ? 'dust' : 'walk', returning: back ? 1 : 0 });
   sizeMinimap(); refreshAll(); refreshMenu(); canvas.focus({ preventScroll: true }); SFX.ok();
   if (then) then();
   else if (skyOnly) { if (!state.metGuide) { state.metGuide = true; save(); refreshAll(); } enterSky(); }
@@ -6985,7 +7028,7 @@ requestAnimationFrame(frame);
 window.__worldReady = true;
 if (location.hash === '#debug') window.__w = { state, player, van, sweeper, M, plan, lab, car, checkpoints, factories, fuelCans, cars, net, skyM, npcByKey, talkTo, checkFactory, startExtra, enterSky, exitSky, openCustomizer, sendChat, camera, interacts, renderer, scene, moveRoom, openRooms, GATES, zoneGroups, get curRoom() { return curRoom; }, get ctrl() { return ctrl; }, get mode() { return mode; }, get cur() { return cur; }, get perf() { return perf; }, keys, joy,
   step(n = 30, dt = 1 / 30) { for (let i = 0; i < n; i++) { last += dt * 1000; update(dt, last / 1000); } renderer.render(scene, camera); },
-  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, orbs, ORBS, collectOrb, rings, RINGS, ringsReset, seek, startSeek, endSeek, lanterns, launchLantern, openWish, award, BADGES, openBadges, FIRE, FIRE_SEAT, fireflies, checkBadges, showExtraDone, evalData, get evalSess() { return evalSess; }, SAVE_KEY, MODE, ROOM, get mpOn() { return mpOn; }, chief, talkChief, openOrgIntro, takeChiefPhoto, get photoUrl() { return photoUrl; }, duel, openDuel, joinDuel, goDuel, openDustChoice, sendDance, pact, openPeerMenu, peerAct, sendAsk, askAction, pickPeer, grp, addToGroup, leaveGroup, endGroup, quitGroup, grpTick, certOk, EVENT, walkers, navDests, navTo, get navGoal() { return navGoal; }, nextGate, OFF_C, dust, startDust, stopDust, finishDust, hitMon, boardGet, boardAdd, BOARD_KEY, arcadeI, gardenI, GARDEN_FRONT, openGarden, growPlot, gardenSun, gplants, feedFish, pellets, lounge, openDress, applyAcc, mascots, sendEmo, floatEmoji, isRude, hasPrivate, softText, safeName, kioskReset, renderKioskPanel, drawQR, get kioskT() { return kioskT; }, set kioskT(v) { kioskT = v; }, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
+  act() { onAction(); }, hold(v) { actionHeld = v; }, tap(x, y) { handleTap(x, y); }, mascots, startFly, enterMeong, setMood, lounge, WIN_SEATS, POND_SEAT, cat, reader, navTo, navStop, findPath, navGrid, navDests, onNavBtn, startPlan, startCar, abortMission, SFX, orbs, ORBS, collectOrb, rings, RINGS, ringsReset, seek, startSeek, endSeek, lanterns, launchLantern, openWish, award, BADGES, openBadges, FIRE, FIRE_SEAT, fireflies, checkBadges, showExtraDone, evalData, get evalSess() { return evalSess; }, SAVE_KEY, MODE, ROOM, get mpOn() { return mpOn; }, chief, talkChief, openOrgIntro, takeChiefPhoto, get photoUrl() { return photoUrl; }, duel, openDuel, joinDuel, goDuel, openDustChoice, sendDance, pact, openPeerMenu, peerAct, sendAsk, askAction, pickPeer, grp, addToGroup, leaveGroup, endGroup, quitGroup, grpTick, stat, statLog, STATS, STATS_ON, shareSite, savePhoto, statDone, showComplete, certOk, EVENT, walkers, navDests, navTo, get navGoal() { return navGoal; }, nextGate, OFF_C, dust, startDust, stopDust, finishDust, hitMon, boardGet, boardAdd, BOARD_KEY, arcadeI, gardenI, GARDEN_FRONT, openGarden, growPlot, gardenSun, gplants, feedFish, pellets, lounge, openDress, applyAcc, mascots, sendEmo, floatEmoji, isRude, hasPrivate, softText, safeName, kioskReset, renderKioskPanel, drawQR, get kioskT() { return kioskT; }, set kioskT(v) { kioskT = v; }, get nav() { return nav; }, get navGoal() { return navGoal; }, get pendingAct() { return pendingAct; },
   look(px, py, pz, tx, ty, tz) { camHold = true; camera.position.set(px, py, pz); camera.lookAt(tx, ty, tz); renderer.render(scene, camera); }, unlook() { camHold = false; } };
 </script>
 </body>
